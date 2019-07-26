@@ -70,6 +70,20 @@ namespace WritingExporter.WinForms
             process.StartInfo = startInfo;
             process.Start();
         }
+
+        private const int MAX_STACK_TRACE_LINES = 8;
+        public void ShowExceptionDialog(Exception ex)
+        {
+            var sb = new StringBuilder();
+            sb.AppendLine("An unhandled exception was encountered.");
+            sb.AppendLine(ex.GetType().Name);
+            sb.AppendLine(ex.Message);
+            sb.AppendLine();
+            sb.AppendLine("Stack trace:");
+            sb.AppendLine(ex.StackTrace); // TODO should there be protection in case this is massive?
+
+            _ShowMessageBox(null, $"Unhandled exception: {ex.GetType().Name}", sb.ToString(), GuiMessageBoxIcon.Error);
+        }
     }
 
     

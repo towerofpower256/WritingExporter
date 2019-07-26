@@ -11,6 +11,7 @@ namespace WritingExporter.Common.Gui
         void ShowMessageBoxDialog(object parent, string title, string message, GuiMessageBoxIcon icon);
         void ShowMessageBox(string title, string message, GuiMessageBoxIcon icon);
         void ShellExecute(string command);
+        void ShowExceptionDialog(Exception ex);
         void Start();
     }
 }

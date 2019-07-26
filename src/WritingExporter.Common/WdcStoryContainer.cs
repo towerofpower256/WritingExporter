@@ -84,7 +84,7 @@ namespace WritingExporter.Common
             {
                 try
                 {
-                    _log.Debug("Checking if any stories need saving");
+                    //_log.Debug("Checking if any stories need saving");
 
                     ct.ThrowIfCancellationRequested();
 

@@ -139,9 +139,9 @@ namespace WritingExporter.Common.StorySync
             lock (_storyStatusLock)
             {
                 _SetStoryStatus(newStatus);
-
-                DoStoryStatusChange(newStatus);
             }
+            
+            DoStoryStatusChange(newStatus);
         }
 
         private void _SetStoryStatus(StorySyncWorkerStoryStatus newStatus)
@@ -395,8 +395,6 @@ namespace WritingExporter.Common.StorySync
 
                 try
                 {
-                    _log.Debug($"Working story: {story.ID}");
-
                     // Skip this story if we're still waiting for the ITU pause to be over
                     if (storyStatus.State == StorySyncWorkerStoryState.WaitingItu)
                     {
@@ -404,7 +402,7 @@ namespace WritingExporter.Common.StorySync
                         if ((storyStatus.LastItu + new TimeSpan(0, 0, ituPauseDuration)) > DateTime.Now) // if the last ITU + the pause duration is in the future
                         {
                             int secondsLeft = Convert.ToInt32((storyStatus.LastItu + new TimeSpan(0, 0, ituPauseDuration) - DateTime.Now).TotalSeconds);
-                            _log.Debug($"Still waiting for ITU cooldown for '{story.ID}', {secondsLeft}s remaining.");
+                            _log.Debug($"ITU cooldown for '{story.ID}', {secondsLeft}s remaining");
                             continue;
                         }
                     }
@@ -449,7 +447,9 @@ namespace WritingExporter.Common.StorySync
 
         private async Task SyncStory(WdcInteractiveStory story)
         {
+            _log.Debug($"Syncing story '{story.ID}'");
             var ct = _ctSource.Token;
+            ct.ThrowIfCancellationRequested();
 
             // Update story's status, mark as in progress
             //SetStoryStatusState(story.ID, StorySyncWorkerStoryState.Working);
@@ -481,6 +481,8 @@ namespace WritingExporter.Common.StorySync
                     _log.Debug("Story chapter outline does not need updating");
                 }
 
+                ct.ThrowIfCancellationRequested();
+
                 // Build a list of chapters that need updating
                 SetCurrentStatus(StorySyncWorkerState.WorkingStory, $"Checking for any chapters that need syncing: {story.ID}", story.ID);
                 List<WdcInteractiveChapter> chaptersToSync = new List<WdcInteractiveChapter>();
@@ -493,14 +495,20 @@ namespace WritingExporter.Common.StorySync
 
                 // If there are no chapters to update, set progress to maximum
                 if (chaptersToSync.Count < 1)
+                {
                     SetStoryStatusProgress(story.ID, story.Chapters.Count, story.Chapters.Count);
+                    _log.Debug("No chapters need updating");
+                }
                 else
+                {
                     SetStoryStatusState(story.ID, StorySyncWorkerStoryState.Working); // About to start working
-
+                }
 
                 // Start syncing the chapters
                 for (var i = 0; i < chaptersToSync.Count; i++)
                 {
+                    ct.ThrowIfCancellationRequested();
+
                     var chapter = chaptersToSync[i];
 
                     // Update status
@@ -560,6 +568,8 @@ namespace WritingExporter.Common.StorySync
                 sb.AppendLine(ex.Message);
 
                 SetStoryStatusError(story.ID, sb.ToString());
+
+                _gui.ShowExceptionDialog(ex);
             }
 
             SetCurrentStatus(StorySyncWorkerState.Idle, $"Story update complete: {story.ID}", string.Empty);
@@ -569,9 +579,9 @@ namespace WritingExporter.Common.StorySync
         private async Task SyncStoryInfo(WdcInteractiveStory story)
         {
             var ct = _ctSource.Token;
-            
+            ct.ThrowIfCancellationRequested();
 
-            _log.InfoFormat("Syncing story: {0}", story.ID);
+            _log.InfoFormat("Syncing story info: {0}", story.ID);
 
             var remoteStory = await _wdcReader.GetInteractiveStory(story.ID, _wdcClient, _ctSource.Token);
             ct.ThrowIfCancellationRequested();
@@ -592,7 +602,10 @@ namespace WritingExporter.Common.StorySync
         private async Task SyncStoryChapterList(WdcInteractiveStory story)
         {
             var ct = _ctSource.Token;
-            // TODO: should this be here? Isn't this done in the worker main loop?
+            ct.ThrowIfCancellationRequested();
+
+            _log.Debug($"Syncing chapter outline for story '{story.ID}'");
+
             this.SetCurrentStatus(StorySyncWorkerState.WorkingOutline, $"Updating story chapter list: {story.ID}");
 
             var remoteChapterList = await _wdcReader.GetInteractiveChapterList(story.ID, _wdcClient, ct);
@@ -631,6 +644,8 @@ namespace WritingExporter.Common.StorySync
         {
             var ct = _ctSource.Token;
             ct.ThrowIfCancellationRequested();
+
+            _log.Debug($"Syncing story '{story.ID}' chapter '{chapter.Path}'");
 
             // Update the story status
             // TODO

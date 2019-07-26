@@ -15,6 +15,11 @@ namespace WritingExporter.Common.Gui
             _log.Info("ShellExecute");
         }
 
+        public void ShowExceptionDialog(Exception ex)
+        {
+            _log.Warn("Exception", ex);
+        }
+
         public void ShowMessageBox(string title, string message, GuiMessageBoxIcon icon)
         {
             _log.Info("ShowMessageBox");
