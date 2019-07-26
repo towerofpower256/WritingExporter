@@ -531,7 +531,11 @@ namespace WritingExporter.Common.StorySync
                 _log.Warn("", ex);
 
                 // Dump the HTML
-                var dumpFilePath = _fileDumper.DumpFile(ex.Address, ex.HtmlResult);
+                var sbDump = new StringBuilder();
+                sbDump.AppendLine($"<!-- Exception: {ex.Message} -->");
+                sbDump.AppendLine($"<!-- URL: {ex.Address} -->");
+                sbDump.AppendLine(ex.HtmlResult);
+                var dumpFilePath = _fileDumper.DumpFile("HtmlParseError", sbDump.ToString());
 
                 // Show an error message
                 var sbExMsg = new StringBuilder();
