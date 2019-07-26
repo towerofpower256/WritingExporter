@@ -528,7 +528,7 @@ namespace WritingExporter.Common.StorySync
             }
             catch (WritingClientHtmlParseException ex)
             {
-                _log.Warn("", ex);
+                _log.Warn("Error trying to parse HTML from Writing.com", ex);
 
                 // Dump the HTML
                 var sbDump = new StringBuilder();

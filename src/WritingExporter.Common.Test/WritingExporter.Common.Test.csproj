@@ -63,6 +63,7 @@
     <Compile Include="FileDumperTest.cs" />
     <Compile Include="StorySyncWorkerTest.cs" />
     <Compile Include="StoryExportTest.cs" />
+    <Compile Include="WdcReaderTitleTests.cs" />
     <Compile Include="WdcReaderTests.cs" />
   </ItemGroup>
   <ItemGroup>

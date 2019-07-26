@@ -122,7 +122,7 @@ namespace WritingExporter.Common.Wdc
         }
 
         // Get the chapter's title
-        public string GetInteractiveChapterTitle(WdcResponse payload) => GetInteractiveChapterTitleM2(payload);
+        public string GetInteractiveChapterTitle(WdcResponse payload) => GetInteractiveChapterTitleM3(payload);
 
         // Get chapter title
         // Method 1. Get it from the "Your path to this chapter"
@@ -154,6 +154,28 @@ namespace WritingExporter.Common.Wdc
             if (!chapterTitleMatch.Success)
                 throw new WritingClientHtmlParseException($"Couldn't find the chapter title for chapter '{payload.Address}'", payload.Address, payload.WebResponse);
             return HttpUtility.HtmlDecode(chapterTitleMatch.Value);
+        }
+
+        // Get chapter title
+        // Method 3. Get it from within the page title.
+        // So it looks like paid users get some sort of dynamic reading pages
+        // where it AJAX loads chapter pages instead of loading static pages.
+        // This should solve this by getting it from the page title.
+        private string GetInteractiveChapterTitleM3(WdcResponse payload)
+        {
+            string pageTitlePattern = @"(?<=<title>).*?(?=<\/title>)";
+
+            Regex pageTitleRegex = new Regex(pageTitlePattern, RegexOptions.IgnoreCase | RegexOptions.Singleline);
+            Match pageTitleMatch = pageTitleRegex.Match(payload.WebResponse);
+            if (!pageTitleMatch.Success)
+                throw new WritingClientHtmlParseException($"Couldn't find the page title on page '{payload.Address}'", payload.Address, payload.WebResponse);
+
+            // Got the page title value, try to parse it
+            var titleResponse = ReadPageTitle(pageTitleMatch.Value);
+            if (string.IsNullOrEmpty(titleResponse.PageName))
+                throw new WritingClientHtmlParseException($"Couldn't find the chapter title in the page title for chapter '{payload.Address}'", payload.Address, payload.WebResponse);
+
+            return titleResponse.PageName;
         }
 
         // Search for the choice that lead to this chapter
@@ -301,5 +323,48 @@ namespace WritingExporter.Common.Wdc
             Regex chapterEndRegex = new Regex(">You have come to the end of the story. You can:<\\/");
             return chapterEndRegex.IsMatch(payload.WebResponse);
         }
+
+        private const char TITLE_SEPARATOR = ':';
+        public WdcTitleReaderResult ReadPageTitle(string pageTitle)
+        {
+            var r = new WdcTitleReaderResult();
+
+            if (string.IsNullOrEmpty(pageTitle)) return r;
+
+            // Start by trimming off the " - Writing.com"
+            Regex titleTailPattern = new Regex(" - writing\\.com", RegexOptions.IgnoreCase);
+            pageTitle = titleTailPattern.Replace(pageTitle, "");
+
+            // Look for the ": ", and split it
+            var indexOfSeparator = pageTitle.IndexOf(TITLE_SEPARATOR);
+            if (indexOfSeparator < 0)
+            {
+                // Didn't find separator, is just a simple page name
+                r.StoryName = WdcUtil.CleanHtmlSymbols(pageTitle.Trim());
+            }
+            else
+            {
+                // Found separator, there are 2 parts
+                var pageTitleSplit = pageTitle.Split(TITLE_SEPARATOR);
+
+                // THe recent chapters page uses "Recent chapters: (story title)"
+                bool backwards = pageTitleSplit[0] == "Recent Chapters";
+
+                r.StoryName = WdcUtil.CleanHtmlSymbols(
+                    pageTitleSplit[backwards ? 1 : 0].Trim()
+                    );
+                r.PageName = WdcUtil.CleanHtmlSymbols(
+                    pageTitleSplit[backwards ? 0 : 1].Trim()
+                    );
+            }
+
+            return r;
+        }
+    }
+
+    public class WdcTitleReaderResult
+    {
+        public string StoryName { get; set; } = string.Empty;
+        public string PageName { get; set; } = string.Empty;
     }
 }
