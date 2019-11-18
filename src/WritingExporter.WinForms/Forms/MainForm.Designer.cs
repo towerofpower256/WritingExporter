@@ -177,7 +177,7 @@
             this.tlStoryPanel.Name = "tlStoryPanel";
             this.tlStoryPanel.RowCount = 1;
             this.tlStoryPanel.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.tlStoryPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
+            this.tlStoryPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 379F));
             this.tlStoryPanel.Size = new System.Drawing.Size(282, 379);
             this.tlStoryPanel.TabIndex = 1;
             // 
@@ -222,6 +222,7 @@
             this.txtStoryInfo.Multiline = true;
             this.txtStoryInfo.Name = "txtStoryInfo";
             this.txtStoryInfo.ReadOnly = true;
+            this.txtStoryInfo.ScrollBars = System.Windows.Forms.ScrollBars.Both;
             this.txtStoryInfo.Size = new System.Drawing.Size(282, 379);
             this.txtStoryInfo.TabIndex = 0;
             // 

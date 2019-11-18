@@ -220,7 +220,7 @@ namespace WritingExporter.Common.Wdc
         // <a title="Username: rpcity Member Since: July 4th, 2002 Click for links!" style="font - size:1em; font - weight:bold; cursor: pointer; ">SmittySmith</a>
         public WdcAuthor GetInteractiveChapterAuthor(WdcResponse payload)
         {
-            Regex chapterAuthorChunkRegex = new Regex("<a title=\"Username: .*?<\\/a>", RegexOptions.IgnoreCase | RegexOptions.Singleline);
+            Regex chapterAuthorChunkRegex = new Regex("<a title=\" Username: .*?<\\/a>", RegexOptions.IgnoreCase | RegexOptions.Singleline);
             Match chapterAuthorChunkMatch = chapterAuthorChunkRegex.Match(payload.WebResponse);
             if (!chapterAuthorChunkMatch.Success)
                 throw new WritingClientHtmlParseException($"Couldn't find the HTML chunk containing the author for the interactive chapter '{payload.Address}'", payload.Address, payload.WebResponse);

@@ -180,9 +180,6 @@ namespace WritingExporter.Common
             // Set the logging level
             hierarchy.Root.Level = ParseLevel(logLevel);
             hierarchy.Configured = true;
-
-            //ILogger log = LogManager.GetLogger(typeof(LogManager));
-            //log.InfoFormat("Logging setup at level: {0}", hierarchy.Root.Level.DisplayName);
         }
 
         /// <summary>
