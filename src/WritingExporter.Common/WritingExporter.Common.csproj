@@ -59,7 +59,7 @@
     <Compile Include="Storage\IFileDumper.cs" />
     <Compile Include="StorySync\StorySyncWorkerStoryStatus.cs" />
     <Compile Include="StorySync\StorySyncWorkerStoryStatusEventArgs.cs" />
-    <Compile Include="Wdc\BaseWdcClient.cs" />
+    <None Include="Wdc.Old\BaseWdcClient.cs" />
     <Compile Include="Configuration\BaseConfigSection.cs" />
     <Compile Include="Configuration\ConfigProvider.cs" />
     <Compile Include="Configuration\IConfigProvider.cs" />
@@ -71,8 +71,8 @@
     <Compile Include="DataUtil.cs" />
     <Compile Include="ILogFactory.cs" />
     <Compile Include="ILogger.cs" />
-    <Compile Include="Wdc\IWdcClient.cs" />
-    <Compile Include="Wdc\IWdcReader.cs" />
+    <None Include="Wdc.Old\IWdcClient.cs" />
+    <None Include="Wdc.Old\IWdcReader.cs" />
     <Compile Include="IWdcStoryContainer.cs" />
     <Compile Include="StorySync\DummyStorySyncWorker.cs" />
     <Compile Include="StorySync\IStorySyncWorker.cs" />
@@ -80,7 +80,7 @@
     <Compile Include="Log4NetLogger.cs" />
     <Compile Include="LogManager.cs" />
     <Compile Include="Models\WdcAuthor.cs" />
-    <Compile Include="Models\WdcResponse.cs" />
+    <Compile Include="Models\WdcPayload.cs" />
     <Compile Include="Models\WdcInteractiveChapter.cs" />
     <Compile Include="Models\WdcInteractiveChapterChoice.cs" />
     <Compile Include="Models\WdcInteractiveStory.cs" />
@@ -91,12 +91,15 @@
     <Compile Include="StorySync\StorySyncWorkerState.cs" />
     <Compile Include="StorySync\StorySyncWorkerStatus.cs" />
     <Compile Include="StorySync\StorySyncWorkerStatusEventArgs.cs" />
-    <Compile Include="Wdc\WdcClient.cs" />
-    <Compile Include="Wdc\WdcReader.cs" />
+    <None Include="Wdc.Old\WdcClient.cs" />
+    <None Include="Wdc.Old\WdcReader.cs" />
     <Compile Include="Export\WdcStoryExporterHtmlCollection.cs" />
     <Compile Include="WdcStoryContainer.cs" />
     <Compile Include="StorySync\StorySyncWorker.cs" />
-    <Compile Include="Wdc\WdcUtil.cs" />
+    <None Include="Wdc.Old\WdcUtil.cs" />
+    <Compile Include="WDC\WdcReader.cs" />
+    <Compile Include="WDC\WdcReaderSettings.cs" />
+    <Compile Include="WDC\WdcUtil.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

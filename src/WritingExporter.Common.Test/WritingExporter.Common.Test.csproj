@@ -63,11 +63,12 @@
     <Compile Include="FileDumperTest.cs" />
     <Compile Include="StorySyncWorkerTest.cs" />
     <Compile Include="StoryExportTest.cs" />
-    <Compile Include="WdcReaderTitleTests.cs" />
-    <Compile Include="WdcReaderTests.cs" />
+    <Compile Include="OLD 22-12-2019\WdcReaderTitleTests.cs" />
+    <Compile Include="OLD 22-12-2019\WdcReaderTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+    <None Include="WdcTestData\2019-12-22_wdc_story_overview.json" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\WritingExporter.Common\WritingExporter.Common.csproj">
@@ -76,32 +77,32 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Data\expected_set_13_06_2019\WdcReaderInteractiveChapter1_Content.txt" />
+    <EmbeddedResource Include="OLD 22-12-2019\Data\expected_set_13_06_2019\WdcReaderInteractiveChapter1_Content.txt" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Data\sample_set_13_06_2019\Alice the Fat Cheerleader - homepage - access restricted but OK.html" />
-    <EmbeddedResource Include="Data\sample_set_13_06_2019\Interactives unavailable - logged in.html" />
-    <EmbeddedResource Include="Data\sample_set_13_06_2019\Interactives unavailable - logged out.html" />
-    <EmbeddedResource Include="Data\sample_set_13_06_2019\Looking for adventure - chapter 1 - logged in.html" />
-    <EmbeddedResource Include="Data\sample_set_13_06_2019\Looking for adventure - chapter 1 - logged out.html" />
-    <EmbeddedResource Include="Data\sample_set_13_06_2019\Looking for adventure - chapter 11 - logged in.html" />
-    <EmbeddedResource Include="Data\sample_set_13_06_2019\Looking for adventure - chapter 121 - logged out.html" />
-    <EmbeddedResource Include="Data\sample_set_13_06_2019\Looking for adventure - chapter 1211222 - logged in.html" />
-    <EmbeddedResource Include="Data\sample_set_13_06_2019\Looking for adventure - homepage - logged in.html" />
-    <EmbeddedResource Include="Data\sample_set_13_06_2019\Looking for adventure - outline - logged in.html" />
-    <EmbeddedResource Include="Data\sample_set_13_06_2019\Looking for adventure - outline - logged out.html" />
-    <EmbeddedResource Include="Data\sample_set_13_06_2019\Looking for adventure - recent chapters - logged in.html" />
-    <EmbeddedResource Include="Data\sample_set_13_06_2019\Looking for adventure - recent chapters - logged out.html" />
-    <EmbeddedResource Include="Data\sample_set_13_06_2019\Story access restricted - not logged in.html" />
-    <EmbeddedResource Include="Data\sample_set_13_06_2019\www.writing.com - home page - logged in.html" />
-    <EmbeddedResource Include="Data\sample_set_13_06_2019\www.writing.com - login page.html" />
-    <EmbeddedResource Include="Data\expected_set_13_06_2019\WdcReaderInteractiveStoryDescription-ExpectedResult_13_06_2019.txt" />
+    <EmbeddedResource Include="OLD 22-12-2019\Data\sample_set_13_06_2019\Alice the Fat Cheerleader - homepage - access restricted but OK.html" />
+    <EmbeddedResource Include="OLD 22-12-2019\Data\sample_set_13_06_2019\Interactives unavailable - logged in.html" />
+    <EmbeddedResource Include="OLD 22-12-2019\Data\sample_set_13_06_2019\Interactives unavailable - logged out.html" />
+    <EmbeddedResource Include="OLD 22-12-2019\Data\sample_set_13_06_2019\Looking for adventure - chapter 1 - logged in.html" />
+    <EmbeddedResource Include="OLD 22-12-2019\Data\sample_set_13_06_2019\Looking for adventure - chapter 1 - logged out.html" />
+    <EmbeddedResource Include="OLD 22-12-2019\Data\sample_set_13_06_2019\Looking for adventure - chapter 11 - logged in.html" />
+    <EmbeddedResource Include="OLD 22-12-2019\Data\sample_set_13_06_2019\Looking for adventure - chapter 121 - logged out.html" />
+    <EmbeddedResource Include="OLD 22-12-2019\Data\sample_set_13_06_2019\Looking for adventure - chapter 1211222 - logged in.html" />
+    <EmbeddedResource Include="OLD 22-12-2019\Data\sample_set_13_06_2019\Looking for adventure - homepage - logged in.html" />
+    <EmbeddedResource Include="OLD 22-12-2019\Data\sample_set_13_06_2019\Looking for adventure - outline - logged in.html" />
+    <EmbeddedResource Include="OLD 22-12-2019\Data\sample_set_13_06_2019\Looking for adventure - outline - logged out.html" />
+    <EmbeddedResource Include="OLD 22-12-2019\Data\sample_set_13_06_2019\Looking for adventure - recent chapters - logged in.html" />
+    <EmbeddedResource Include="OLD 22-12-2019\Data\sample_set_13_06_2019\Looking for adventure - recent chapters - logged out.html" />
+    <EmbeddedResource Include="OLD 22-12-2019\Data\sample_set_13_06_2019\Story access restricted - not logged in.html" />
+    <EmbeddedResource Include="OLD 22-12-2019\Data\sample_set_13_06_2019\www.writing.com - home page - logged in.html" />
+    <EmbeddedResource Include="OLD 22-12-2019\Data\sample_set_13_06_2019\www.writing.com - login page.html" />
+    <EmbeddedResource Include="OLD 22-12-2019\Data\expected_set_13_06_2019\WdcReaderInteractiveStoryDescription-ExpectedResult_13_06_2019.txt" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Data\FileStoreTests\" />
+    <Folder Include="OLD 22-12-2019\Data\FileStoreTests\" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Data\SampleStories\1824771-short-stories-by-the-people.xml" />
+    <EmbeddedResource Include="OLD 22-12-2019\Data\SampleStories\1824771-short-stories-by-the-people.xml" />
   </ItemGroup>
   <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

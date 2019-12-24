@@ -34,38 +34,38 @@ namespace WritingExporter.Common.Test
             this._mode = mode;
         }
 
-        public async Task<WdcResponse> GetInteractiveChapter(string interactiveID, string chapterID, CancellationToken ct)
+        public async Task<WdcPayload> GetInteractiveChapter(string interactiveID, string chapterID, CancellationToken ct)
         {
             throw new NotImplementedException();
         }
 
-        public async Task<WdcResponse> GetInteractiveHomepage(string interactiveID, CancellationToken ct)
+        public async Task<WdcPayload> GetInteractiveHomepage(string interactiveID, CancellationToken ct)
         {
             throw new NotImplementedException();
         }
 
-        public async Task<WdcResponse> GetInteractiveOutline(string interactiveID, CancellationToken ct)
+        public async Task<WdcPayload> GetInteractiveOutline(string interactiveID, CancellationToken ct)
         {
-            var r = new WdcResponse();
-            r.Address = interactiveID;
-            r.WebResponse = DoInteractivesUnavailable();
+            var r = new WdcPayload();
+            r.Source = interactiveID;
+            r.Payload = DoInteractivesUnavailable();
 
-            if (string.IsNullOrEmpty(r.WebResponse))
+            if (string.IsNullOrEmpty(r.Payload))
             {
                 if (_mode == DummyWdcClientMode.LoggedIn || _mode == DummyWdcClientMode.LoggedInPaid)
                 {
-                    r.WebResponse = GetPage("Looking for adventure - outline - logged in.html");
+                    r.Payload = GetPage("Looking for adventure - outline - logged in.html");
                 }
                 else
                 {
-                    r.WebResponse = GetPage("Looking for adventure - outline - logged out.html");
+                    r.Payload = GetPage("Looking for adventure - outline - logged out.html");
                 }
             }
 
             return r;
         }
 
-        public async Task<WdcResponse> GetInteractiveRecentAdditions(string interactiveID, CancellationToken ct)
+        public async Task<WdcPayload> GetInteractiveRecentAdditions(string interactiveID, CancellationToken ct)
         {
             throw new NotImplementedException();
         }

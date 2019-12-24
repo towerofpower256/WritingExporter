@@ -27,8 +27,8 @@ namespace WritingExporter.Common.Test
         [TestMethod]
         public async Task WdcReaderInteractiveStoryAuthor()
         {
-            WdcResponse payload = new WdcResponse();
-            payload.WebResponse = TestUtil.GetDataFile("sample_set_13_06_2019.Looking for adventure - homepage - logged in.html");
+            WdcPayload payload = new WdcPayload();
+            payload.Payload = TestUtil.GetDataFile("sample_set_13_06_2019.Looking for adventure - homepage - logged in.html");
 
             WdcAuthor result = _reader.GetInteractiveStoryAuthor(payload);
 
@@ -39,8 +39,8 @@ namespace WritingExporter.Common.Test
         [TestMethod]
         public async Task WdcReaderInteractiveStoryShortDescription()
         {
-            WdcResponse payload = new WdcResponse();
-            payload.WebResponse = TestUtil.GetDataFile("sample_set_13_06_2019.Looking for adventure - homepage - logged in.html");
+            WdcPayload payload = new WdcPayload();
+            payload.Payload = TestUtil.GetDataFile("sample_set_13_06_2019.Looking for adventure - homepage - logged in.html");
 
             var result = _reader.GetInteractiveStoryShortDescription(payload);
 
@@ -50,8 +50,8 @@ namespace WritingExporter.Common.Test
         [TestMethod]
         public async Task WdcReaderInteractiveStoryDescription()
         {
-            WdcResponse payload = new WdcResponse();
-            payload.WebResponse = TestUtil.GetDataFile("sample_set_13_06_2019.Looking for adventure - homepage - logged in.html");
+            WdcPayload payload = new WdcPayload();
+            payload.Payload = TestUtil.GetDataFile("sample_set_13_06_2019.Looking for adventure - homepage - logged in.html");
 
             var result = _reader.GetInteractiveStoryDescription(payload);
             var expected = TestUtil.GetDataFile("expected_set_13_06_2019.WdcReaderInteractiveStoryDescription-ExpectedResult_13_06_2019.txt");
@@ -62,8 +62,8 @@ namespace WritingExporter.Common.Test
         [TestMethod]
         public async Task WdcReaderInteractiveStoryTitle()
         {
-            WdcResponse payload = new WdcResponse();
-            payload.WebResponse = TestUtil.GetDataFile("sample_set_13_06_2019.Looking for adventure - homepage - logged in.html");
+            WdcPayload payload = new WdcPayload();
+            payload.Payload = TestUtil.GetDataFile("sample_set_13_06_2019.Looking for adventure - homepage - logged in.html");
 
             var result = _reader.GetInteractiveStoryTitle(payload);
 
@@ -90,9 +90,9 @@ namespace WritingExporter.Common.Test
             expectedChapter.Choices.Add(new WdcInteractiveChapterChoice() { PathLink = "13", Name = "Be Marek" });
             expectedChapter.Choices.Add(new WdcInteractiveChapterChoice() { PathLink = "14", Name = "Be Tara" });
 
-            WdcResponse payload = new WdcResponse();
-            payload.WebResponse = TestUtil.GetDataFile("sample_set_13_06_2019.Looking for adventure - chapter 1211222 - logged in.html");
-            payload.Address = "https://www.writing.com/main/interact/item_id/209084-Looking-for-adventure/map/1211222";
+            WdcPayload payload = new WdcPayload();
+            payload.Payload = TestUtil.GetDataFile("sample_set_13_06_2019.Looking for adventure - chapter 1211222 - logged in.html");
+            payload.Source = "https://www.writing.com/main/interact/item_id/209084-Looking-for-adventure/map/1211222";
 
             WdcInteractiveChapter testChapter = _reader.GetInteractiveChaper("TEST", expectedChapter.Path, payload);
 
@@ -119,9 +119,9 @@ namespace WritingExporter.Common.Test
             expectedChapter.Choices.Add(new WdcInteractiveChapterChoice() { PathLink = "13", Name = "Be Marek" });
             expectedChapter.Choices.Add(new WdcInteractiveChapterChoice() { PathLink = "14", Name = "Be Tara" });
 
-            WdcResponse payload = new WdcResponse();
-            payload.WebResponse = TestUtil.GetDataFile("sample_set_13_06_2019.Looking for adventure - chapter 1 - logged in.html");
-            payload.Address = "https://www.writing.com/main/interact/item_id/209084-Looking-for-adventure/map/1";
+            WdcPayload payload = new WdcPayload();
+            payload.Payload = TestUtil.GetDataFile("sample_set_13_06_2019.Looking for adventure - chapter 1 - logged in.html");
+            payload.Source = "https://www.writing.com/main/interact/item_id/209084-Looking-for-adventure/map/1";
 
             WdcInteractiveChapter testChapter = _reader.GetInteractiveChaper("TEST", expectedChapter.Path, payload);
 
@@ -163,9 +163,9 @@ namespace WritingExporter.Common.Test
             expectedChapter.Choices.Add(new WdcInteractiveChapterChoice() { PathLink = "14", Name = "Be Tara" });
 
             // Set things up
-            WdcResponse payload = new WdcResponse();
-            payload.WebResponse = TestUtil.GetDataFile("sample_set_13_06_2019.Looking for adventure - chapter 1 - logged out.html");
-            payload.Address = "https://www.writing.com/main/interact/item_id/209084-Looking-for-adventure/map/1";
+            WdcPayload payload = new WdcPayload();
+            payload.Payload = TestUtil.GetDataFile("sample_set_13_06_2019.Looking for adventure - chapter 1 - logged out.html");
+            payload.Source = "https://www.writing.com/main/interact/item_id/209084-Looking-for-adventure/map/1";
 
             WdcInteractiveChapter testChapter = _reader.GetInteractiveChaper("TEST", expectedChapter.Path, payload);
 

@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace WritingExporter.Common.Models
 {
-    public class WdcResponse
+    public class WdcPayload
     {
-        public string Address { get; set; }
-        public string WebResponse { get; set; }
+        public string Source { get; set; }
+        public string Payload { get; set; }
     }
 }
