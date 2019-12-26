@@ -31,12 +31,5 @@ namespace WritingExporter.Common
                 }
             }
         }
-
-        /*
-        public static Icon GetEmbeddedResourceAsIcon(string resourcePath)
-        {
-            // TODO
-        }
-        */
     }
 }
