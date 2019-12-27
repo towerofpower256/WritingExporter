@@ -8,7 +8,12 @@ namespace WritingExporter.Common.Gui
 {
     public class DummyGuiContext : IGuiContext
     {
-        private ILogger _log = LogManager.GetLogger(typeof(DummyGuiContext));
+        private ILogger _log;
+
+        public DummyGuiContext(ILogger log)
+        {
+            _log = log;
+        }
 
         public void ShellExecute(string command)
         {

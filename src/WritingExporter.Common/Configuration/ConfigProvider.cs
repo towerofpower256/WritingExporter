@@ -7,6 +7,7 @@ using System.IO;
 using System.Xml;
 using System.Xml.Linq;
 using System.Xml.Serialization;
+using WritingExporter.Common.Events;
 
 namespace WritingExporter.Common.Configuration
 {
@@ -35,13 +36,17 @@ namespace WritingExporter.Common.Configuration
 
         public event EventHandler<ConfigSectionChangedEventArgs> OnSectionChanged;
 
-        private static ILogger _log = LogManager.GetLogger(typeof(ConfigProvider));
+        private ILogger _log;
+        private EventHub _eventHub;
+        
 
         Dictionary<string, XElement> _configSections;
         object _lock;
 
-        public ConfigProvider()
+        public ConfigProvider(ILogger log, EventHub eventHub)
         {
+            _log = log;
+            _eventHub = eventHub;
             _configSections = new Dictionary<string, XElement>();
             _lock = new object();
         }

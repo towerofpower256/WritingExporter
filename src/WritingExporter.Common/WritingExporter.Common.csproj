@@ -51,10 +51,17 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Events\IEvent.cs" />
+    <Compile Include="Events\IEventSubscriber.cs" />
     <Compile Include="Export\WdcStoryExporterProgressUpdateArgs.cs" />
     <Compile Include="Gui\DummyGuiContext.cs" />
     <Compile Include="Gui\GuiMessageBoxIcon.cs" />
     <Compile Include="Gui\IGuiContext.cs" />
+    <Compile Include="Logging\BlankLogger.cs" />
+    <Compile Include="Logging\ILogManager.cs" />
+    <Compile Include="Logging\TraceLogger.cs" />
+    <Compile Include="Logging\ILogger.cs" />
+    <Compile Include="Events\EventHub.cs" />
     <Compile Include="Storage\FileDumper.cs" />
     <Compile Include="Storage\IFileDumper.cs" />
     <Compile Include="StorySync\StorySyncWorkerStoryStatus.cs" />
@@ -69,16 +76,11 @@
     <Compile Include="Exceptions\WritingLoginFailed.cs" />
     <Compile Include="Exceptions\InteractivesTemporarilyUnavailableException.cs" />
     <Compile Include="DataUtil.cs" />
-    <Compile Include="ILogFactory.cs" />
-    <Compile Include="ILogger.cs" />
     <None Include="Wdc.Old\IWdcClient.cs" />
     <None Include="Wdc.Old\IWdcReader.cs" />
     <Compile Include="IWdcStoryContainer.cs" />
     <Compile Include="StorySync\DummyStorySyncWorker.cs" />
     <Compile Include="StorySync\IStorySyncWorker.cs" />
-    <Compile Include="Log4NetLogFactory.cs" />
-    <Compile Include="Log4NetLogger.cs" />
-    <Compile Include="LogManager.cs" />
     <Compile Include="Models\WdcAuthor.cs" />
     <Compile Include="Models\WdcPayload.cs" />
     <Compile Include="Models\WdcInteractiveChapter.cs" />
@@ -97,6 +99,9 @@
     <Compile Include="WdcStoryContainer.cs" />
     <Compile Include="StorySync\StorySyncWorker.cs" />
     <None Include="Wdc.Old\WdcUtil.cs" />
+    <Compile Include="WDC\BaseWdcClient.cs" />
+    <Compile Include="WDC\WdcClient.cs" />
+    <Compile Include="WDC\WdcClientSettings.cs" />
     <Compile Include="WDC\WdcReader.cs" />
     <Compile Include="WDC\WdcReaderSettings.cs" />
     <Compile Include="WDC\WdcUtil.cs" />
@@ -104,9 +109,7 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Composition\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <EmbeddedResource Include="Export\HtmlCollectionTemplates\Chapter.html" />
     <EmbeddedResource Include="Export\HtmlCollectionTemplates\ChapterChoiceEnd.html" />

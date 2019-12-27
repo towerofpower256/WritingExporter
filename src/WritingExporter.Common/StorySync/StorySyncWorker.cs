@@ -10,21 +10,19 @@ using WritingExporter.Common.Exceptions;
 using WritingExporter.Common.Gui;
 using WritingExporter.Common.Models;
 using WritingExporter.Common.Storage;
-using WritingExporter.Common.Wdc;
+using WritingExporter.Common.WDC;
 
 namespace WritingExporter.Common.StorySync
 {
     public class StorySyncWorker : IStorySyncWorker
     {
-        private static ILogger _log = LogManager.GetLogger(typeof(StorySyncWorker));
-
         // Services
         IConfigProvider _configProvider;
         IWdcStoryContainer _storyContainer;
         IWdcReader _wdcReader;
         IWdcClient _wdcClient;
         IFileDumper _fileDumper;
-        IGuiContext _gui;
+        ILogger _log;
 
         // Working variables
         StorySyncWorkerSettings _settings;

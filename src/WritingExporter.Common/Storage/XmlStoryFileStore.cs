@@ -15,14 +15,16 @@ namespace WritingExporter.Common.Storage
     public class XmlStoryFileStore : IStoryFileStore
     {
         private const string DEFAULT_FILE_SUFFIX = ".xml";
-        private ILogger _log = LogManager.GetLogger(typeof(XmlStoryFileStore));
         private XmlSerializerNamespaces _xmlNamespace;
+        private ILogger _log;
 
         XmlSerializer _serializer;
         string _saveDir;
 
-        public XmlStoryFileStore()
+        public XmlStoryFileStore(ILogger log)
         {
+            _log = log;
+
             // Init the serializer
             _serializer = new XmlSerializer(typeof(WdcInteractiveStory));
 
