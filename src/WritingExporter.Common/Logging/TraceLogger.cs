@@ -10,6 +10,13 @@ namespace WritingExporter.Common.Logging
     // Trace logger, for use when there is not a fully fleshed logging solution avalilable, but you still want to log stuff.
     public class TraceLogger : ILogger
     {
+        string _name;
+
+        public TraceLogger(string loggerName)
+        {
+            _name = loggerName;
+        }
+
         public void Debug(object message)
         {
             DoTrace("DEBUG", message);
@@ -92,12 +99,12 @@ namespace WritingExporter.Common.Logging
 
         public void DoTrace(string level, object message, params object[] parms)
         {
-            Trace.WriteLine($"{level}: {string.Format(message.ToString(), parms)}");
+            Trace.WriteLine($"[{level}][{_name}]: {string.Format(message.ToString(), parms)}");
         }
 
         public void DoTrace(string level, object message, Exception exception)
         {
-            Trace.WriteLine($"{level}: {message.ToString()}\n{ReadException(exception)}");
+            Trace.WriteLine($"[{level}][{_name}]: {message.ToString()}\n{ReadException(exception)}");
         }
 
         public string ReadException(Exception ex)

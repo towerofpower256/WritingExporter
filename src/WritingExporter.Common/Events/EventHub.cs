@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using WritingExporter.Common.Logging;
 
 namespace WritingExporter.Common.Events
 {
@@ -13,9 +14,9 @@ namespace WritingExporter.Common.Events
         object _lock = new object();
         ILogger _log;
 
-        public EventHub(ILogger log)
+        public EventHub(ILoggerSource logSource)
         {
-            _log = log;
+            _log = logSource.GetLogger(typeof(EventHub));
             _subs = new Dictionary<Type, EventSubscriptionCollection>();
         }
 

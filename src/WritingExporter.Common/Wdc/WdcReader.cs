@@ -6,18 +6,41 @@ using System.Threading.Tasks;
 using System.Web;
 using WritingExporter.Common.Exceptions;
 using WritingExporter.Common.Models;
+using WritingExporter.Common.Logging;
 
 namespace WritingExporter.Common.WDC
 {
     public class WdcReader
     {
-        private static ILogger log;
+        private ILogger log;
 
         WdcReaderSettings _settings;
 
-        public WdcReader(WdcReaderSettings settings)
+        public WdcReader(ILoggerSource logSource, WdcReaderSettings settings)
         {
+            log = logSource.GetLogger(typeof(WdcReader));
             _settings = settings ?? new WdcReaderSettings();
+        }
+
+        public async Task<IEnumerable<Uri>> GetInteractiveChapterList(string interactiveID, WdcClient wdcClient, CancellationToken ct)
+        {
+            var wdcPayload = await wdcClient.GetInteractiveOutline(interactiveID, ct);
+            ct.ThrowIfCancellationRequested();
+            return GetInteractiveChapterList(interactiveID, wdcClient.GetPathToRoot(), wdcPayload);
+        }
+
+        public async Task<WdcInteractiveChapter> GetInteractiveChaper(string interactiveID, string chapterPath, WdcClient wdcClient, CancellationToken ct)
+        {
+            var payload = await wdcClient.GetInteractiveChapter(interactiveID, chapterPath, ct);
+            ct.ThrowIfCancellationRequested();
+            return GetInteractiveChaper(interactiveID, chapterPath, payload);
+        }
+
+        public async Task<WdcInteractiveStory> GetInteractiveStory(string interactiveID, WdcClient wdcClient, CancellationToken ct)
+        {
+            var wdcPayload = await wdcClient.GetInteractiveHomepage(interactiveID, ct);
+            ct.ThrowIfCancellationRequested();
+            return GetInteractiveStory(interactiveID, wdcPayload);
         }
 
         public WdcInteractiveStory GetInteractiveStory(string interactiveID, WdcPayload wdcPayload)
@@ -75,13 +98,6 @@ namespace WritingExporter.Common.WDC
         public WdcAuthor GetInteractiveStoryAuthor(WdcPayload wdcPayload)
         {
             throw new NotImplementedException();
-        }
-
-        public async Task<WdcInteractiveChapter> GetInteractiveChaper(string interactiveID, string chapterPath, IWdcClient wdcClient, CancellationToken ct)
-        {
-            WdcPayload payload = await wdcClient.GetInteractiveChapter(interactiveID, chapterPath, ct);
-
-            return GetInteractiveChaper(interactiveID, chapterPath, payload);
         }
 
         public WdcInteractiveChapter GetInteractiveChaper(string interactiveID, string chapterPath, WdcPayload payload)
@@ -286,14 +302,6 @@ namespace WritingExporter.Common.WDC
             }
 
             return choices.ToArray();
-        }
-
-        // TODO Get chapter list from story outline
-        public async Task<IEnumerable<Uri>> GetInteractiveChapterList(string interactiveID, IWdcClient wdcClient, CancellationToken ct)
-        {
-            var wdcPayload = await wdcClient.GetInteractiveOutline(interactiveID, ct);
-            ct.ThrowIfCancellationRequested();
-            return GetInteractiveChapterList(interactiveID, wdcClient.GetPathToRoot(), wdcPayload);
         }
 
         public IEnumerable<Uri> GetInteractiveChapterList(string interactiveID, Uri pathToRoot, WdcPayload wdcPayload)

@@ -8,6 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using WritingExporter.Common.Models;
 using WritingExporter.Common.Storage;
+using WritingExporter.Common.Logging;
 
 namespace WritingExporter.Common
 {
@@ -19,12 +20,11 @@ namespace WritingExporter.Common
         private const int SAVE_CHECK_INTERVAL_MS = 2000; // How often to check if a story needs saving.
         private const string SAVE_DIR = "Stories"; // Relative directory to save stories to.
 
-        private static readonly ILogger _log = LogManager.GetLogger(typeof(WdcStoryContainer));
-
         public event EventHandler<WdcStoryContainerEventArgs> OnUpdate;
 
         // Services
         IStoryFileStore _fileStore;
+        ILogger _log;
 
         //Private members
         ICollection<WdcStoryContainerWrapper> _storyCollection;
@@ -33,8 +33,9 @@ namespace WritingExporter.Common
         CancellationTokenSource _ctSource;
         bool _started = false;
 
-        public WdcStoryContainer(IStoryFileStore fileStore)
+        public WdcStoryContainer(ILoggerSource log, IStoryFileStore fileStore)
         {
+            _log = log.GetLogger(typeof(WdcStoryContainer));
             _fileStore = fileStore;
             _storyCollection = new Collection<WdcStoryContainerWrapper>();
         }

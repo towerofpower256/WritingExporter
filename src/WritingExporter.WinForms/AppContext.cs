@@ -5,6 +5,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Diagnostics;
 using SimpleInjector;
 using WritingExporter.Common;
 using WritingExporter.Common.Wdc;
@@ -12,6 +13,7 @@ using WritingExporter.Common.Configuration;
 using WritingExporter.Common.Storage;
 using WritingExporter.Common.StorySync;
 using WritingExporter.Common.Gui;
+using WritingExporter.Common.Logging;
 
 namespace WritingExporter.WinForms
 {
@@ -27,12 +29,9 @@ namespace WritingExporter.WinForms
 
         public AppContext Setup()
         {
-            // Setup logging
-            var lf = new Log4NetLogFactory();
-            lf.AddConsoleAppender().AddFileAppender().EndConfig();
-            LogManager.SetLogFactory(lf);
+            // Logging
+            SetupLogging();
 
-            _log = LogManager.GetLogger(typeof(AppContext));
             _log.Debug("Starting setup of app context");
 
             // Setup GUI
@@ -74,6 +73,19 @@ namespace WritingExporter.WinForms
             _log.Info("Shutting down app context");
 
             return this;
+        }
+
+        private void SetupLogging()
+        {
+            // Setup logging
+            // TODO change to something more legit like Serilog
+            Trace.AutoFlush = true;
+            Trace.Listeners.Add(new ConsoleTraceListener());
+
+            ILoggerSource logSource = new TraceLoggerSource();
+            _container.RegisterInstance<ILoggerSource>(logSource);
+
+            _log = logSource.GetLogger(typeof(AppContext));
         }
 
         private void RegisterSystem()

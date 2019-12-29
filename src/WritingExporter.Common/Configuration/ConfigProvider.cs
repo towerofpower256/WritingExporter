@@ -8,6 +8,7 @@ using System.Xml;
 using System.Xml.Linq;
 using System.Xml.Serialization;
 using WritingExporter.Common.Events;
+using WritingExporter.Common.Logging;
 
 namespace WritingExporter.Common.Configuration
 {
@@ -43,9 +44,9 @@ namespace WritingExporter.Common.Configuration
         Dictionary<string, XElement> _configSections;
         object _lock;
 
-        public ConfigProvider(ILogger log, EventHub eventHub)
+        public ConfigProvider(ILoggerSource log, EventHub eventHub)
         {
-            _log = log;
+            _log = log.GetLogger(typeof(ConfigProvider));
             _eventHub = eventHub;
             _configSections = new Dictionary<string, XElement>();
             _lock = new object();
@@ -167,6 +168,9 @@ namespace WritingExporter.Common.Configuration
             {
                 SectionName = sectionName
             });
+
+            // Do event hub
+            _eventHub.PublishEvent(new ConfigurationSectionUpdatedEvent(sectionName));
         }
 
         private XElement ToXElement<T>(T obj)

@@ -7,15 +7,16 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using WritingExporter.Common.Configuration;
+using WritingExporter.Common.Events;
 using WritingExporter.Common.Exceptions;
 using WritingExporter.Common.Models;
+using WritingExporter.Common.Logging;
 
 namespace WritingExporter.Common.WDC
 {
     // Class to get HTML from Writing.com
-    public class WdcClient : BaseWdcClient
+    public class WdcClient : BaseWdcClient, IEventSubscriber<ConfigurationSectionUpdatedEvent>
     {
-        private static ILogger _log = LogManager.GetLogger(typeof(WdcClient));
 
         private const string URL_ROOT = "https://www.writing.com/";
         private const string HTTP_SET_COOKIE_HEADER = "Set-Cookie";
@@ -28,20 +29,29 @@ namespace WritingExporter.Common.WDC
         private WdcClientConfiguration settings;
 
         private IConfigProvider _configProvider;
+        private ILogger _log;
+        private EventHub _eventHub;
 
 
-        public WdcClient(IConfigProvider configProvider)
+        public WdcClient(IConfigProvider configProvider, ILoggerSource log, EventHub eventHub)
         {
+            _log = log.GetLogger(typeof(WdcClient));
             _log.Debug("Starting");
 
+            _eventHub = eventHub;
+
             _configProvider = configProvider;
-            _configProvider.OnSectionChanged += new EventHandler<ConfigSectionChangedEventArgs>(OnSettingsUpdate);
+            // Don't hook into events anymore, use Event Hub
+            //_configProvider.OnSectionChanged += new EventHandler<ConfigSectionChangedEventArgs>(OnSettingsUpdate);
 
             UpdateSettings();
             httpCookies = new CookieContainer();
             httpClientHandler = new HttpClientHandler();
             httpClientHandler.CookieContainer = httpCookies;
             httpClient = new HttpClient(httpClientHandler, true);
+
+            // Subscribe to configuration update
+            _eventHub.Subscribe<ConfigurationSectionUpdatedEvent>(this);
         }
 
         public void Reset()
@@ -50,12 +60,25 @@ namespace WritingExporter.Common.WDC
             ClearCookies();
         }
 
+        // Old event handling function
+        /*
         private void OnSettingsUpdate(object sender, ConfigSectionChangedEventArgs args)
         {
             if (args.IsSectionType(typeof(WdcClientConfiguration)))
             {
                 UpdateSettings();
             }
+        }
+        */
+
+        public Task HandleEventAsync(ConfigurationSectionUpdatedEvent @event)
+        {
+            if (@event.IsSectionType(typeof(WdcClientConfiguration)))
+            {
+                UpdateSettings();
+            }
+
+            return Task.CompletedTask;
         }
 
         private void UpdateSettings()

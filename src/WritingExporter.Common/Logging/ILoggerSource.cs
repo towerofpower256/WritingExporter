@@ -9,8 +9,9 @@ namespace WritingExporter.Common.Logging
     // This class serves the following purposes:
     // 1: a method for classes to manually fetch a logger instance, for cases where classes are created outside of DI
     // 2: a method of listening out for logging events
-    public interface ILogManager
+    public interface ILoggerSource
     {
-        // Todo
+        ILogger GetLogger(string loggerName);
+        ILogger GetLogger(Type loggerType);
     }
 }

@@ -31,15 +31,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="HtmlAgilityPack, Version=1.11.7.0, Culture=neutral, PublicKeyToken=bd319b19eaf3b43a, processorArchitecture=MSIL">
-      <HintPath>..\packages\HtmlAgilityPack.1.11.7\lib\Net45\HtmlAgilityPack.dll</HintPath>
-    </Reference>
-    <Reference Include="log4net, Version=2.0.8.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
-      <HintPath>..\packages\log4net.2.0.8\lib\net45-full\log4net.dll</HintPath>
-    </Reference>
-    <Reference Include="SimpleInjector, Version=4.6.0.0, Culture=neutral, PublicKeyToken=984cb50dea722e99, processorArchitecture=MSIL">
-      <HintPath>..\packages\SimpleInjector.4.6.0\lib\net45\SimpleInjector.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Web" />
@@ -51,17 +42,20 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Events\ConfigurationSectionUpdatedEvent.cs" />
     <Compile Include="Events\IEvent.cs" />
     <Compile Include="Events\IEventSubscriber.cs" />
+    <Compile Include="Events\StorySyncExceptionEvent.cs" />
     <Compile Include="Export\WdcStoryExporterProgressUpdateArgs.cs" />
     <Compile Include="Gui\DummyGuiContext.cs" />
     <Compile Include="Gui\GuiMessageBoxIcon.cs" />
     <Compile Include="Gui\IGuiContext.cs" />
     <Compile Include="Logging\BlankLogger.cs" />
-    <Compile Include="Logging\ILogManager.cs" />
+    <Compile Include="Logging\ILoggerSource.cs" />
     <Compile Include="Logging\TraceLogger.cs" />
     <Compile Include="Logging\ILogger.cs" />
     <Compile Include="Events\EventHub.cs" />
+    <Compile Include="Logging\TraceLoggerSource.cs" />
     <Compile Include="Storage\FileDumper.cs" />
     <Compile Include="Storage\IFileDumper.cs" />
     <Compile Include="StorySync\StorySyncWorkerStoryStatus.cs" />
@@ -82,7 +76,7 @@
     <Compile Include="StorySync\DummyStorySyncWorker.cs" />
     <Compile Include="StorySync\IStorySyncWorker.cs" />
     <Compile Include="Models\WdcAuthor.cs" />
-    <Compile Include="Models\WdcPayload.cs" />
+    <Compile Include="WDC\WdcPayload.cs" />
     <Compile Include="Models\WdcInteractiveChapter.cs" />
     <Compile Include="Models\WdcInteractiveChapterChoice.cs" />
     <Compile Include="Models\WdcInteractiveStory.cs" />
@@ -105,9 +99,6 @@
     <Compile Include="WDC\WdcReader.cs" />
     <Compile Include="WDC\WdcReaderSettings.cs" />
     <Compile Include="WDC\WdcUtil.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>

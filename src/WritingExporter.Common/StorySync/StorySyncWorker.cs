@@ -6,11 +6,13 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using WritingExporter.Common.Configuration;
+using WritingExporter.Common.Events;
 using WritingExporter.Common.Exceptions;
 using WritingExporter.Common.Gui;
 using WritingExporter.Common.Models;
 using WritingExporter.Common.Storage;
 using WritingExporter.Common.WDC;
+using WritingExporter.Common.Logging;
 
 namespace WritingExporter.Common.StorySync
 {
@@ -19,10 +21,11 @@ namespace WritingExporter.Common.StorySync
         // Services
         IConfigProvider _configProvider;
         IWdcStoryContainer _storyContainer;
-        IWdcReader _wdcReader;
-        IWdcClient _wdcClient;
+        WdcReader _wdcReader;
+        WdcClient _wdcClient;
         IFileDumper _fileDumper;
         ILogger _log;
+        EventHub _eventHub;
 
         // Working variables
         StorySyncWorkerSettings _settings;
@@ -38,20 +41,22 @@ namespace WritingExporter.Common.StorySync
         public event EventHandler<StorySyncWorkerStatusEventArgs> OnWorkerStatusChange;
         public event EventHandler<StorySyncWorkerStoryStatusEventArgs> OnStoryStatusChange;
 
-        public StorySyncWorker(IWdcStoryContainer storyContainer,
-            IWdcReader wdcReader,
-            IWdcClient wdcClient,
+        public StorySyncWorker(ILoggerSource logSource,
+            IWdcStoryContainer storyContainer,
+            WdcReader wdcReader,
+            WdcClient wdcClient,
             IConfigProvider configProvider,
             IFileDumper fileDumper,
-            IGuiContext guiContext
+            EventHub eventHub
             )
         {
+            _log = logSource.GetLogger(typeof(StorySyncWorker));
             _storyContainer = storyContainer;
             _wdcReader = wdcReader;
             _wdcClient = wdcClient;
             _configProvider = configProvider;
             _fileDumper = fileDumper;
-            _gui = guiContext;
+            _eventHub = eventHub;
             SetSettings(configProvider.GetSection<StorySyncWorkerSettings>());
 
             // Init some stuff
@@ -552,7 +557,8 @@ namespace WritingExporter.Common.StorySync
                 sbExMsg.AppendLine("The HTML response has been dumped to this location:");
                 sbExMsg.AppendLine(dumpFilePath);
 
-                _gui.ShowMessageBox("HTML parse exception", sbExMsg.ToString(), GuiMessageBoxIcon.Error);
+                //_gui.ShowMessageBox("HTML parse exception", sbExMsg.ToString(), GuiMessageBoxIcon.Error);
+                _eventHub.PublishEvent(new StorySyncExceptionEvent("Story sync exception", sbExMsg.ToString()));
 
                 // Set the story's status to Error, so it doesn't keep trying to sync and cause more errors
                 SetStoryStatusError(story.ID, ex.Message);
@@ -567,7 +573,8 @@ namespace WritingExporter.Common.StorySync
 
                 SetStoryStatusError(story.ID, sb.ToString());
 
-                _gui.ShowExceptionDialog(ex);
+                //_gui.ShowExceptionDialog(ex);
+                _eventHub.PublishEvent(new StorySyncExceptionEvent("Story sync exception", sb.ToString()));
             }
 
             SetCurrentStatus(StorySyncWorkerState.Idle, $"Story update complete: {story.ID}", string.Empty);

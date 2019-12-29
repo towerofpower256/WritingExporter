@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace WritingExporter.Common
+namespace WritingExporter.Common.Logging
 {
     public interface ILogger
     {

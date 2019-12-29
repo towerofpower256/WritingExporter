@@ -9,6 +9,7 @@ using WritingExporter.Common.Models;
 using System.IO;
 using System.Collections.ObjectModel;
 using System.Threading;
+using WritingExporter.Common.Logging;
 
 namespace WritingExporter.Common.Storage
 {
@@ -21,9 +22,9 @@ namespace WritingExporter.Common.Storage
         XmlSerializer _serializer;
         string _saveDir;
 
-        public XmlStoryFileStore(ILogger log)
+        public XmlStoryFileStore(ILoggerSource log)
         {
-            _log = log;
+            _log = log.GetLogger(typeof(XmlStoryFileStore));
 
             // Init the serializer
             _serializer = new XmlSerializer(typeof(WdcInteractiveStory));

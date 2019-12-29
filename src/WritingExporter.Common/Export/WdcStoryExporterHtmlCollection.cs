@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using WritingExporter.Common.Models;
 using System.IO;
+using WritingExporter.Common.Logging;
 
 namespace WritingExporter.Common.Export
 {
@@ -25,7 +26,7 @@ namespace WritingExporter.Common.Export
         private const string STORY_CHAPTER_FILENAME = "chapter-{0}.html";
         private const string CHAPTER_NOT_EXPORTED_PLACEHOLDER = "(chapter hasn't been exported)";
 
-        public static ILogger _log;
+        private ILogger _log;
 
         public event EventHandler<WdcStoryExporterProgressUpdateArgs> OnProgressUpdate;
 
@@ -35,9 +36,9 @@ namespace WritingExporter.Common.Export
         private int _progressMax;
         private string  _lastMessage;
 
-        public WdcStoryExporterHtmlCollection(ILogger log, string outputDir)
+        public WdcStoryExporterHtmlCollection(ILoggerSource logSource, string outputDir)
         {
-            _log = log;
+            _log = logSource.GetLogger(typeof(WdcStoryExporterHtmlCollection));
             _outputDir = outputDir;
         }
 

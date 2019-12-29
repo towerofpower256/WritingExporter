@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using WritingExporter.Common.Logging;
 
 namespace WritingExporter.Common.Gui
 {
@@ -10,9 +11,9 @@ namespace WritingExporter.Common.Gui
     {
         private ILogger _log;
 
-        public DummyGuiContext(ILogger log)
+        public DummyGuiContext(ILoggerSource logSource)
         {
-            _log = log;
+            _log = logSource.GetLogger(typeof(DummyGuiContext));
         }
 
         public void ShellExecute(string command)
