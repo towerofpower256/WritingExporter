@@ -31,6 +31,7 @@
             this.btnWdcReadToStory = new System.Windows.Forms.Button();
             this.txtOutput = new System.Windows.Forms.TextBox();
             this.txtInputContent = new System.Windows.Forms.TextBox();
+            this.myTextFieldWithTickbox1 = new WritingExporter.WinForms.WdcTester.FormControls.MyTextFieldWithTickbox();
             this.SuspendLayout();
             // 
             // btnWdcReadToStory
@@ -63,11 +64,20 @@
             this.txtInputContent.Size = new System.Drawing.Size(206, 378);
             this.txtInputContent.TabIndex = 4;
             // 
+            // myTextFieldWithTickbox1
+            // 
+            this.myTextFieldWithTickbox1.Location = new System.Drawing.Point(256, 88);
+            this.myTextFieldWithTickbox1.Name = "myTextFieldWithTickbox1";
+            this.myTextFieldWithTickbox1.Size = new System.Drawing.Size(228, 64);
+            this.myTextFieldWithTickbox1.TabIndex = 5;
+            this.myTextFieldWithTickbox1.Text = "Some regex";
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
+            this.Controls.Add(this.myTextFieldWithTickbox1);
             this.Controls.Add(this.txtInputContent);
             this.Controls.Add(this.txtOutput);
             this.Controls.Add(this.btnWdcReadToStory);
@@ -83,5 +93,6 @@
         private System.Windows.Forms.Button btnWdcReadToStory;
         private System.Windows.Forms.TextBox txtOutput;
         private System.Windows.Forms.TextBox txtInputContent;
+        private FormControls.MyTextFieldWithTickbox myTextFieldWithTickbox1;
     }
 }

@@ -7,19 +7,27 @@ using System.Web;
 using WritingExporter.Common.Exceptions;
 using WritingExporter.Common.Models;
 using WritingExporter.Common.Logging;
+using WritingExporter.Common.Configuration;
+using WritingExporter.Common.Events;
 
 namespace WritingExporter.Common.WDC
 {
     public class WdcReader
     {
         private ILogger log;
+        private IConfigProvider _configProvider;
 
-        WdcReaderSettings _settings;
+        WdcReaderConfiguration _config;
 
-        public WdcReader(ILoggerSource logSource, WdcReaderSettings settings)
+        public WdcReader(ILoggerSource logSource, IConfigProvider configProvider)
         {
             log = logSource.GetLogger(typeof(WdcReader));
-            _settings = settings ?? new WdcReaderSettings();
+        }
+        
+        public void UpdateSettings()
+        {
+            // TODO might need to be thread safe?
+            _config = _configProvider.GetSection<WdcReaderConfiguration>();
         }
 
         public async Task<IEnumerable<Uri>> GetInteractiveChapterList(string interactiveID, WdcClient wdcClient, CancellationToken ct)
@@ -64,7 +72,7 @@ namespace WritingExporter.Common.WDC
         // This method grabs it from within the <title> element, not sure if it gets truncated or not.
         public string GetInteractiveStoryTitle(WdcPayload wdcPayload)
         {
-            Regex interactiveTitleRegex = new Regex(_settings.InteractiveTitleRegex, RegexOptions.IgnoreCase);
+            Regex interactiveTitleRegex = new Regex(_config.InteractiveTitleRegex, RegexOptions.IgnoreCase);
             Match interactiveTitleMatch = interactiveTitleRegex.Match(wdcPayload.Payload);
             if (!interactiveTitleMatch.Success)
                 throw new WritingClientHtmlParseException($"Couldn't find the title for interactive story '{wdcPayload.Source}'", wdcPayload.Source, wdcPayload.Payload);
@@ -77,7 +85,7 @@ namespace WritingExporter.Common.WDC
         // E.g. <META NAME="description" content="How will young James fare alone with his mature, womanly neighbors? ">
         public string GetInteractiveStoryShortDescription(WdcPayload wdcPayload)
         {
-            Regex interactiveShortDescRegex = new Regex(_settings.InteractiveShortDescriptionRegex, RegexOptions.IgnoreCase);
+            Regex interactiveShortDescRegex = new Regex(_config.InteractiveShortDescriptionRegex, RegexOptions.IgnoreCase);
             Match interactiveShortDescMatch = interactiveShortDescRegex.Match(wdcPayload.Payload);
             if (!interactiveShortDescMatch.Success)
                 log.Warn($"Couldn't find the short description for interactive story '{wdcPayload.Source}'"); // Just a warning, don't throw an exception over it
@@ -87,7 +95,7 @@ namespace WritingExporter.Common.WDC
         // Get the interactive story's description
         public string GetInteractiveStoryDescription(WdcPayload wdcPayload)
         {
-            Regex interactiveDescRegex = new Regex(_settings.InteractiveDescriptionRegex, RegexOptions.IgnoreCase | RegexOptions.Singleline);
+            Regex interactiveDescRegex = new Regex(_config.InteractiveDescriptionRegex, RegexOptions.IgnoreCase | RegexOptions.Singleline);
             Match interactiveDescMatch = interactiveDescRegex.Match(wdcPayload.Payload);
             if (!interactiveDescMatch.Success)
                 throw new WritingClientHtmlParseException($"Couldn't find the description for interactive story '{wdcPayload.Source}'", wdcPayload.Source, wdcPayload.Payload);
@@ -170,7 +178,7 @@ namespace WritingExporter.Common.WDC
         private string GetInteractiveChapterTitleM3(WdcPayload payload)
         {
             // Default regex: (?<=<title>).*?(?=<\/title>)
-            string pageTitlePattern = _settings.ChapterTitleRegex;
+            string pageTitlePattern = _config.ChapterTitleRegex;
 
             Regex pageTitleRegex = new Regex(pageTitlePattern, RegexOptions.IgnoreCase | RegexOptions.Singleline);
             Match pageTitleMatch = pageTitleRegex.Match(payload.Payload);
@@ -190,7 +198,7 @@ namespace WritingExporter.Common.WDC
         public string GetInteractiveChapterSourceChoice(WdcPayload payload)
         {
             // Default regex: (?<=This choice: <b>).*?(?=<\/b>)
-            Regex chapterSourceChoiceRegex = new Regex(_settings.ChapterSourceChoiceRegex, RegexOptions.IgnoreCase | RegexOptions.Singleline);
+            Regex chapterSourceChoiceRegex = new Regex(_config.ChapterSourceChoiceRegex, RegexOptions.IgnoreCase | RegexOptions.Singleline);
             Match chapterSourceChoiceMatch = chapterSourceChoiceRegex.Match(payload.Payload);
             if (!chapterSourceChoiceMatch.Success) // If we can't find it, and it's not the first chapter
                 throw new WritingClientHtmlParseException($"Couldn't find the interactive chapter's source choice and this isn't the first chapter, for chapter '{payload.Source}'", payload.Source, payload.Payload);
@@ -218,7 +226,7 @@ namespace WritingExporter.Common.WDC
         private string GetInteractiveChapterContentM2(WdcPayload payload)
         {
             // Default regex: (?<=<div class=\"\">).+?(?=<\\/div>)
-            Regex chapterContentRegex = new Regex(_settings.ChapterContentRegex, RegexOptions.IgnoreCase | RegexOptions.Singleline);
+            Regex chapterContentRegex = new Regex(_config.ChapterContentRegex, RegexOptions.IgnoreCase | RegexOptions.Singleline);
             Match chapterContentMatch = chapterContentRegex.Match(payload.Payload);
             if (!chapterContentMatch.Success)
                 throw new WritingClientHtmlParseException($"Couldn't find the content for the interactive chapter '{payload.Source}'", payload.Source, payload.Payload);
@@ -230,7 +238,7 @@ namespace WritingExporter.Common.WDC
         public WdcAuthor GetInteractiveChapterAuthor(WdcPayload payload)
         {
             // Default regex: <a title=\" Username: .*?<\\/a>
-            Regex chapterAuthorChunkRegex = new Regex(_settings.ChapterAuthorChunkRegex, RegexOptions.IgnoreCase | RegexOptions.Singleline);
+            Regex chapterAuthorChunkRegex = new Regex(_config.ChapterAuthorChunkRegex, RegexOptions.IgnoreCase | RegexOptions.Singleline);
             Match chapterAuthorChunkMatch = chapterAuthorChunkRegex.Match(payload.Payload);
             if (!chapterAuthorChunkMatch.Success)
                 throw new WritingClientHtmlParseException($"Couldn't find the HTML chunk containing the author for the interactive chapter '{payload.Source}'", payload.Source, payload.Payload);
@@ -238,13 +246,13 @@ namespace WritingExporter.Common.WDC
 
             // Get the author username
             // Default regex: (?<=Username: )[a-zA-Z]+
-            Regex chapterAuthorUsernameRegex = new Regex(_settings.ChapterAuthorUsernameRegex);
+            Regex chapterAuthorUsernameRegex = new Regex(_config.ChapterAuthorUsernameRegex);
             Match chapterAuthorUsernameMatch = chapterAuthorUsernameRegex.Match(chapterAuthorChunk);
             string chapterAuthorUsername = chapterAuthorUsernameMatch.Value;
 
             // Get the author display name
             // Default regex: (?<=>).+?(?=<)
-            Regex chapterAuthorNameRegex = new Regex(_settings.ChapterAuthorNameRegex);
+            Regex chapterAuthorNameRegex = new Regex(_config.ChapterAuthorNameRegex);
             Match chapterAuthorNameMatch = chapterAuthorNameRegex.Match(chapterAuthorChunk);
             string chapterAuthorName = chapterAuthorNameMatch.Value;
 
@@ -265,7 +273,7 @@ namespace WritingExporter.Common.WDC
             var choices = new List<WdcInteractiveChapterChoice>();
 
             // Default regex: (?<=<b>You have the following choice(s)?:<\\/b>).*?(?=<\\/div><div id=\"end_of_choices\")
-            Regex chapterChoicesChunkRegex = new Regex(_settings.ChapterChoicesChunkRegex,
+            Regex chapterChoicesChunkRegex = new Regex(_config.ChapterChoicesChunkRegex,
                     RegexOptions.Singleline | RegexOptions.IgnoreCase);
             Match chapterChoicesChunkMatch = chapterChoicesChunkRegex.Match(payload.Payload);
             if (!chapterChoicesChunkMatch.Success)
@@ -274,7 +282,7 @@ namespace WritingExporter.Common.WDC
 
             // Then try to get the individual choices
             // Default regex: "<a .*?href=\".+?\">.+?<\\/a>"
-            Regex chapterChoicesRegex = new Regex(_settings.ChapterChoicesRegex, RegexOptions.IgnoreCase);
+            Regex chapterChoicesRegex = new Regex(_config.ChapterChoicesRegex, RegexOptions.IgnoreCase);
             MatchCollection chapterChoicesMatches = chapterChoicesRegex.Matches(chapterChoicesChunkHtml);
             foreach (Match match in chapterChoicesMatches)
             {
@@ -283,7 +291,7 @@ namespace WritingExporter.Common.WDC
 
                 // Get the URL
                 // Default regex: (?<=href=\").+?(?=\")
-                Regex choiceUrlRegex = new Regex(_settings.ChapterChoiceUrlRegex);
+                Regex choiceUrlRegex = new Regex(_config.ChapterChoiceUrlRegex);
                 Match choiceUrlMatch = choiceUrlRegex.Match(match.Value);
                 if (!choiceUrlMatch.Success)
                     throw new WritingClientHtmlParseException($"Could not find the URL of choice '{match.Value}' on interactive chapter '{payload.Source}'", payload.Source, payload.Payload);
@@ -329,7 +337,7 @@ namespace WritingExporter.Common.WDC
             //Regex chapterEndRegex = new Regex("<big>THE END.<\\/big>");// Turns out this doesn't work, because they HTML tagging is sloppy and overlaps. <i><b>THE END.</i></b>
 
             // Default regex: >You have come to the end of the story. You can:<\\/
-            Regex chapterEndRegex = new Regex(_settings.ChapterEndCheckRegex);
+            Regex chapterEndRegex = new Regex(_config.ChapterEndCheckRegex);
             return chapterEndRegex.IsMatch(payload.Payload);
         }
 

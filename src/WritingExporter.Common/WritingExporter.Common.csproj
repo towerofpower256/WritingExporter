@@ -42,6 +42,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Configuration\WdcReaderConfiguration.cs" />
     <Compile Include="Events\ConfigurationSectionUpdatedEvent.cs" />
     <Compile Include="Events\IEvent.cs" />
     <Compile Include="Events\IEventSubscriber.cs" />
@@ -95,9 +96,7 @@
     <None Include="Wdc.Old\WdcUtil.cs" />
     <Compile Include="WDC\BaseWdcClient.cs" />
     <Compile Include="WDC\WdcClient.cs" />
-    <Compile Include="WDC\WdcClientSettings.cs" />
     <Compile Include="WDC\WdcReader.cs" />
-    <Compile Include="WDC\WdcReaderSettings.cs" />
     <Compile Include="WDC\WdcUtil.cs" />
   </ItemGroup>
   <ItemGroup />

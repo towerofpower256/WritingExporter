@@ -14,6 +14,7 @@ using WritingExporter.Common.Events;
 using WritingExporter.Common.Exceptions;
 using WritingExporter.Common;
 using WritingExporter.Common.WDC;
+using WritingExporter.Common.Configuration;
 
 namespace WritingExporter.WinForms.WdcTester.Forms
 {
@@ -22,13 +23,15 @@ namespace WritingExporter.WinForms.WdcTester.Forms
         // Services
         ILogger _log;
         WdcReader _wdcReader;
+        IConfigProvider _configProvider;
 
-        public MainForm(ILoggerSource logSource, WdcReader wdcReader, WdcClient wdcClient)
+        public MainForm(ILoggerSource logSource, WdcReader wdcReader, IConfigProvider configProvider)
         {
             _log = logSource.GetLogger(typeof(MainForm));
             _log.Debug("Main form starting");
 
             _wdcReader = wdcReader;
+            _configProvider = configProvider;
 
             InitializeComponent();
         }
@@ -63,6 +66,18 @@ namespace WritingExporter.WinForms.WdcTester.Forms
                 txtOutput.Text = sbOutput.ToString();
                 LockInput(false);
             }
+        }
+
+        private void SyncFormToSettings()
+        {
+            var config = _configProvider.GetSection<WdcReaderConfiguration>();
+        }
+
+        private void SyncSettingsToForm()
+        {
+            var config = _configProvider.GetSection<WdcReaderConfiguration>();
+
+            
         }
 
         #region Form update functions
