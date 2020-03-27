@@ -77,7 +77,7 @@
     <Compile Include="StorySync\DummyStorySyncWorker.cs" />
     <Compile Include="StorySync\IStorySyncWorker.cs" />
     <Compile Include="Models\WdcAuthor.cs" />
-    <Compile Include="WDC\WdcPayload.cs" />
+    <Compile Include="Wdc\WdcPayload.cs" />
     <Compile Include="Models\WdcInteractiveChapter.cs" />
     <Compile Include="Models\WdcInteractiveChapterChoice.cs" />
     <Compile Include="Models\WdcInteractiveStory.cs" />
@@ -94,10 +94,11 @@
     <Compile Include="WdcStoryContainer.cs" />
     <Compile Include="StorySync\StorySyncWorker.cs" />
     <None Include="Wdc.Old\WdcUtil.cs" />
-    <Compile Include="WDC\BaseWdcClient.cs" />
-    <Compile Include="WDC\WdcClient.cs" />
-    <Compile Include="WDC\WdcReader.cs" />
-    <Compile Include="WDC\WdcUtil.cs" />
+    <Compile Include="Wdc\BaseWdcClient.cs" />
+    <Compile Include="Wdc\WdcClient.cs" />
+    <Compile Include="Wdc\WdcReader.cs" />
+    <Compile Include="Wdc\WdcReaderOptions.cs" />
+    <Compile Include="Wdc\WdcUtil.cs" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>

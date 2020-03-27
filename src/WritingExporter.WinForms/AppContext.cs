@@ -58,13 +58,13 @@ namespace WritingExporter.WinForms
             _log.Debug("Starting app context");
 
             // Load saved settings from file
-            _container.GetInstance<IConfigProvider>().LoadSettings();
+            //_container.GetInstance<IConfigProvider>().LoadSettings();
 
             // Start the story file store
-            _container.GetInstance<IWdcStoryContainer>().Start();
+            //_container.GetInstance<IWdcStoryContainer>().Start();
 
             // Start the story sync worker
-            _container.GetInstance<IStorySyncWorker>().StartWorker();
+            //_container.GetInstance<IStorySyncWorker>().StartWorker();
 
             // Start the GUI
             Application.Run(_container.GetInstance<Forms.MainForm>());
@@ -100,7 +100,7 @@ namespace WritingExporter.WinForms
         {
             _log.Debug("Registering WDC services");
             _container.Register<IWdcClient, WdcClient>(Lifestyle.Singleton);
-            _container.Register<IWdcReader, WdcReader>(Lifestyle.Singleton);
+            _container.Register<IWdcReader, WdcReader>();
             _container.Register<IWdcStoryContainer, WdcStoryContainer>(Lifestyle.Singleton);
             _container.Register<IStorySyncWorker, StorySyncWorker>(Lifestyle.Singleton);
             //_container.Register<IStorySyncWorker, DummyStorySyncWorker>(Lifestyle.Singleton);
@@ -109,8 +109,6 @@ namespace WritingExporter.WinForms
         private void RegisterWinForms()
         {
             _log.Debug("Registering all forms");
-
-            _container.Register<IGuiContext, WinFormsGui>(Lifestyle.Singleton);
 
             foreach (var t in Assembly.GetExecutingAssembly().GetTypes())
             {

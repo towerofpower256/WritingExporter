@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace WritingExporter.Common.WDC
+namespace WritingExporter.Common.Wdc
 {
     public class WdcPayload
     {

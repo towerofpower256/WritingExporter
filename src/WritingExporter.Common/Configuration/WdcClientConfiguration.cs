@@ -9,6 +9,7 @@ namespace WritingExporter.Common.Configuration
     public class WdcClientConfiguration : BaseConfigSection
     {
         public string WritingUsername { get; set; }
+
         public string WritingPassword { get; set; }
     }
 }

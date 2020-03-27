@@ -28,362 +28,133 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.components = new System.ComponentModel.Container();
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
-            this.statusStrip1 = new System.Windows.Forms.StatusStrip();
-            this.tsStatus = new System.Windows.Forms.ToolStripStatusLabel();
-            this.tlMain = new System.Windows.Forms.TableLayoutPanel();
-            this.groupBox2 = new System.Windows.Forms.GroupBox();
-            this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
-            this.cbConsoleAutoScroll = new System.Windows.Forms.CheckBox();
-            this.txtConsoleOutput = new System.Windows.Forms.TextBox();
-            this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.tlStoryPanel = new System.Windows.Forms.TableLayoutPanel();
-            this.dgvStories = new System.Windows.Forms.DataGridView();
-            this.groupBox3 = new System.Windows.Forms.GroupBox();
-            this.txtStoryInfo = new System.Windows.Forms.TextBox();
-            this.menuStripMain = new System.Windows.Forms.MenuStrip();
+            this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.miAddStory = new System.Windows.Forms.ToolStripMenuItem();
-            this.miAddStoryAdvanced = new System.Windows.Forms.ToolStripMenuItem();
-            this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
-            this.settingsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
-            this.miExit = new System.Windows.Forms.ToolStripMenuItem();
-            this.storyContextMenuStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
-            this.pauseToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.exportToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.exportToHTMLToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
-            this.deleteToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
-            this.statusStrip1.SuspendLayout();
-            this.tlMain.SuspendLayout();
-            this.groupBox2.SuspendLayout();
-            this.tableLayoutPanel1.SuspendLayout();
-            this.groupBox1.SuspendLayout();
-            this.tlStoryPanel.SuspendLayout();
+            this.dgvStories = new System.Windows.Forms.DataGridView();
+            this.txtInfo = new System.Windows.Forms.TextBox();
+            this.dgvColOrder = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.dgvColStatus = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.dgvColName = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.dgvColChapters = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.btnAddStory = new System.Windows.Forms.Button();
+            this.menuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvStories)).BeginInit();
-            this.groupBox3.SuspendLayout();
-            this.menuStripMain.SuspendLayout();
-            this.storyContextMenuStrip.SuspendLayout();
             this.SuspendLayout();
             // 
-            // statusStrip1
+            // menuStrip1
             // 
-            this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.tsStatus});
-            this.statusStrip1.Location = new System.Drawing.Point(0, 428);
-            this.statusStrip1.Name = "statusStrip1";
-            this.statusStrip1.Size = new System.Drawing.Size(884, 22);
-            this.statusStrip1.TabIndex = 1;
-            this.statusStrip1.Text = "statusStrip1";
+            this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.fileToolStripMenuItem});
+            this.menuStrip1.Location = new System.Drawing.Point(0, 0);
+            this.menuStrip1.Name = "menuStrip1";
+            this.menuStrip1.Size = new System.Drawing.Size(800, 24);
+            this.menuStrip1.TabIndex = 0;
+            this.menuStrip1.Text = "menuStrip1";
             // 
-            // tsStatus
+            // fileToolStripMenuItem
             // 
-            this.tsStatus.Name = "tsStatus";
-            this.tsStatus.Size = new System.Drawing.Size(67, 17);
-            this.tsStatus.Text = "Status label";
-            // 
-            // tlMain
-            // 
-            this.tlMain.ColumnCount = 3;
-            this.tlMain.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33.33333F));
-            this.tlMain.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33.33333F));
-            this.tlMain.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33.33333F));
-            this.tlMain.Controls.Add(this.groupBox2, 2, 0);
-            this.tlMain.Controls.Add(this.groupBox1, 0, 0);
-            this.tlMain.Controls.Add(this.groupBox3, 1, 0);
-            this.tlMain.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tlMain.Location = new System.Drawing.Point(0, 24);
-            this.tlMain.Name = "tlMain";
-            this.tlMain.RowCount = 2;
-            this.tlMain.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.tlMain.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.tlMain.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
-            this.tlMain.Size = new System.Drawing.Size(884, 404);
-            this.tlMain.TabIndex = 2;
-            // 
-            // groupBox2
-            // 
-            this.groupBox2.Controls.Add(this.tableLayoutPanel1);
-            this.groupBox2.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.groupBox2.Location = new System.Drawing.Point(591, 3);
-            this.groupBox2.Name = "groupBox2";
-            this.tlMain.SetRowSpan(this.groupBox2, 2);
-            this.groupBox2.Size = new System.Drawing.Size(290, 398);
-            this.groupBox2.TabIndex = 4;
-            this.groupBox2.TabStop = false;
-            this.groupBox2.Text = "Console output";
-            // 
-            // tableLayoutPanel1
-            // 
-            this.tableLayoutPanel1.ColumnCount = 1;
-            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel1.Controls.Add(this.cbConsoleAutoScroll, 0, 1);
-            this.tableLayoutPanel1.Controls.Add(this.txtConsoleOutput, 0, 0);
-            this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tableLayoutPanel1.Location = new System.Drawing.Point(3, 16);
-            this.tableLayoutPanel1.Name = "tableLayoutPanel1";
-            this.tableLayoutPanel1.RowCount = 2;
-            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.tableLayoutPanel1.Size = new System.Drawing.Size(284, 379);
-            this.tableLayoutPanel1.TabIndex = 1;
-            // 
-            // cbConsoleAutoScroll
-            // 
-            this.cbConsoleAutoScroll.AutoSize = true;
-            this.cbConsoleAutoScroll.Checked = true;
-            this.cbConsoleAutoScroll.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.cbConsoleAutoScroll.Enabled = false;
-            this.cbConsoleAutoScroll.Location = new System.Drawing.Point(3, 359);
-            this.cbConsoleAutoScroll.Name = "cbConsoleAutoScroll";
-            this.cbConsoleAutoScroll.Size = new System.Drawing.Size(75, 17);
-            this.cbConsoleAutoScroll.TabIndex = 0;
-            this.cbConsoleAutoScroll.Text = "Auto scroll";
-            this.cbConsoleAutoScroll.UseVisualStyleBackColor = true;
-            // 
-            // txtConsoleOutput
-            // 
-            this.txtConsoleOutput.BackColor = System.Drawing.SystemColors.Window;
-            this.txtConsoleOutput.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.txtConsoleOutput.Location = new System.Drawing.Point(3, 3);
-            this.txtConsoleOutput.Multiline = true;
-            this.txtConsoleOutput.Name = "txtConsoleOutput";
-            this.txtConsoleOutput.ReadOnly = true;
-            this.txtConsoleOutput.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.txtConsoleOutput.Size = new System.Drawing.Size(278, 350);
-            this.txtConsoleOutput.TabIndex = 0;
-            // 
-            // groupBox1
-            // 
-            this.groupBox1.Controls.Add(this.tlStoryPanel);
-            this.groupBox1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.groupBox1.Location = new System.Drawing.Point(3, 3);
-            this.groupBox1.Name = "groupBox1";
-            this.tlMain.SetRowSpan(this.groupBox1, 2);
-            this.groupBox1.Size = new System.Drawing.Size(288, 398);
-            this.groupBox1.TabIndex = 0;
-            this.groupBox1.TabStop = false;
-            this.groupBox1.Text = "Stories";
-            // 
-            // tlStoryPanel
-            // 
-            this.tlStoryPanel.ColumnCount = 1;
-            this.tlStoryPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tlStoryPanel.Controls.Add(this.dgvStories, 0, 0);
-            this.tlStoryPanel.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tlStoryPanel.Location = new System.Drawing.Point(3, 16);
-            this.tlStoryPanel.Name = "tlStoryPanel";
-            this.tlStoryPanel.RowCount = 1;
-            this.tlStoryPanel.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.tlStoryPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 379F));
-            this.tlStoryPanel.Size = new System.Drawing.Size(282, 379);
-            this.tlStoryPanel.TabIndex = 1;
+            this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
+            this.fileToolStripMenuItem.Size = new System.Drawing.Size(37, 20);
+            this.fileToolStripMenuItem.Text = "File";
             // 
             // dgvStories
             // 
             this.dgvStories.AllowUserToAddRows = false;
             this.dgvStories.AllowUserToDeleteRows = false;
+            this.dgvStories.AllowUserToOrderColumns = true;
             this.dgvStories.AllowUserToResizeColumns = false;
             this.dgvStories.AllowUserToResizeRows = false;
             this.dgvStories.BackgroundColor = System.Drawing.SystemColors.Window;
             this.dgvStories.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dgvStories.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.dgvStories.Location = new System.Drawing.Point(3, 3);
+            this.dgvStories.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
+            this.dgvColOrder,
+            this.dgvColStatus,
+            this.dgvColName,
+            this.dgvColChapters});
+            this.dgvStories.Location = new System.Drawing.Point(12, 27);
+            this.dgvStories.MultiSelect = false;
             this.dgvStories.Name = "dgvStories";
             this.dgvStories.ReadOnly = true;
             this.dgvStories.RowHeadersVisible = false;
+            this.dgvStories.RowHeadersWidthSizeMode = System.Windows.Forms.DataGridViewRowHeadersWidthSizeMode.DisableResizing;
             this.dgvStories.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             this.dgvStories.ShowEditingIcon = false;
-            this.dgvStories.Size = new System.Drawing.Size(276, 373);
-            this.dgvStories.TabIndex = 0;
-            this.dgvStories.CellMouseClick += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.dgvStories_CellMouseClick);
-            this.dgvStories.SelectionChanged += new System.EventHandler(this.dgvStories_SelectionChanged);
-            this.dgvStories.DoubleClick += new System.EventHandler(this.dgvStories_CellDoubleClick);
+            this.dgvStories.Size = new System.Drawing.Size(349, 286);
+            this.dgvStories.TabIndex = 1;
             // 
-            // groupBox3
+            // txtInfo
             // 
-            this.groupBox3.Controls.Add(this.txtStoryInfo);
-            this.groupBox3.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.groupBox3.Location = new System.Drawing.Point(297, 3);
-            this.groupBox3.Name = "groupBox3";
-            this.tlMain.SetRowSpan(this.groupBox3, 2);
-            this.groupBox3.Size = new System.Drawing.Size(288, 398);
-            this.groupBox3.TabIndex = 3;
-            this.groupBox3.TabStop = false;
-            this.groupBox3.Text = "Story info";
+            this.txtInfo.BackColor = System.Drawing.SystemColors.Window;
+            this.txtInfo.Location = new System.Drawing.Point(424, 106);
+            this.txtInfo.Multiline = true;
+            this.txtInfo.Name = "txtInfo";
+            this.txtInfo.ReadOnly = true;
+            this.txtInfo.Size = new System.Drawing.Size(270, 207);
+            this.txtInfo.TabIndex = 2;
             // 
-            // txtStoryInfo
+            // dgvColOrder
             // 
-            this.txtStoryInfo.BackColor = System.Drawing.SystemColors.Window;
-            this.txtStoryInfo.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.txtStoryInfo.Location = new System.Drawing.Point(3, 16);
-            this.txtStoryInfo.Multiline = true;
-            this.txtStoryInfo.Name = "txtStoryInfo";
-            this.txtStoryInfo.ReadOnly = true;
-            this.txtStoryInfo.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.txtStoryInfo.Size = new System.Drawing.Size(282, 379);
-            this.txtStoryInfo.TabIndex = 0;
+            this.dgvColOrder.HeaderText = "Order";
+            this.dgvColOrder.Name = "dgvColOrder";
+            this.dgvColOrder.ReadOnly = true;
             // 
-            // menuStripMain
+            // dgvColStatus
             // 
-            this.menuStripMain.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.fileToolStripMenuItem});
-            this.menuStripMain.Location = new System.Drawing.Point(0, 0);
-            this.menuStripMain.Name = "menuStripMain";
-            this.menuStripMain.Size = new System.Drawing.Size(884, 24);
-            this.menuStripMain.TabIndex = 3;
-            this.menuStripMain.Text = "menuStrip1";
+            this.dgvColStatus.HeaderText = "Status";
+            this.dgvColStatus.Name = "dgvColStatus";
+            this.dgvColStatus.ReadOnly = true;
             // 
-            // fileToolStripMenuItem
+            // dgvColName
             // 
-            this.fileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.miAddStory,
-            this.miAddStoryAdvanced,
-            this.toolStripSeparator2,
-            this.settingsToolStripMenuItem,
-            this.toolStripSeparator1,
-            this.miExit});
-            this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
-            this.fileToolStripMenuItem.Size = new System.Drawing.Size(37, 20);
-            this.fileToolStripMenuItem.Text = "File";
+            this.dgvColName.HeaderText = "Name";
+            this.dgvColName.Name = "dgvColName";
+            this.dgvColName.ReadOnly = true;
             // 
-            // miAddStory
+            // dgvColChapters
             // 
-            this.miAddStory.Name = "miAddStory";
-            this.miAddStory.Size = new System.Drawing.Size(187, 22);
-            this.miAddStory.Text = "&Add story";
-            this.miAddStory.Click += new System.EventHandler(this.miAddStory_Click);
+            this.dgvColChapters.HeaderText = "Chapters";
+            this.dgvColChapters.Name = "dgvColChapters";
+            this.dgvColChapters.ReadOnly = true;
             // 
-            // miAddStoryAdvanced
+            // btnAddStory
             // 
-            this.miAddStoryAdvanced.Name = "miAddStoryAdvanced";
-            this.miAddStoryAdvanced.Size = new System.Drawing.Size(187, 22);
-            this.miAddStoryAdvanced.Text = "Add story (ad&vanced)";
-            this.miAddStoryAdvanced.Click += new System.EventHandler(this.miAddStoryAdvanced_Click);
-            // 
-            // toolStripSeparator2
-            // 
-            this.toolStripSeparator2.Name = "toolStripSeparator2";
-            this.toolStripSeparator2.Size = new System.Drawing.Size(184, 6);
-            // 
-            // settingsToolStripMenuItem
-            // 
-            this.settingsToolStripMenuItem.Name = "settingsToolStripMenuItem";
-            this.settingsToolStripMenuItem.Size = new System.Drawing.Size(187, 22);
-            this.settingsToolStripMenuItem.Text = "&Settings";
-            this.settingsToolStripMenuItem.Click += new System.EventHandler(this.settingsToolStripMenuItem_Click);
-            // 
-            // toolStripSeparator1
-            // 
-            this.toolStripSeparator1.Name = "toolStripSeparator1";
-            this.toolStripSeparator1.Size = new System.Drawing.Size(184, 6);
-            // 
-            // miExit
-            // 
-            this.miExit.Name = "miExit";
-            this.miExit.Size = new System.Drawing.Size(187, 22);
-            this.miExit.Text = "E&xit";
-            this.miExit.Click += new System.EventHandler(this.miExit_Click);
-            // 
-            // storyContextMenuStrip
-            // 
-            this.storyContextMenuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.pauseToolStripMenuItem,
-            this.exportToolStripMenuItem,
-            this.exportToHTMLToolStripMenuItem,
-            this.toolStripSeparator3,
-            this.deleteToolStripMenuItem1});
-            this.storyContextMenuStrip.Name = "storyContextMenuStrip";
-            this.storyContextMenuStrip.Size = new System.Drawing.Size(167, 98);
-            // 
-            // pauseToolStripMenuItem
-            // 
-            this.pauseToolStripMenuItem.Name = "pauseToolStripMenuItem";
-            this.pauseToolStripMenuItem.Size = new System.Drawing.Size(166, 22);
-            this.pauseToolStripMenuItem.Text = "Pause";
-            // 
-            // exportToolStripMenuItem
-            // 
-            this.exportToolStripMenuItem.Name = "exportToolStripMenuItem";
-            this.exportToolStripMenuItem.Size = new System.Drawing.Size(166, 22);
-            this.exportToolStripMenuItem.Text = "Export...";
-            // 
-            // exportToHTMLToolStripMenuItem
-            // 
-            this.exportToHTMLToolStripMenuItem.Name = "exportToHTMLToolStripMenuItem";
-            this.exportToHTMLToolStripMenuItem.Size = new System.Drawing.Size(166, 22);
-            this.exportToHTMLToolStripMenuItem.Text = "Export to &HTML...";
-            // 
-            // toolStripSeparator3
-            // 
-            this.toolStripSeparator3.Name = "toolStripSeparator3";
-            this.toolStripSeparator3.Size = new System.Drawing.Size(163, 6);
-            // 
-            // deleteToolStripMenuItem1
-            // 
-            this.deleteToolStripMenuItem1.Name = "deleteToolStripMenuItem1";
-            this.deleteToolStripMenuItem1.Size = new System.Drawing.Size(166, 22);
-            this.deleteToolStripMenuItem1.Text = "Delete";
+            this.btnAddStory.Location = new System.Drawing.Point(307, 354);
+            this.btnAddStory.Name = "btnAddStory";
+            this.btnAddStory.Size = new System.Drawing.Size(75, 23);
+            this.btnAddStory.TabIndex = 3;
+            this.btnAddStory.Text = "Add story";
+            this.btnAddStory.UseVisualStyleBackColor = true;
             // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(884, 450);
-            this.Controls.Add(this.tlMain);
-            this.Controls.Add(this.statusStrip1);
-            this.Controls.Add(this.menuStripMain);
-            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
-            this.MainMenuStrip = this.menuStripMain;
+            this.ClientSize = new System.Drawing.Size(800, 450);
+            this.Controls.Add(this.btnAddStory);
+            this.Controls.Add(this.txtInfo);
+            this.Controls.Add(this.dgvStories);
+            this.Controls.Add(this.menuStrip1);
+            this.MainMenuStrip = this.menuStrip1;
             this.Name = "MainForm";
-            this.Text = "Writing.com Exporter";
-            this.statusStrip1.ResumeLayout(false);
-            this.statusStrip1.PerformLayout();
-            this.tlMain.ResumeLayout(false);
-            this.groupBox2.ResumeLayout(false);
-            this.tableLayoutPanel1.ResumeLayout(false);
-            this.tableLayoutPanel1.PerformLayout();
-            this.groupBox1.ResumeLayout(false);
-            this.tlStoryPanel.ResumeLayout(false);
+            this.Text = "MainForm";
+            this.menuStrip1.ResumeLayout(false);
+            this.menuStrip1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvStories)).EndInit();
-            this.groupBox3.ResumeLayout(false);
-            this.groupBox3.PerformLayout();
-            this.menuStripMain.ResumeLayout(false);
-            this.menuStripMain.PerformLayout();
-            this.storyContextMenuStrip.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
         }
 
         #endregion
-        private System.Windows.Forms.StatusStrip statusStrip1;
-        private System.Windows.Forms.ToolStripStatusLabel tsStatus;
-        private System.Windows.Forms.TableLayoutPanel tlMain;
-        private System.Windows.Forms.GroupBox groupBox1;
-        private System.Windows.Forms.DataGridView dgvStories;
-        private System.Windows.Forms.GroupBox groupBox3;
-        private System.Windows.Forms.TextBox txtStoryInfo;
-        private System.Windows.Forms.TableLayoutPanel tlStoryPanel;
-        private System.Windows.Forms.MenuStrip menuStripMain;
+
+        private System.Windows.Forms.MenuStrip menuStrip1;
         private System.Windows.Forms.ToolStripMenuItem fileToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem miExit;
-        private System.Windows.Forms.ToolStripMenuItem miAddStory;
-        private System.Windows.Forms.ToolStripMenuItem miAddStoryAdvanced;
-        private System.Windows.Forms.GroupBox groupBox2;
-        private System.Windows.Forms.TextBox txtConsoleOutput;
-        private System.Windows.Forms.ToolStripMenuItem settingsToolStripMenuItem;
-        private System.Windows.Forms.ToolStripSeparator toolStripSeparator2;
-        private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
-        private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
-        private System.Windows.Forms.CheckBox cbConsoleAutoScroll;
-        private System.Windows.Forms.ContextMenuStrip storyContextMenuStrip;
-        private System.Windows.Forms.ToolStripMenuItem pauseToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem exportToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem exportToHTMLToolStripMenuItem;
-        private System.Windows.Forms.ToolStripSeparator toolStripSeparator3;
-        private System.Windows.Forms.ToolStripMenuItem deleteToolStripMenuItem1;
+        private System.Windows.Forms.DataGridView dgvStories;
+        private System.Windows.Forms.DataGridViewTextBoxColumn dgvColOrder;
+        private System.Windows.Forms.DataGridViewTextBoxColumn dgvColStatus;
+        private System.Windows.Forms.DataGridViewTextBoxColumn dgvColName;
+        private System.Windows.Forms.DataGridViewTextBoxColumn dgvColChapters;
+        private System.Windows.Forms.TextBox txtInfo;
+        private System.Windows.Forms.Button btnAddStory;
     }
 }

@@ -12,7 +12,7 @@ using WritingExporter.Common.Exceptions;
 using WritingExporter.Common.Models;
 using WritingExporter.Common.Logging;
 
-namespace WritingExporter.Common.WDC
+namespace WritingExporter.Common.Wdc
 {
     // Class to get HTML from Writing.com
     public class WdcClient : BaseWdcClient, IEventSubscriber<ConfigurationSectionUpdatedEvent>
@@ -60,17 +60,6 @@ namespace WritingExporter.Common.WDC
             ClearCookies();
         }
 
-        // Old event handling function
-        /*
-        private void OnSettingsUpdate(object sender, ConfigSectionChangedEventArgs args)
-        {
-            if (args.IsSectionType(typeof(WdcClientConfiguration)))
-            {
-                UpdateSettings();
-            }
-        }
-        */
-
         public Task HandleEventAsync(ConfigurationSectionUpdatedEvent @event)
         {
             if (@event.IsSectionType(typeof(WdcClientConfiguration)))
@@ -106,7 +95,7 @@ namespace WritingExporter.Common.WDC
                 throw new ArgumentNullException("username", "The Writing.com username cannot be empty");
 
             if (string.IsNullOrEmpty(password))
-                throw new ArgumentNullException("username", "The Writing.com password cannot be empty");
+                throw new ArgumentNullException("password", "The Writing.com password cannot be empty");
 
             await LoginAsync(username, password, ct);
         }

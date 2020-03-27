@@ -10,26 +10,20 @@ using WritingExporter.Common.Logging;
 using WritingExporter.Common.Configuration;
 using WritingExporter.Common.Events;
 
-namespace WritingExporter.Common.WDC
+namespace WritingExporter.Common.Wdc
 {
     public class WdcReader
     {
         private ILogger log;
-        private IConfigProvider _configProvider;
 
-        WdcReaderConfiguration _config;
+        WdcReaderOptions _config;
 
-        public WdcReader(ILoggerSource logSource, IConfigProvider configProvider)
+        public WdcReader(ILoggerSource logSource, WdcReaderOptions options)
         {
             log = logSource.GetLogger(typeof(WdcReader));
+            _config = options;
         }
         
-        public void UpdateSettings()
-        {
-            // TODO might need to be thread safe?
-            _config = _configProvider.GetSection<WdcReaderConfiguration>();
-        }
-
         public async Task<IEnumerable<Uri>> GetInteractiveChapterList(string interactiveID, WdcClient wdcClient, CancellationToken ct)
         {
             var wdcPayload = await wdcClient.GetInteractiveOutline(interactiveID, ct);

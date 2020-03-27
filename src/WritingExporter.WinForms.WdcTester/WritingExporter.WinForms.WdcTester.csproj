@@ -49,11 +49,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="FormControls\MyTextFieldWithTickbox.cs">
+    <Compile Include="FormControls\EasyFieldControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="FormControls\MyTextFieldWithTickbox.Designer.cs">
-      <DependentUpon>MyTextFieldWithTickbox.cs</DependentUpon>
+    <Compile Include="FormControls\EasyFieldControl.Designer.cs">
+      <DependentUpon>EasyFieldControl.cs</DependentUpon>
     </Compile>
     <Compile Include="Forms\MainForm.cs">
       <SubType>Form</SubType>
@@ -63,8 +63,8 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <EmbeddedResource Include="FormControls\MyTextFieldWithTickbox.resx">
-      <DependentUpon>MyTextFieldWithTickbox.cs</DependentUpon>
+    <EmbeddedResource Include="FormControls\EasyFieldControl.resx">
+      <DependentUpon>EasyFieldControl.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>
@@ -98,5 +98,6 @@
       <Name>WritingExporter.Common</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
