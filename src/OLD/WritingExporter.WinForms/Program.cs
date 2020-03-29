@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using WritingExporter.WinForms.Forms;
+using WritingExporter.Common;
 
 namespace WritingExporter.WinForms
 {
@@ -14,9 +16,7 @@ namespace WritingExporter.WinForms
         [STAThread]
         static void Main()
         {
-            Application.EnableVisualStyles();
-            Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new Form1());
+            new AppContext().Setup().Start();
         }
     }
 }
