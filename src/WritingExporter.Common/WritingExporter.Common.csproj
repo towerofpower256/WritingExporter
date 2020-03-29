@@ -43,6 +43,7 @@
   <ItemGroup>
     <Compile Include="DataUtil.cs" />
     <Compile Include="Data\IRepository.cs" />
+    <Compile Include="Data\BaseRepositoryMemory.cs" />
     <Compile Include="Data\WdcStoryRepository.cs" />
     <Compile Include="Events\EventHub.cs" />
     <Compile Include="Events\IEvent.cs" />
