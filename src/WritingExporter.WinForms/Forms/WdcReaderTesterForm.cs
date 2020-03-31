@@ -20,6 +20,12 @@ namespace WritingExporter.WinForms.Forms
             LoadSettings();
         }
 
+        private void LoadSettings()
+        {
+            // TODO fetch from options. For now, just load default.
+            LoadSettings(new WdcReaderOptions());
+        }
+
         private delegate void LoadSettingsDelegate(WdcReaderOptions readerOptions);
         private void LoadSettings(WdcReaderOptions readerOptions)
         {
@@ -42,12 +48,6 @@ namespace WritingExporter.WinForms.Forms
             fieldChapterEndCheckRegex.Text = readerOptions.ChapterEndCheckRegex;
             fieldChapterSourceChoiceRegex.Text = readerOptions.ChapterSourceChoiceRegex;
             fieldChapterTitleRegex.Text = readerOptions.ChapterTitleRegex;
-        }
-
-        private void LoadSettings()
-        {
-            // TODO fetch from options. For now, just load default.
-            LoadSettings(new WdcReaderOptions());
         }
 
         private WdcReaderOptions ExportWdcReaderOptions()
@@ -132,6 +132,24 @@ namespace WritingExporter.WinForms.Forms
             txtOutput.Text = sb.ToString();
         }
 
+        private void ReadChapterMap()
+        {
+            throw new NotImplementedException();
+
+            /*
+            var sb = new StringBuilder();
+            var options = ExportWdcReaderOptions();
+            var reader = new WdcReader(options);
+            var payload = txtContentInput.Text;
+
+            RunTest(sb, "read chapter map",
+                () => {
+                    sb.AppendLine($"Chapter map:");
+                    var map = reader.GetInteractiveChapterList()
+                });
+            */
+        }
+
         private void RunTest(StringBuilder sb, string actionDesc, Action action)
         {
             sb.AppendLine("=========================");
@@ -160,6 +178,11 @@ namespace WritingExporter.WinForms.Forms
         private void btnReadChapter_Click(object sender, EventArgs e)
         {
             ReadChapter();
+        }
+
+        private void btnReadChapterMap_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }
