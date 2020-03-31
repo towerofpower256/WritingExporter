@@ -36,7 +36,7 @@ namespace WritingExporter.WinForms
             RegisterSystem();
 
             // Add stuff to the container
-            RegisterWdc();
+            //RegisterWdc();
 
             // Validate
             _container.Verify();
@@ -72,9 +72,9 @@ namespace WritingExporter.WinForms
         private void RegisterSystem()
         {
             _log.Debug("Registering system services");
-            _container.Register<IFileDumper, FileDumper>(Lifestyle.Singleton);
-            _container.Register<IConfigProvider, ConfigProvider>(Lifestyle.Singleton);
-            _container.Register<IStoryFileStore, XmlStoryFileStore>(Lifestyle.Singleton);
+            //_container.Register<IFileDumper, FileDumper>(Lifestyle.Singleton);
+            //_container.Register<IConfigProvider, ConfigProvider>(Lifestyle.Singleton);
+            //_container.Register<IStoryFileStore, XmlStoryFileStore>(Lifestyle.Singleton);
         }
 
         private void RegisterWinForms()

@@ -33,6 +33,7 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Web" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -53,12 +54,17 @@
     <Compile Include="Logging\ILoggerSource.cs" />
     <Compile Include="Logging\TraceLogger.cs" />
     <Compile Include="Logging\TraceLoggerSource.cs" />
+    <Compile Include="Models\WdcAuthor.cs" />
+    <Compile Include="Models\WdcChapter.cs" />
+    <Compile Include="Models\WdcChapterChoice.cs" />
     <Compile Include="Models\WdcStory.cs" />
     <Compile Include="ObjectExtension.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Wdc\WdcReader.cs" />
+    <Compile Include="Wdc\WdcReaderOptions.cs" />
+    <Compile Include="Wdc\WdcUtil.cs" />
+    <Compile Include="Wdc\WritingClientHtmlParseException.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Wdc\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
