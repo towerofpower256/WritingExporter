@@ -61,6 +61,7 @@ namespace WritingExporter.Common.Data.Repositories
 
         public void Save(WdcStory entity)
         {
+            // TODO do save SQL
             throw new NotImplementedException();
         }
     }
