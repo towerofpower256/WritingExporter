@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace WritingExporter.Common.Data
+namespace WritingExporter.Common.Data.Repositories
 {
     public class BaseMemoryRepository<TEntity, TKey> : IRepository<TEntity, TKey>
         where TEntity : class

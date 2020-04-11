@@ -1,14 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using WritingExporter.Common.Models;
 
 namespace WritingExporter.Common.Data
 {
-    public class WdcStoryRepository : BaseMemoryRepository<WdcStory, string>
+    public interface IDbConnectionFactory
     {
-
+        IDbConnection GetConnection();
     }
 }

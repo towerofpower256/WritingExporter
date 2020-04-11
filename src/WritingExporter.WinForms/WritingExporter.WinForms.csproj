@@ -59,6 +59,12 @@
     <Compile Include="Controls\WdcTesterOptionControl.Designer.cs">
       <DependentUpon>WdcTesterOptionControl.cs</DependentUpon>
     </Compile>
+    <Compile Include="Forms\AddStoryForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\AddStoryForm.Designer.cs">
+      <DependentUpon>AddStoryForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="Forms\MainForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -73,6 +79,9 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <EmbeddedResource Include="Forms\AddStoryForm.resx">
+      <DependentUpon>AddStoryForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Forms\MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>
     </EmbeddedResource>

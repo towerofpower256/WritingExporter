@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace WritingExporter.Common.Data
+namespace WritingExporter.Common.Data.Repositories
 {
     public interface IRepository<TEntity, TKey>
         where TEntity : class
@@ -12,7 +12,7 @@ namespace WritingExporter.Common.Data
     {
         TEntity GetByID(TKey key);
         
-        ICollection<TEntity> GetAll();
+        IEnumerable<TEntity> GetAll();
 
         void Add(TEntity entity);
 
