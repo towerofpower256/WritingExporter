@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace WritingExporter.Common.Wdc
 {
+    [Serializable]
     public class WdcReaderOptions
     {
         public const string InteractiveTitleRegexDefault = "(?<=<title>).+?(?= - Writing\\.Com<\\/title>)";
@@ -22,6 +23,7 @@ namespace WritingExporter.Common.Wdc
         public const string ChapterChoicesRegexDefault = "<a .*?href=\".+?\">.+?<\\/a>";
         public const string ChapterChoiceUrlRegexDefault = "(?<=href=\").+?(?=\")";
         public const string ChapterEndCheckRegexDefault = ">You have come to the end of the story. You can:<\\/";
+        public const string WdcUrlRootDefault = "https://www.writing.com/";
 
         public string InteractiveTitleRegex { get; set; } = InteractiveTitleRegexDefault;
 
@@ -48,5 +50,7 @@ namespace WritingExporter.Common.Wdc
         public string ChapterChoiceUrlRegex { get; set; } = ChapterChoiceUrlRegexDefault;
 
         public string ChapterEndCheckRegex { get; set; } = ChapterEndCheckRegexDefault;
+
+        public Uri WdcUrlRoot { get; set; } = new Uri(WdcUrlRootDefault);
     }
 }

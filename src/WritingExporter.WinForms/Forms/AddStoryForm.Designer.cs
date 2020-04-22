@@ -50,6 +50,7 @@
             this.btnAddStory.TabIndex = 1;
             this.btnAddStory.Text = "Add story";
             this.btnAddStory.UseVisualStyleBackColor = true;
+            this.btnAddStory.Click += new System.EventHandler(this.btnAddStory_Click);
             // 
             // txtStoryInfo
             // 
@@ -70,6 +71,7 @@
             this.btnGetStory.TabIndex = 3;
             this.btnGetStory.Text = "Get story";
             this.btnGetStory.UseVisualStyleBackColor = true;
+            this.btnGetStory.Click += new System.EventHandler(this.btnGetStory_Click);
             // 
             // lblStoryUrl
             // 

@@ -84,7 +84,7 @@ namespace WritingExporter.Common.Wdc
             throw new NotImplementedException();
         }
 
-        public WdcChapter GetInteractiveChaper(string chapterPath, string htmlPayload)
+        public WdcChapter GetInteractiveChapter(string chapterPath, string htmlPayload)
         {
 
             if (!WdcUtil.IsValidChapterPath(chapterPath))
@@ -279,14 +279,14 @@ namespace WritingExporter.Common.Wdc
             return choices.ToArray();
         }
 
-        public IEnumerable<Uri> GetInteractiveChapterList(string interactiveID, Uri pathToRoot, string htmlPayload)
+        public IEnumerable<Uri> GetInteractiveChapterList(string interactiveID, string htmlPayload)
         {
             var chapters = new List<Uri>();
 
             // Find the links to the interactive's pages
             // Create the regex that will find chapter links
             // E.g. https:\/\/www\.writing\.com\/main\/interact\/item_id\/1824771-short-stories-by-the-people\/map\/(\d)+
-            string chapterLinkRegexPattern = pathToRoot.ToString() + string.Format("main/interact/item_id/{0}/map/{1}", interactiveID, @"(\d)+");
+            string chapterLinkRegexPattern = _options.WdcUrlRoot.ToString() + string.Format("main/interact/item_id/{0}/map/{1}", interactiveID, @"(\d)+");
             chapterLinkRegexPattern = WdcUtil.RegexSafeUrl(chapterLinkRegexPattern);
             Regex chapterLinkRegex = new Regex(chapterLinkRegexPattern, RegexOptions.IgnoreCase);
             MatchCollection matches = chapterLinkRegex.Matches(htmlPayload);

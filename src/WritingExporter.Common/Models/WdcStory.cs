@@ -9,7 +9,7 @@ namespace WritingExporter.Common.Models
     [Serializable]
     public class WdcStory
     {
-        public string SysId { get; set; } = Guid.NewGuid().ToString("N");
+        public string SysId { get; set; } = SysUtil.GenerateGuidString();
 
         public string Name { get; set; } // E.g. Short stories by the people
 
