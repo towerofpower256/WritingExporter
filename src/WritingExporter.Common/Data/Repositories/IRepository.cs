@@ -19,5 +19,7 @@ namespace WritingExporter.Common.Data.Repositories
         void Save(TEntity entity);
 
         void Delete(TEntity entity);
+
+        void DeleteById(TKey key);
     }
 }

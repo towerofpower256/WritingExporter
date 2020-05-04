@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Dapper;
+using WritingExporter.Common.Logging;
 
 namespace WritingExporter.Common.Data
 {
@@ -15,21 +16,29 @@ namespace WritingExporter.Common.Data
     {
         private const string DB_FILE_NAME = "WdcExporter.db";
 
-        public DbConnectionFactory()
-        {
+        ILogger _log;
+        object _lock;
 
+        public DbConnectionFactory(ILoggerSource loggerSource)
+        {
+            _lock = new object();
+            _log = loggerSource.GetLogger(typeof(DbConnectionFactory));
         }
 
         public IDbConnection GetConnection()
         {
-            if (!File.Exists(DB_FILE_NAME))
+            lock (_lock)
             {
-                SQLiteConnection.CreateFile(DB_FILE_NAME);
-                SeedDb();
-            }
+                if (!File.Exists(DB_FILE_NAME))
+                {
+                    _log.Debug("DB doesn't exist, creating new");
+                    SQLiteConnection.CreateFile(DB_FILE_NAME);
+                    SeedDb();
+                }
 
-            var conn = new SQLiteConnection(ConnectionString);
-            return conn;
+                var conn = new SQLiteConnection(ConnectionString);
+                return conn;
+            }
         }
 
         private string ConnectionString
@@ -42,45 +51,68 @@ namespace WritingExporter.Common.Data
 
         private void SeedDb()
         {
-            using (var conn = new SQLiteConnection(ConnectionString))
+            _log.Info("Seeding database");
+            try
             {
-                conn.Open();
+                using (var conn = new SQLiteConnection(ConnectionString))
+                {
+                    conn.Open();
 
-                // Seed database here
+                    // Seed database here
 
-                conn.Execute(@"CREATE TABLE WdcStory (
-                SysId CHAR(32) PRIMARY KEY,
-                Name TEXT,
-                Id TEXT,
-                Url TEXT,
-                Description TEXT,
-                LastUpdatedInfo DATETIME,
-                LastUpdatedChapterOutline DATETIME,
-                FirstSeen DATETIME,
-                State INT,
-                StateMessage TEXT
-                )");
+                    conn.Execute(@"CREATE TABLE WdcStory (
+                    SysId CHAR(32) PRIMARY KEY,
+                    Name TEXT,
+                    Id TEXT,
+                    Url TEXT,
+                    AuthorName TEXT,
+                    AuthorUsername TEXT,
+                    ShortDescription TEXT,
+                    Description TEXT,
+                    LastSynced DATETIME,
+                    NextSync DATETIME,
+                    LastUpdatedInfo DATETIME,
+                    LastUpdatedChapterOutline DATETIME,
+                    FirstSeen DATETIME,
+                    State INT,
+                    StateMessage TEXT
+                    )");
 
-                conn.Execute(@"CREATE TABLE WdcChapter (
-                SysId CHAR(32) PRIMARY KEY,
-                StoryId CHAR(32) NOT NULL,
-                Path TEXT,
-                Title TEXT,
-                SourceChoiceTitle TEXT,
-                
-                Content TEXT,
-                IsEnd BOOLEAN,
-                LastUpdated DATETIME,
-                FirstSeen DATETIME
-                )");
+                    conn.Execute(@"CREATE TABLE WdcChapter (
+                    SysId CHAR(32) PRIMARY KEY,
+                    StoryId CHAR(32) NOT NULL,
+                    Path TEXT,
+                    Title TEXT,
+                    SourceChoiceTitle TEXT,
+                    AuthorName TEXT,
+                    AuthorUsername TEXT,
+                    Content TEXT,
+                    IsEnd BOOLEAN,
+                    LastUpdated DATETIME,
+                    FirstSeen DATETIME
+                    )");
 
-                conn.Execute(@"CREATE TABLE WdcChapterChoice
-                SysId CHAR(32) PRIMARY KEY,
-                ChapterId CHAR(32);
-                PathLink TEXT,
-                Name TEXT,
-                )");
+                    conn.Execute(@"CREATE TABLE WdcChapterChoice (
+                    SysId CHAR(32) PRIMARY KEY,
+                    ChapterId CHAR(32),
+                    PathLink TEXT,
+                    Name TEXT
+                    )");
+
+                    conn.Execute(@"CREATE INDEX WdcChapterChoice_ChapterId on WdcChapterChoice(ChapterId);");
+                    conn.Execute(@"CREATE INDEX WdcChapter_StoryId on WdcChapter(StoryId);");
+                    conn.Execute(@"CREATE INDEX WdcStory_Id on WdcStory(Id);");
+                    // TODO might need some more indexes for story / chapter states & timestamps
+                }
             }
+            catch (Exception ex)
+            {
+                // Delete the database if an exception occurrs while seeind
+                File.Delete(DB_FILE_NAME);
+
+                throw ex;
+            }
+            
         }
     }
 }

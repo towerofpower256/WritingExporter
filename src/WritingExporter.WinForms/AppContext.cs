@@ -11,9 +11,11 @@ using System.Windows.Forms;
 using WritingExporter.Common.Configuration;
 using WritingExporter.Common.Data;
 using WritingExporter.Common.Data.Repositories;
+using WritingExporter.Common.Events;
 using WritingExporter.Common.Events.WritingExporter.Common.Events;
 using WritingExporter.Common.Logging;
 using WritingExporter.Common.Wdc;
+using WritingExporter.Common.WdcSync;
 
 namespace WritingExporter.WinForms
 {
@@ -44,8 +46,10 @@ namespace WritingExporter.WinForms
             RegisterWdc();
             RegisterWinForms();
 
+#if DEBUG
             // Validate
             _container.Verify();
+#endif
 
             return this;
         }
@@ -53,11 +57,24 @@ namespace WritingExporter.WinForms
         public AppContext Start()
         {
             _log.Debug("Starting app context");
+
+            // Attach exception listener
+            var exceptionListener = new ExceptionAlertListener();
+            _container.GetInstance<EventHub>().Subscribe<ExceptionAlertEvent>(exceptionListener);
+
+            // Load settings
+            _container.GetInstance<ConfigService>().LoadSettings();
+
+            // Start the sync worker
+            var syncWorker = _container.GetInstance<WdcSyncWorker>();
+            syncWorker.Start(); // TODO re-enable worker
+            
             // Start the GUI
             Application.Run(_container.GetInstance<Forms.MainForm>());
 
             // Shutdown
             _log.Info("Shutting down app context");
+            syncWorker.Stop();
 
             return this;
         }
@@ -67,7 +84,6 @@ namespace WritingExporter.WinForms
             // Setup logging
             // TODO change to something more legit like Serilog
             Trace.AutoFlush = true;
-            Trace.Listeners.Add(new ConsoleTraceListener());
 
             ILoggerSource logSource = new TraceLoggerSource();
             _container.RegisterInstance<ILoggerSource>(logSource);
@@ -91,16 +107,20 @@ namespace WritingExporter.WinForms
             _log.Debug("Registering data services");
             _container.Register<IDbConnectionFactory, DbConnectionFactory>(Lifestyle.Singleton);
             _container.Register<WdcStoryRepository, WdcStoryRepository>();
-            _container.Register<WdcStoryChapterRepository, WdcStoryChapterRepository>();
-            _container.Register<WdcStoryAuthorRepository, WdcStoryAuthorRepository>();
-            _container.Register<WdcStorySyncStatusRepository, WdcStorySyncStatusRepository>();
+            _container.Register<WdcChapterRepository, WdcChapterRepository>();
         }
 
         private void RegisterWdc()
         {
             _log.Debug("Registering WDC services");
             _container.Register<WdcReaderFactory, WdcReaderFactory>(Lifestyle.Singleton);
-            _container.Register<WdcClient, WdcClient>();
+            _container.Register<WdcClient, WdcClient>(Lifestyle.Singleton);
+
+
+            var syncWorkerRegistration = Lifestyle.Transient.CreateRegistration(typeof(WdcSyncWorker), _container);
+            syncWorkerRegistration.SuppressDiagnosticWarning(
+                SimpleInjector.Diagnostics.DiagnosticType.DisposableTransientComponent, "Dispose is called in application code");
+            _container.AddRegistration<WdcSyncWorker>(syncWorkerRegistration);
         }
 
         private void RegisterWinForms()

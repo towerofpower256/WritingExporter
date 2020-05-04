@@ -29,6 +29,8 @@ namespace WritingExporter.WinForms.Forms
             _wdcReaderFactory = wdcReaderFactory;
 
             InitializeComponent();
+
+            EnableSave(false);
         }
 
         void EnableGet(bool a)
@@ -99,7 +101,7 @@ namespace WritingExporter.WinForms.Forms
                     sb.AppendLine();
                     sb.AppendLine(ex.GetType().ToString());
                     sb.AppendLine(ex.Message);
-                    MessageBox.Show("Exception trying to add story", sb.ToString(), MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show(sb.ToString(), "Exception trying to add story", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
         }
@@ -111,7 +113,7 @@ namespace WritingExporter.WinForms.Forms
 
         private void btnAddStory_Click(object sender, EventArgs e)
         {
-
+            SaveStory();
         }
     }
 }

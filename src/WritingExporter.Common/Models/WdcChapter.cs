@@ -19,7 +19,9 @@ namespace WritingExporter.Common.Models
 
         public string SourceChoiceTitle { get; set; } // Yes, we will to save this, because sometimes it's different from the title
 
-        public WdcAuthor Author { get; set; } // The author, not sure if it changes with edits
+        public string AuthorName { get; set; } // The author, not sure if it changes with edits
+
+        public string AuthorUsername { get; set; } // The author, not sure if it changes with edits
 
         public string Content { get; set; } // The content / writing of the chapter, the flesh of it
 

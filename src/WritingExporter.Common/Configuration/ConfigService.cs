@@ -58,7 +58,7 @@ namespace WritingExporter.Common.Configuration
             if (string.IsNullOrEmpty(sectionName))
                 throw new ArgumentNullException("sectionName");
 
-            _log.Debug($"Getting section: {sectionName}");
+            //_log.Debug($"Getting section: {sectionName}");
 
             lock (_lock)
             {
@@ -70,7 +70,7 @@ namespace WritingExporter.Common.Configuration
 
             // Made it out here, it wasn't a section seen before
             // Just create a new one
-            _log.Debug($"Tried to get unset section, returning default instance of type {typeof(TSection).Name}");
+            //_log.Debug($"Tried to get unset section, returning default instance of type {typeof(TSection).Name}");
             return (TSection)Activator.CreateInstance(typeof(TSection));
         }
 

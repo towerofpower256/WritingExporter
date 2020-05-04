@@ -94,7 +94,7 @@ namespace WritingExporter.Common.Logging
 
         public void DoTrace(string level, object message)
         {
-            Trace.WriteLine($"{level}: {message.ToString()}");
+            Trace.WriteLine($"[{level}][{_name}]: {message.ToString()}");
         }
 
         public void DoTrace(string level, object message, params object[] parms)

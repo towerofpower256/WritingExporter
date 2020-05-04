@@ -21,7 +21,13 @@ namespace WritingExporter.Common.Models
 
         public string Description { get; set; }
 
-        public string Author { get; set; } // E.g. That Guy (thatguy)
+        public string AuthorName { get; set; } // The author, not sure if it changes with edits
+
+        public string AuthorUsername { get; set; } // The author, not sure if it changes with edits
+
+        public DateTime LastSynced { get; set; } // When the sync worker last looked at this story.
+
+        public DateTime NextSync { get; set; } // When the sync worker should look at this next.
 
         public DateTime LastUpdatedInfo { get; set; } // When the last scrape update was run against Writing.com for the story's info
 
@@ -37,6 +43,7 @@ namespace WritingExporter.Common.Models
     public enum WdcStoryState
     {
         Idle,
+        IdleItuPause,
         Syncing,
         Disabled,
         Error

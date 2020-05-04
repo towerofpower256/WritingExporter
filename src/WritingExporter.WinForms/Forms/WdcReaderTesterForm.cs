@@ -8,13 +8,18 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using WritingExporter.Common.Wdc;
+using WritingExporter.Common.Configuration;
 
 namespace WritingExporter.WinForms.Forms
 {
     public partial class WdcReaderTesterForm : Form
     {
-        public WdcReaderTesterForm()
+        ConfigService _config;
+
+        public WdcReaderTesterForm(ConfigService config)
         {
+            _config = config;
+
             InitializeComponent();
 
             LoadSettings();
@@ -23,7 +28,7 @@ namespace WritingExporter.WinForms.Forms
         private void LoadSettings()
         {
             // TODO fetch from options. For now, just load default.
-            LoadSettings(new WdcReaderOptions());
+            LoadSettings(_config.GetSection<WdcReaderConfigSection>().ReaderOptions);
         }
 
         private delegate void LoadSettingsDelegate(WdcReaderOptions readerOptions);
@@ -84,8 +89,8 @@ namespace WritingExporter.WinForms.Forms
             RunTest(sb, "read story username", () =>
             {
                 var author = reader.GetInteractiveStoryAuthor(payload);
-                sb.AppendLine($"Story author name: {author.Name}");
-                sb.AppendLine($"Story author username: {author.Username}");
+                sb.AppendLine($"Story author name: {author.AuthorName}");
+                sb.AppendLine($"Story author username: {author.AuthorUsername}");
             });
 
             RunTest(sb, "read story short description",
@@ -110,8 +115,8 @@ namespace WritingExporter.WinForms.Forms
             RunTest(sb, "read chapter author", () =>
             {
                 var author = reader.GetInteractiveChapterAuthor(payload);
-                sb.AppendLine($"Chapter author name: {author.Name}");
-                sb.AppendLine($"Chapter author username: {author.Username}");
+                sb.AppendLine($"Chapter author name: {author.AuthorName}");
+                sb.AppendLine($"Chapter author username: {author.AuthorUsername}");
             });
 
             RunTest(sb, "read chapter source choice",
@@ -182,7 +187,7 @@ namespace WritingExporter.WinForms.Forms
 
         private void btnReadChapterMap_Click(object sender, EventArgs e)
         {
-
+            ReadChapterMap();
         }
     }
 }

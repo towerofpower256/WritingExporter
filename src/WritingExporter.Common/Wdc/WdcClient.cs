@@ -7,8 +7,10 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Web;
 using WritingExporter.Common.Configuration;
 using WritingExporter.Common.Events;
+using WritingExporter.Common.Events.WritingExporter.Common.Events;
 using WritingExporter.Common.Exceptions;
 using WritingExporter.Common.Logging;
 
@@ -21,7 +23,10 @@ namespace WritingExporter.Common.Wdc
         private const string URL_ROOT = "https://www.writing.com/";
         private const string LOGIN_URL_SEGMENT = "main/login.php";
 
+
+
         private ILogger _log;
+        private EventHub _eventHub;
         private HttpClientHandler httpClientHandler;
         private HttpClient httpClient;
         private CookieContainer httpCookies;
@@ -29,12 +34,13 @@ namespace WritingExporter.Common.Wdc
         private ConfigService _configService;
         bool _configHasChanged = false;
 
-        public WdcClient(ILoggerSource loggerSource, ConfigService config)
+        public WdcClient(ILoggerSource loggerSource, ConfigService config, EventHub eventHub)
         {
             _log = loggerSource.GetLogger(typeof(WdcClient));
             _log.Debug("Starting");
 
             _configService = config;
+            _eventHub = eventHub;
 
             UpdateSettings();
 
@@ -42,6 +48,9 @@ namespace WritingExporter.Common.Wdc
             httpClientHandler = new HttpClientHandler();
             httpClientHandler.CookieContainer = httpCookies;
             httpClient = new HttpClient(httpClientHandler, true);
+
+            // Register for events
+            _eventHub.Subscribe<ConfigSectionChangedEventArgs>(this);
         }
 
         public void Reset()
@@ -243,7 +252,8 @@ namespace WritingExporter.Common.Wdc
 
         private async Task<HttpResponseMessage> HttpGetAsync(Uri urlToGet, CancellationToken ct)
         {
-            HttpResponseMessage response = await httpClient.GetAsync(urlToGet, ct);
+            //HttpResponseMessage response = await httpClient.GetAsync(urlToGet, ct);
+            HttpResponseMessage response = httpClient.GetAsync(urlToGet, ct).Result;
             response.EnsureSuccessStatusCode(); // Fail if result is not 200 OK
 
             return response;
