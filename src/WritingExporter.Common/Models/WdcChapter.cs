@@ -27,6 +27,8 @@ namespace WritingExporter.Common.Models
 
         public bool IsEnd { get; set; } = false; // Is this chapter a dead end in the story tree
 
+        public DateTime LastSynced { get; set; }
+
         public DateTime LastUpdated { get; set; }
 
         public DateTime FirstSeen { get; set; }

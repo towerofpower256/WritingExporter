@@ -17,8 +17,8 @@ namespace WritingExporter.Common.Data.Repositories
     {
         const string SQL_INSERT = @"
 INSERT INTO WdcChapter
-( SysId, StoryId, Path, Title, SourceChoiceTitle, AuthorName, AuthorUsername, Content, IsEnd, LastUpdated, FirstSeen) VALUES 
-( @SysId, @StoryId, @Path, @Title, @SourceChoiceTitle, @AuthorName, @AuthorUsername, @Content, @IsEnd, @LastUpdated, @FirstSeen );
+( SysId, StoryId, Path, Title, SourceChoiceTitle, AuthorName, AuthorUsername, Content, IsEnd, LastSynced, LastUpdated, FirstSeen) VALUES 
+( @SysId, @StoryId, @Path, @Title, @SourceChoiceTitle, @AuthorName, @AuthorUsername, @Content, @IsEnd, @LastSynced, @LastUpdated, @FirstSeen );
 ";
 
         IDbConnectionFactory _dbConnFact;
@@ -89,7 +89,7 @@ INSERT INTO WdcChapter
             using (IDbConnection cn = _dbConnFact.GetConnection())
             {
                 cn.Open();
-                var result = cn.Query<WdcChapter>(@"SELECT * FROM WdcStory;");
+                var result = cn.Query<WdcChapter>(@"SELECT * FROM WdcChapter;");
                 return result;
             }
         }
@@ -99,7 +99,7 @@ INSERT INTO WdcChapter
             using (IDbConnection cn = _dbConnFact.GetConnection())
             {
                 cn.Open();
-                var result = cn.QueryFirstOrDefault<WdcChapter>(@"SELECT * FROM WdcChaper WHERE SysId = @SysId LIMIT 1;", new { SysId = key });
+                var result = cn.QueryFirstOrDefault<WdcChapter>(@"SELECT * FROM WdcChapter WHERE SysId = @SysId LIMIT 1;", new { SysId = key });
                 return result;
             }
         }
@@ -112,7 +112,8 @@ INSERT INTO WdcChapter
                 cn.Execute(@"
 UPDATE WdcChapter SET
 SysId = @SysId, StoryId = @StoryId, Path = @Path, Title = @Title, SourceChoiceTitle = @SourceChoiceTitle,
-AuthorName = @AuthorName, AuthorUsername = @AuthorUsername, Content = @Content, IsEnd = @IsEnd, LastUpdated = @LastUpdated, FirstSeen = @FirstSeen
+AuthorName = @AuthorName, AuthorUsername = @AuthorUsername, Content = @Content, IsEnd = @IsEnd, 
+LastSynced = @LastSynced, LastUpdated = @LastUpdated, FirstSeen = @FirstSeen
 WHERE SydId = @SysId;", entity);
             }
 
@@ -149,8 +150,10 @@ WHERE SydId = @SysId;", entity);
             }
         }
 
+
+
         // Get a list of chapters for a story that haven't been updated since the timestamp
-        public IEnumerable<WdcChapter> GetStoryChapterNotUpdatedSince(string storySysId, DateTime timestamp)
+        public IEnumerable<WdcChapter> GetStoryChapterNotSyncedSince(string storySysId, DateTime timestamp)
         {
             // Handle invalid inputs
             if (string.IsNullOrEmpty(storySysId) || timestamp == DateTime.MinValue)
@@ -159,13 +162,13 @@ WHERE SydId = @SysId;", entity);
             using (IDbConnection cn = _dbConnFact.GetConnection())
             {
                 cn.Open();
-                return cn.Query<WdcChapter>(@"SELECT * FROM WdcChapter WHERE StoryId = @StoryId AND ( LastUpdated <= @Timestamp OR LastUpdated IS NULL );",
+                return cn.Query<WdcChapter>(@"SELECT * FROM WdcChapter WHERE StoryId = @StoryId AND ( LastSynced <= @Timestamp OR LastSynced IS NULL );",
                     new { StoryId = storySysId, Timestamp = timestamp }).ToArray();
             }
         }
 
         // Get a count of chapters for a story that haven't been updated since the timestamp
-        public int GetStoryChapterNotUpdatedSinceCount(string storySysId, DateTime timestamp)
+        public int GetStoryChapterNotSyncedSinceCount(string storySysId, DateTime timestamp)
         {
             // Handle invalid inputs
             if (string.IsNullOrEmpty(storySysId) || timestamp == DateTime.MinValue)
@@ -174,8 +177,21 @@ WHERE SydId = @SysId;", entity);
             using (IDbConnection cn = _dbConnFact.GetConnection())
             {
                 cn.Open();
-                return cn.ExecuteScalar<int>(@"SELECT COUNT(*) FROM WdcChapter WHERE StoryId = @StoryId AND ( LastUpdated <= @Timestamp OR LastUpdated IS NULL );",
+                return cn.ExecuteScalar<int>(@"SELECT COUNT(*) FROM WdcChapter WHERE StoryId = @StoryId AND ( LastSynced <= @Timestamp OR LastSynced IS NULL );",
                     new { StoryId = storySysId, Timestamp = timestamp });
+            }
+        }
+
+        public DateTime GetStoryLastUpdatedChaper(string storySysId)
+        {
+            if (string.IsNullOrEmpty(storySysId))
+                throw new ArgumentNullException("storySysId");
+
+            using (IDbConnection cn = _dbConnFact.GetConnection())
+            {
+                cn.Open();
+                return cn.ExecuteScalar<DateTime>(@"SELECT MAX(LastUpdated) FROM WdcChapter WHERE StoryId = @StoryId;",
+                    new { StoryId = storySysId });
             }
         }
     }

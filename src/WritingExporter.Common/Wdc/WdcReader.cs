@@ -8,13 +8,17 @@ using System.Web;
 using WritingExporter.Common.Logging;
 using WritingExporter.Common.Models;
 using WritingExporter.Common.Exceptions;
+using WritingExporter.Common.File_Dumper;
 
 namespace WritingExporter.Common.Wdc
 {
     public class WdcReader
     {
+        public const string PARSE_EXCEPTION_HTML_PAYLOAD_KEY = "HtmlPayload";
+
         WdcReaderOptions _options;
         ILogger _log;
+        FileDumperService _fileDump;
 
         public WdcReader(WdcReaderOptions options)
         {
@@ -52,7 +56,7 @@ namespace WritingExporter.Common.Wdc
             Regex interactiveTitleRegex = new Regex(_options.InteractiveTitleRegex, RegexOptions.IgnoreCase);
             Match interactiveTitleMatch = interactiveTitleRegex.Match(htmlPayload);
             if (!interactiveTitleMatch.Success)
-                throw new WdcReaderHtmlParseException($"Couldn't find the title for interactive story");
+                throw new WdcReaderHtmlParseException($"Couldn't find the title for interactive story", htmlPayload);
             return HttpUtility.HtmlDecode(WdcUtil.CleanHtmlSymbols(interactiveTitleMatch.Value));
         }
 
@@ -75,7 +79,7 @@ namespace WritingExporter.Common.Wdc
             Regex interactiveDescRegex = new Regex(_options.InteractiveDescriptionRegex, RegexOptions.IgnoreCase | RegexOptions.Singleline);
             Match interactiveDescMatch = interactiveDescRegex.Match(htmlPayload);
             if (!interactiveDescMatch.Success)
-                throw new WdcReaderHtmlParseException($"Couldn't find the description for interactive story");
+                throw new WdcReaderHtmlParseException($"Couldn't find the description for interactive story", htmlPayload);
             return HttpUtility.HtmlDecode(WdcUtil.CleanHtmlSymbols(interactiveDescMatch.Value));
         }
 
@@ -90,6 +94,8 @@ namespace WritingExporter.Common.Wdc
 
             if (!WdcUtil.IsValidChapterPath(chapterPath))
                 throw new ArgumentException($"Chapter '{chapterPath}' is not a valid chapter path", nameof(chapterPath));
+
+            chapterPath = WdcUtil.GetFinalParmFromUrl(chapterPath);
 
             var chapter = new WdcChapter();
             chapter.Path = chapterPath;
@@ -120,7 +126,7 @@ namespace WritingExporter.Common.Wdc
             Regex chapterTitleRegex = new Regex(chapterTitleRegexPattern, RegexOptions.IgnoreCase | RegexOptions.Singleline);
             Match chapterTitleMatch = chapterTitleRegex.Match(htmlPayload);
             if (!chapterTitleMatch.Success)
-                throw new WdcReaderHtmlParseException($"Couldn't find the chapter title for chapter");
+                throw new WdcReaderHtmlParseException($"Couldn't find the chapter title for chapter", htmlPayload);
             return HttpUtility.HtmlDecode(chapterTitleMatch.Value);
         }
 
@@ -136,7 +142,7 @@ namespace WritingExporter.Common.Wdc
             Regex chapterTitleRegex = new Regex(chapterTitleRegexPattern, RegexOptions.IgnoreCase | RegexOptions.Singleline);
             Match chapterTitleMatch = chapterTitleRegex.Match(htmlPayload);
             if (!chapterTitleMatch.Success)
-                throw new WdcReaderHtmlParseException($"Couldn't find the chapter title for chapter");
+                throw new WdcReaderHtmlParseException($"Couldn't find the chapter title for chapter", htmlPayload);
             return HttpUtility.HtmlDecode(chapterTitleMatch.Value);
         }
 
@@ -153,12 +159,12 @@ namespace WritingExporter.Common.Wdc
             Regex pageTitleRegex = new Regex(pageTitlePattern, RegexOptions.IgnoreCase | RegexOptions.Singleline);
             Match pageTitleMatch = pageTitleRegex.Match(htmlPayload);
             if (!pageTitleMatch.Success)
-                throw new WdcReaderHtmlParseException($"Couldn't find the page title on chapter");
+                throw new WdcReaderHtmlParseException($"Couldn't find the page title on chapter", htmlPayload);
 
             // Got the page title value, try to parse it
             var titleResponse = ReadPageTitle(pageTitleMatch.Value);
             if (string.IsNullOrEmpty(titleResponse.PageName))
-                throw new WdcReaderHtmlParseException($"Couldn't find the chapter title in the page title for chapter");
+                throw new WdcReaderHtmlParseException($"Couldn't find the chapter title in the page title for chapter", htmlPayload);
 
             return titleResponse.PageName;
         }
@@ -171,7 +177,7 @@ namespace WritingExporter.Common.Wdc
             Regex chapterSourceChoiceRegex = new Regex(_options.ChapterSourceChoiceRegex, RegexOptions.IgnoreCase | RegexOptions.Singleline);
             Match chapterSourceChoiceMatch = chapterSourceChoiceRegex.Match(htmlPayload);
             if (!chapterSourceChoiceMatch.Success) // If we can't find it, and it's not the first chapter
-                throw new WdcReaderHtmlParseException($"Couldn't find the interactive chapter's source choice and this isn't the first chapter");
+                throw new WdcReaderHtmlParseException($"Couldn't find the interactive chapter's source choice and this isn't the first chapter", htmlPayload);
             return HttpUtility.HtmlDecode(chapterSourceChoiceMatch.Value);
         }
 
@@ -186,7 +192,7 @@ namespace WritingExporter.Common.Wdc
             Regex chapterContentRegex = new Regex("(?<=<div class=\"KonaBody\">).+?(?=<\\/div>)", RegexOptions.IgnoreCase | RegexOptions.Singleline);
             Match chapterContentMatch = chapterContentRegex.Match(htmlPayload);
             if (!chapterContentMatch.Success)
-                throw new WdcReaderHtmlParseException($"Couldn't find the content for the interactive chapter");
+                throw new WdcReaderHtmlParseException($"Couldn't find the content for the interactive chapter", htmlPayload);
             return HttpUtility.HtmlDecode(chapterContentMatch.Value);
         }
 
@@ -199,7 +205,7 @@ namespace WritingExporter.Common.Wdc
             Regex chapterContentRegex = new Regex(_options.ChapterContentRegex, RegexOptions.IgnoreCase | RegexOptions.Singleline);
             Match chapterContentMatch = chapterContentRegex.Match(htmlPayload);
             if (!chapterContentMatch.Success)
-                throw new WdcReaderHtmlParseException($"Couldn't find the content for the interactive chapter");
+                throw new WdcReaderHtmlParseException($"Couldn't find the content for the interactive chapter", htmlPayload);
             return HttpUtility.HtmlDecode(chapterContentMatch.Value);
         }
 
@@ -211,7 +217,7 @@ namespace WritingExporter.Common.Wdc
             Regex chapterAuthorChunkRegex = new Regex(_options.ChapterAuthorChunkRegex, RegexOptions.IgnoreCase | RegexOptions.Singleline);
             Match chapterAuthorChunkMatch = chapterAuthorChunkRegex.Match(htmlPayload);
             if (!chapterAuthorChunkMatch.Success)
-                throw new WdcReaderHtmlParseException($"Couldn't find the HTML chunk containing the author for the interactive chapter");
+                throw new WdcReaderHtmlParseException($"Couldn't find the HTML chunk containing the author for the interactive chapter", htmlPayload);
             string chapterAuthorChunk = chapterAuthorChunkMatch.Value;
 
             // Get the author username
@@ -247,7 +253,7 @@ namespace WritingExporter.Common.Wdc
                     RegexOptions.Singleline | RegexOptions.IgnoreCase);
             Match chapterChoicesChunkMatch = chapterChoicesChunkRegex.Match(htmlPayload);
             if (!chapterChoicesChunkMatch.Success)
-                throw new WdcReaderHtmlParseException($"Couldn't find the HTML chunk containing choices for interactive chapter");
+                throw new WdcReaderHtmlParseException($"Couldn't find the HTML chunk containing choices for interactive chapter", htmlPayload);
             string chapterChoicesChunkHtml = chapterChoicesChunkMatch.Value;
 
             // Then try to get the individual choices
@@ -264,7 +270,7 @@ namespace WritingExporter.Common.Wdc
                 Regex choiceUrlRegex = new Regex(_options.ChapterChoiceUrlRegex);
                 Match choiceUrlMatch = choiceUrlRegex.Match(match.Value);
                 if (!choiceUrlMatch.Success)
-                    throw new WdcReaderHtmlParseException($"Could not find the URL of choice '{match.Value}'");
+                    throw new WdcReaderHtmlParseException($"Could not find the URL of choice '{match.Value}'", htmlPayload);
                 choiceUrl = choiceUrlMatch.Value;
 
                 // Get just the numbers from the URL

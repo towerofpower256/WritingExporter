@@ -11,5 +11,9 @@ namespace WritingExporter.Common.Exceptions
         public WdcReaderHtmlParseException() : base() { }
 
         public WdcReaderHtmlParseException(string message) : base(message) { }
+
+        public WdcReaderHtmlParseException(string message, string htmlPayload) : base(message) {
+            Data.Add("HtmlPayload", htmlPayload);
+        }
     }
 }

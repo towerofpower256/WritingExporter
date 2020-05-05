@@ -85,8 +85,8 @@ namespace WritingExporter.Common.Events
                     {
                         foreach (var subscription in subCol)
                         {
-                            if (!subscription.Reference.IsAlive) return;
-                            if (subscription.IsUnsubscribed) return;
+                            if (!subscription.Reference.IsAlive) continue;
+                            if (subscription.IsUnsubscribed) continue;
 
                             var publishTask = new Task(() => ((IEventSubscriber<TEvent>)subscription.Reference.Target).HandleEventAsync(@event));
                             if (runAsync) publishTask.Start();

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -9,6 +10,7 @@ using WritingExporter.Common.Data.Repositories;
 using WritingExporter.Common.Events;
 using WritingExporter.Common.Events.WritingExporter.Common.Events;
 using WritingExporter.Common.Exceptions;
+using WritingExporter.Common.File_Dumper;
 using WritingExporter.Common.Logging;
 using WritingExporter.Common.Models;
 using WritingExporter.Common.Wdc;
@@ -22,6 +24,7 @@ namespace WritingExporter.Common.WdcSync
         ILogger _log;
         ConfigService _config;
         EventHub _eventHub;
+        FileDumperService _fileDumper;
         WdcClient _wdcClient;
         WdcReaderFactory _wdcReaderFactory;
         WdcStoryRepository _storyRepo;
@@ -32,6 +35,11 @@ namespace WritingExporter.Common.WdcSync
         bool _disposing;
         bool _syncEnabled = true;
 
+        string _currentStorySysId;
+        string _currentStoryId;
+        string _currentChapterSysId;
+        string _currentChapterId;
+
         WdcSyncWorkerStatus _currentStatus;
         object _statusLock = new object();
         object _commandLock = new object();
@@ -39,7 +47,8 @@ namespace WritingExporter.Common.WdcSync
         public WdcSyncWorker(
             ILoggerSource loggerSource, ConfigService config, EventHub eventHub,
             WdcStoryRepository storyRepo, WdcChapterRepository chapterRepo,
-            WdcClient wdcClient, WdcReaderFactory wdcReaderFactory
+            WdcClient wdcClient, WdcReaderFactory wdcReaderFactory,
+            FileDumperService fileDumper
             )
         {
             _log = loggerSource.GetLogger(typeof(WdcSyncWorker));
@@ -49,6 +58,7 @@ namespace WritingExporter.Common.WdcSync
             _chapterRepo = chapterRepo;
             _wdcClient = wdcClient;
             _wdcReaderFactory = wdcReaderFactory;
+            _fileDumper = fileDumper;
 
             // Subscribe to events
             _eventHub.Subscribe<WdcSyncWorkerCommandEvent>(this);
@@ -189,9 +199,15 @@ namespace WritingExporter.Common.WdcSync
                 // Think has officially started
                 _lastThink = DateTime.Now;
 
-                // Cancellation handling
+                // Cancellation and exception handling
                 try
                 {
+                    var wdcConfig = _config.GetSection<WdcClientConfigSection>();
+                    if (string.IsNullOrEmpty(wdcConfig.WritingUsername))
+                        throw new Exception("WDC username cannot be empty");
+                    if (string.IsNullOrEmpty(wdcConfig.WritingPassword))
+                        throw new Exception("WDC password cannot be empty");
+
                     var ct = _ctSource.Token;
                     ct.ThrowIfCancellationRequested();
 
@@ -220,6 +236,11 @@ namespace WritingExporter.Common.WdcSync
                             // DEBUG just for testing, throw the exception
                             throw ex;
                         }
+
+                        _currentStorySysId = storySysId;
+                        _currentStoryId = story.Id;
+                        _currentChapterSysId = "";
+                        _currentChapterId = "";
 
                         UpdateWorkerStatus(WdcSyncWorkerState.WorkerWorking, story.Id, "Syncing story");
                         _eventHub.PublishEvent(new WdcSyncStoryEvent(WdcSyncStoryEventType.StorySyncStarted, storySysId, story.Id, "Syncing story"));
@@ -270,12 +291,57 @@ namespace WritingExporter.Common.WdcSync
 
                             // Look for chapters that need syncing
                             var timestamp = DateTime.Now.AddSeconds(-config.SyncChapterIntervalSeconds);
-                            var workQueueChapters = _chapterRepo.GetStoryChapterNotUpdatedSince(storySysId, timestamp).Select(c => c.SysId);
+                            var workQueueChapters = _chapterRepo.GetStoryChapterNotSyncedSince(storySysId, timestamp).Select(c => c.SysId);
                             foreach (string chapterSysId in workQueueChapters)
                             {
-                                // Sync chapters
+                                ct.ThrowIfCancellationRequested();
 
-                                await SyncChapter(storySysId, story.Id, chapterSysId, _ctSource.Token);
+                                // Sync chapters
+                                _currentChapterSysId = chapterSysId;
+
+                                try
+                                {
+                                    await SyncChapter(chapterSysId, _ctSource.Token);
+                                }
+                                catch (WdcReaderHtmlParseException ex)
+                                {
+                                    var exMsg = new StringBuilder();
+                                    exMsg.AppendLine($"Exception encountered while syncing chapter {_currentStoryId}:{_currentChapterId}");
+
+                                    // Dump it
+                                    if (ex.Data.Contains(WdcReader.PARSE_EXCEPTION_HTML_PAYLOAD_KEY))
+                                    {
+                                        var result = _fileDumper.DumpFile(
+                                            $"{_fileDumper.GetTimestampForPath(DateTime.Now)} story {_currentStoryId} chapter {_currentChapterId}.html",
+                                            ex.Data[WdcReader.PARSE_EXCEPTION_HTML_PAYLOAD_KEY].ToString()
+                                            );
+                                        exMsg.AppendLine($"The HTML of the file has been dumped to: {result.Filename}");
+                                        exMsg.AppendLine();
+                                    }
+
+                                    _log.Error(exMsg.ToString(), ex);
+
+                                    _eventHub.PublishEvent(new ExceptionAlertEvent(this, ex, exMsg.ToString()));
+
+                                    var msg = $"Exception encountered while syncing chapter {_currentChapterId}\n{ex.GetType().ToString()}\n{ex.Message}";
+
+                                    story = _storyRepo.GetByID(storySysId);
+                                    story.LastSynced = DateTime.Now;
+                                    story.State = WdcStoryState.Error;
+                                    story.StateMessage = msg;
+
+                                    _storyRepo.Save(story);
+
+                                    _eventHub.PublishEvent(new WdcSyncStoryEvent(WdcSyncStoryEventType.StorySyncException, storySysId, story.Id, msg));
+
+                                    Cancel();
+                                }
+                                finally
+                                {
+                                    _currentChapterId = string.Empty;
+                                    _currentChapterSysId = string.Empty;
+                                }
+                                
                             }
 
                             // Sync completed without issue
@@ -307,7 +373,21 @@ namespace WritingExporter.Common.WdcSync
                         }
                         catch (WdcReaderHtmlParseException ex)
                         {
-                            _log.Error($"Exception encountered while synching story {storySysId}", ex);
+                            var exMsg = new StringBuilder();
+                            exMsg.AppendLine($"Exception encountered while syncing story {storySysId}");
+
+                            if (ex.Data.Contains(WdcReader.PARSE_EXCEPTION_HTML_PAYLOAD_KEY))
+                            {
+                                var result = _fileDumper.DumpFile(
+                                    $"{_fileDumper.GetTimestampForPath(DateTime.Now)} story {_currentStoryId}.html", 
+                                    ex.Data[WdcReader.PARSE_EXCEPTION_HTML_PAYLOAD_KEY].ToString()
+                                    );
+                                exMsg.AppendLine($"The HTML of the file has been dumped to: {result.Filename}");
+                                exMsg.AppendLine();
+                            }
+
+                            _log.Error(exMsg.ToString(), ex);
+                            _eventHub.PublishEvent(new ExceptionAlertEvent(this, ex, exMsg.ToString()));
 
                             var msg = $"Exception encountered during sync\n{ex.GetType().ToString()}\n{ex.Message}";
 
@@ -322,7 +402,23 @@ namespace WritingExporter.Common.WdcSync
                         }
                         // Don't catch any other exceptions
                         // This will likely not be story-specific, and should be handled at the SyncWorker level
-                        
+                        finally
+                        {
+                            // Try to clear any syncing states on stories
+                            if (!string.IsNullOrEmpty(_currentStoryId))
+                            {
+                                var __story = _storyRepo.GetByID(_currentStoryId);
+                                if (__story != null)
+                                {
+                                    __story.State = WdcStoryState.Idle;
+                                    __story.StateMessage = "";
+                                    _storyRepo.Save(__story);
+                                }
+                            }
+
+                            _currentStorySysId = string.Empty;
+                            _currentStoryId = string.Empty;
+                        }
                     }
 
                 }
@@ -338,9 +434,26 @@ namespace WritingExporter.Common.WdcSync
 
                     _log.Error("Exception encountered in sync worker", ex);
                     UpdateWorkerStatus(WdcSyncWorkerState.WorkerError, string.Empty, 
-                        $"Exception encountered in sync worker: {ex.GetType().ToString()}\n{ex.Message}");
+                        $"Exception encountered in sync worker:\n{ex.GetType().ToString()}\n{ex.Message}");
 
                     _eventHub.PublishEvent(new ExceptionAlertEvent(this, ex, "Exception encountered in sync worker"));
+                }
+                finally
+                {
+                    // Try to clear any syncing states on stories
+                    if (!string.IsNullOrEmpty(_currentStoryId))
+                    {
+                        var __story = _storyRepo.GetByID(_currentStoryId);
+                        if (__story != null)
+                        {
+                            __story.State = WdcStoryState.Idle;
+                            __story.StateMessage = "";
+                            _storyRepo.Save(__story);
+                        }
+                    }
+
+                    _currentStorySysId = string.Empty;
+                    _currentStoryId = string.Empty;
                 }
 
                 // Should I end things?
@@ -454,7 +567,7 @@ namespace WritingExporter.Common.WdcSync
             _chapterRepo.AddRange(newChapters);
         }
 
-        async Task SyncChapter(string storySysId, string storyId, string chapterSysId, CancellationToken ct)
+        async Task SyncChapter(string chapterSysId, CancellationToken ct)
         {
             ct.ThrowIfCancellationRequested();
 
@@ -463,18 +576,20 @@ namespace WritingExporter.Common.WdcSync
             // Get the current story info
             var currentChapter = _chapterRepo.GetByID(chapterSysId);
 
+            _currentChapterId = currentChapter.Path;
+
             // TODO handle if can't find the chapter anymore
 
             var msg = $"Syncing chapter {currentChapter.Path}";
-            UpdateWorkerStatus(WdcSyncWorkerState.WorkerWorking, storyId, msg);
-            _eventHub.PublishEvent(new WdcSyncStoryEvent(WdcSyncStoryEventType.StorySyncStarted, storySysId, storyId, msg));
+            UpdateWorkerStatus(WdcSyncWorkerState.WorkerWorking, _currentStoryId, msg);
+            _eventHub.PublishEvent(new WdcSyncStoryEvent(WdcSyncStoryEventType.StorySyncStarted, _currentStorySysId, _currentStoryId, msg));
 
             // Get the chapter info from WDC
             // And exception handle
             WdcResponse response;
             try
             {
-                response = await _wdcClient.GetInteractiveChapter(storyId, currentChapter.Path, ct); ;
+                response = await _wdcClient.GetInteractiveChapter(_currentStoryId, currentChapter.Path, ct); ;
             }
             catch (Exception ex)
             {
@@ -483,7 +598,7 @@ namespace WritingExporter.Common.WdcSync
 
             ct.ThrowIfCancellationRequested();
 
-            WdcChapter newChapter = wdcReader.GetInteractiveChapter(response.WebResponse, response.Address);
+            WdcChapter newChapter = wdcReader.GetInteractiveChapter(response.Address, response.WebResponse);
 
             if (
                 currentChapter.AuthorName != newChapter.AuthorName ||
@@ -495,7 +610,7 @@ namespace WritingExporter.Common.WdcSync
                 currentChapter.Title != newChapter.Title
                 )
             {
-                _log.Debug($"Updating chapter with new content: {storyId}:{currentChapter.Path}");
+                _log.Debug($"Updating chapter with new content: {_currentStoryId}:{currentChapter.Path}");
 
                 // Details are different
                 currentChapter.AuthorName = newChapter.AuthorName;

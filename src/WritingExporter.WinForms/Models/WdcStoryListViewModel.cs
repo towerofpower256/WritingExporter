@@ -14,5 +14,9 @@ namespace WritingExporter.WinForms.Models
         public int ChapterCountTotal { get; set; }
 
         public int ChapterCountReady { get; set; }
+
+        public DateTime RecentChapter { get; set; }
+
+        public string StoryStateLabel { get; set; }
     }
 }

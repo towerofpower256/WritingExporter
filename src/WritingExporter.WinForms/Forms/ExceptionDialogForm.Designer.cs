@@ -55,7 +55,7 @@
             this.txtInfo.Name = "txtInfo";
             this.txtInfo.ReadOnly = true;
             this.txtInfo.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.txtInfo.Size = new System.Drawing.Size(727, 396);
+            this.txtInfo.Size = new System.Drawing.Size(508, 396);
             this.txtInfo.TabIndex = 1;
             // 
             // tableLayoutPanel1
@@ -75,12 +75,12 @@
             this.tableLayoutPanel1.RowCount = 2;
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.tableLayoutPanel1.Size = new System.Drawing.Size(803, 433);
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(584, 433);
             this.tableLayoutPanel1.TabIndex = 2;
             // 
             // btnClose
             // 
-            this.btnClose.Location = new System.Drawing.Point(700, 405);
+            this.btnClose.Location = new System.Drawing.Point(481, 405);
             this.btnClose.Name = "btnClose";
             this.btnClose.Size = new System.Drawing.Size(100, 25);
             this.btnClose.TabIndex = 2;
@@ -90,7 +90,7 @@
             // 
             // btnCopy
             // 
-            this.btnCopy.Location = new System.Drawing.Point(594, 405);
+            this.btnCopy.Location = new System.Drawing.Point(375, 405);
             this.btnCopy.Name = "btnCopy";
             this.btnCopy.Size = new System.Drawing.Size(100, 25);
             this.btnCopy.TabIndex = 3;
@@ -100,12 +100,14 @@
             // 
             // ExceptionDialogForm
             // 
+            this.AcceptButton = this.btnClose;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(803, 433);
+            this.ClientSize = new System.Drawing.Size(584, 433);
             this.Controls.Add(this.tableLayoutPanel1);
             this.Name = "ExceptionDialogForm";
             this.Text = "ExceptionDialogForm";
+            this.Load += new System.EventHandler(this.ExceptionDialogForm_Load);
             ((System.ComponentModel.ISupportInitialize)(this.picExceptionIcon)).EndInit();
             this.tableLayoutPanel1.ResumeLayout(false);
             this.tableLayoutPanel1.PerformLayout();

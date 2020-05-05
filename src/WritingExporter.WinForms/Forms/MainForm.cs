@@ -43,16 +43,12 @@ namespace WritingExporter.WinForms.Forms
             _eventHub = eventHub;
 
             InitializeComponent();
-
-
         }
 
         public Task HandleEventAsync(RepositoryChangedEvent @event)
         {
-            if (this.IsDisposed) return Task.CompletedTask;
+            if (this.IsDisposed || this.Disposing) return Task.CompletedTask;
             // TODO handle cleaner. Would be better to just update that story instead of reloading the entire list.
-
-            if (this.IsDisposed || this._isReady)
 
             ReloadStories();
 
@@ -61,14 +57,14 @@ namespace WritingExporter.WinForms.Forms
 
         public Task HandleEventAsync(WdcSyncStoryEvent @event)
         {
-            if (this.IsDisposed) return Task.CompletedTask;
+            if (this.IsDisposed || this.Disposing) return Task.CompletedTask;
 
             return Task.CompletedTask;
         }
 
         public Task HandleEventAsync(WdcSyncWorkerEvent @event)
         {
-            if (this.IsDisposed) return Task.CompletedTask;
+            if (this.IsDisposed || this.Disposing) return Task.CompletedTask;
 
             this.Invoke(new UpdateSyncWorkerInfoDelegate(UpdateSyncWorkerInfo), new object[]
             {
@@ -123,10 +119,13 @@ namespace WritingExporter.WinForms.Forms
         {
             row.Tag = storyVM.Story.SysId;
             row.Cells[0].Value = storyVM.Story.Name;
-            row.Cells[1].Value = storyVM.Story.State.ToString();
+            row.Cells[1].Value = storyVM.StoryStateLabel;
             row.Cells[1].ToolTipText = storyVM.Story.StateMessage;
             row.Cells[2].Value = $"{storyVM.ChapterCountReady} / {storyVM.ChapterCountTotal}";
-            row.Cells[3].Value = (storyVM.Story.LastSynced == DateTime.MinValue) ? "Never" : storyVM.Story.LastSynced.ToString(CultureInfo.CurrentUICulture);
+            row.Cells[3].Value = DgvDateTimeString(storyVM.Story.LastSynced);
+            row.Cells[4].Value = DgvDateTimeString(storyVM.Story.LastUpdatedInfo);
+            row.Cells[5].Value = DgvDateTimeString(storyVM.Story.LastUpdatedChapterOutline);
+            row.Cells[6].Value = DgvDateTimeString(storyVM.RecentChapter);
         }
 
         void UpdateStoryInfo()
@@ -200,7 +199,21 @@ namespace WritingExporter.WinForms.Forms
                 var vm = new WdcStoryListViewModel();
                 vm.Story = story;
                 vm.ChapterCountTotal = _chapterRepo.GetStoryChaptersCount(story.SysId);
-                vm.ChapterCountReady = vm.ChapterCountTotal - _chapterRepo.GetStoryChapterNotUpdatedSinceCount(story.SysId, timestamp);
+                vm.ChapterCountReady = vm.ChapterCountTotal - _chapterRepo.GetStoryChapterNotSyncedSinceCount(story.SysId, timestamp);
+                vm.RecentChapter = _chapterRepo.GetStoryLastUpdatedChaper(story.SysId);
+                
+                switch (story.State)
+                {
+                    case WdcStoryState.IdleItuPause:
+                        vm.StoryStateLabel = "Paused-ITU";
+                        break;
+                    case WdcStoryState.Error:
+                        vm.StoryStateLabel = "Disabled-Error";
+                        break;
+                    default:
+                        vm.StoryStateLabel = story.State.ToString();
+                        break;
+                }
                 storyVMs.Add(vm);
             }
 
@@ -220,10 +233,11 @@ namespace WritingExporter.WinForms.Forms
 
             ctxMenu.MenuItems.Add("Read story");
             ctxMenu.MenuItems.Add("Export story");
+            ctxMenu.MenuItems.Add("-");
             if (storyDisabled)
-                ctxMenu.MenuItems.Add("Enable story", new EventHandler((sender, args) => EnableStory(storySysId, true)));
+                ctxMenu.MenuItems.Add("Enable story sync", new EventHandler((sender, args) => EnableStory(storySysId, true)));
             else
-                ctxMenu.MenuItems.Add("Disable story", new EventHandler((sender, args) => EnableStory(storySysId, false)));
+                ctxMenu.MenuItems.Add("Disable story sync", new EventHandler((sender, args) => EnableStory(storySysId, false)));
             ctxMenu.MenuItems.Add("-");
             ctxMenu.MenuItems.Add("Remove story", new EventHandler((sender, args) => RemoveStoryWithDialog(storySysId)));
 
@@ -252,6 +266,19 @@ namespace WritingExporter.WinForms.Forms
                 story.State = (enable ? WdcStoryState.Idle : WdcStoryState.Disabled);
                 _storyRepo.Save(story);
             }
+        }
+
+        public static string DgvDateTimeString(DateTime dt)
+        {
+            if (dt == DateTime.MinValue)
+            {
+                return "Never";
+            }
+            else
+            {
+                return dt.ToString(CultureInfo.CurrentCulture);
+            }
+            
         }
 
         private void openWDCReaderTesterToolStripMenuItem_Click(object sender, EventArgs e)

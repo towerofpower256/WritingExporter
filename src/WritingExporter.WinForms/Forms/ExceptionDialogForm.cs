@@ -8,10 +8,16 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
+
+
 namespace WritingExporter.WinForms.Forms
 {
+
+
     public partial class ExceptionDialogForm : Form
     {
+
+
         public ExceptionDialogForm()
         {
             InitializeComponent();
@@ -23,12 +29,20 @@ namespace WritingExporter.WinForms.Forms
         {
             this.Text = $"Exception occurred: {message}";
             txtInfo.Text = $"{message}\n\n{StringifyException(ex)}";
+            txtInfo.Select(0, 0);
+
+            this.TopMost = true;
         }
 
         public static string StringifyException(Exception ex)
         {
-            var sb = new StringBuilder();
+            return StringifyException(ex, string.Empty);
+        }
 
+        public static string StringifyException(Exception ex, string message)
+        {
+            var sb = new StringBuilder();
+            if (!string.IsNullOrEmpty(message)) sb.AppendLine(message);
             sb.AppendLine(ex.GetType().ToString());
             sb.AppendLine(ex.Message);
             sb.AppendLine();
@@ -48,6 +62,13 @@ namespace WritingExporter.WinForms.Forms
         private void btnCopy_Click(object sender, EventArgs e)
         {
             Clipboard.SetText(txtInfo.Text);
+        }
+
+        private void ExceptionDialogForm_Load(object sender, EventArgs e)
+        {
+            this.TopMost = true;
+            this.Activate();
+            btnClose.Focus();
         }
     }
 }

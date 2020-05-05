@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 using WritingExporter.Common.Events;
 using WritingExporter.Common.Logging;
 using WritingExporter.WinForms.Forms;
@@ -22,7 +23,7 @@ namespace WritingExporter.WinForms
         {
             var form = new ExceptionDialogForm();
             form.SetInfo(@event.Message, @event.Exception);
-            form.Show();
+            form.ShowDialog();
 
             return Task.CompletedTask;
         }

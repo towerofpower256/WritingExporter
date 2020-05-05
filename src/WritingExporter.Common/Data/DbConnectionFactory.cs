@@ -88,6 +88,7 @@ namespace WritingExporter.Common.Data
                     AuthorUsername TEXT,
                     Content TEXT,
                     IsEnd BOOLEAN,
+                    LastSynced DATETIME,
                     LastUpdated DATETIME,
                     FirstSeen DATETIME
                     )");

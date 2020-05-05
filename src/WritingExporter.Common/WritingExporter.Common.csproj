@@ -69,6 +69,8 @@
     <Compile Include="Events\IEventSubscriber.cs" />
     <Compile Include="Exceptions\InteractivesTemporarilyUnavailableException.cs" />
     <Compile Include="Exceptions\WdcLoginFailedException.cs" />
+    <Compile Include="File Dumper\FileDumperResult.cs" />
+    <Compile Include="File Dumper\FileDumperService.cs" />
     <Compile Include="Logging\BlankLogger.cs" />
     <Compile Include="Logging\ILogger.cs" />
     <Compile Include="Logging\ILoggerSource.cs" />
