@@ -36,6 +36,13 @@
             this.openWDCReaderTesterToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.dgvStories = new System.Windows.Forms.DataGridView();
+            this.dgvStoriesColName = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.dgvStoriesColState = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.dgvStoriesColChapters = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.dgvStoriesColLastSynced = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.dgvStoriesColLastInfoSync = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.dgvStoriesColOutlineLastSynced = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.dgvStoriesColLastChapterUpdated = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.txtStoryInfo = new System.Windows.Forms.TextBox();
             this.lblSyncWorkerState = new System.Windows.Forms.Label();
             this.lblSyncWorkerMessage = new System.Windows.Forms.Label();
@@ -45,13 +52,6 @@
             this.lblSyncWorkerCurrentTaskLabel = new System.Windows.Forms.Label();
             this.btnSyncWorkerStart = new System.Windows.Forms.Button();
             this.btnSyncWorkerStop = new System.Windows.Forms.Button();
-            this.dgvStoriesColName = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.dgvStoriesColState = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.dgvStoriesColChapters = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.dgvStoriesColLastSynced = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.dgvStoriesColLastInfoSync = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.dgvStoriesColOutlineLastSynced = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.dgvStoriesColLastChapterUpdated = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.menuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvStories)).BeginInit();
             this.SuspendLayout();
@@ -132,8 +132,51 @@
             this.dgvStories.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             this.dgvStories.Size = new System.Drawing.Size(752, 238);
             this.dgvStories.TabIndex = 1;
+            this.dgvStories.CellDoubleClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgvStories_CellDoubleClick);
             this.dgvStories.CellMouseClick += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.dgvStories_CellMouseClick);
             this.dgvStories.SelectionChanged += new System.EventHandler(this.dgvStories_SelectionChanged);
+            // 
+            // dgvStoriesColName
+            // 
+            this.dgvStoriesColName.HeaderText = "Name";
+            this.dgvStoriesColName.Name = "dgvStoriesColName";
+            this.dgvStoriesColName.ReadOnly = true;
+            // 
+            // dgvStoriesColState
+            // 
+            this.dgvStoriesColState.HeaderText = "State";
+            this.dgvStoriesColState.Name = "dgvStoriesColState";
+            this.dgvStoriesColState.ReadOnly = true;
+            // 
+            // dgvStoriesColChapters
+            // 
+            this.dgvStoriesColChapters.HeaderText = "Chapters";
+            this.dgvStoriesColChapters.Name = "dgvStoriesColChapters";
+            this.dgvStoriesColChapters.ReadOnly = true;
+            // 
+            // dgvStoriesColLastSynced
+            // 
+            this.dgvStoriesColLastSynced.HeaderText = "Last synced";
+            this.dgvStoriesColLastSynced.Name = "dgvStoriesColLastSynced";
+            this.dgvStoriesColLastSynced.ReadOnly = true;
+            // 
+            // dgvStoriesColLastInfoSync
+            // 
+            this.dgvStoriesColLastInfoSync.HeaderText = "Info synced";
+            this.dgvStoriesColLastInfoSync.Name = "dgvStoriesColLastInfoSync";
+            this.dgvStoriesColLastInfoSync.ReadOnly = true;
+            // 
+            // dgvStoriesColOutlineLastSynced
+            // 
+            this.dgvStoriesColOutlineLastSynced.HeaderText = "Outline synced";
+            this.dgvStoriesColOutlineLastSynced.Name = "dgvStoriesColOutlineLastSynced";
+            this.dgvStoriesColOutlineLastSynced.ReadOnly = true;
+            // 
+            // dgvStoriesColLastChapterUpdated
+            // 
+            this.dgvStoriesColLastChapterUpdated.HeaderText = "Recent chapter";
+            this.dgvStoriesColLastChapterUpdated.Name = "dgvStoriesColLastChapterUpdated";
+            this.dgvStoriesColLastChapterUpdated.ReadOnly = true;
             // 
             // txtStoryInfo
             // 
@@ -219,48 +262,6 @@
             this.btnSyncWorkerStop.Text = "■";
             this.btnSyncWorkerStop.UseVisualStyleBackColor = true;
             this.btnSyncWorkerStop.Click += new System.EventHandler(this.btnSyncWorkerStop_Click);
-            // 
-            // dgvStoriesColName
-            // 
-            this.dgvStoriesColName.HeaderText = "Name";
-            this.dgvStoriesColName.Name = "dgvStoriesColName";
-            this.dgvStoriesColName.ReadOnly = true;
-            // 
-            // dgvStoriesColState
-            // 
-            this.dgvStoriesColState.HeaderText = "State";
-            this.dgvStoriesColState.Name = "dgvStoriesColState";
-            this.dgvStoriesColState.ReadOnly = true;
-            // 
-            // dgvStoriesColChapters
-            // 
-            this.dgvStoriesColChapters.HeaderText = "Chapters";
-            this.dgvStoriesColChapters.Name = "dgvStoriesColChapters";
-            this.dgvStoriesColChapters.ReadOnly = true;
-            // 
-            // dgvStoriesColLastSynced
-            // 
-            this.dgvStoriesColLastSynced.HeaderText = "Last synced";
-            this.dgvStoriesColLastSynced.Name = "dgvStoriesColLastSynced";
-            this.dgvStoriesColLastSynced.ReadOnly = true;
-            // 
-            // dgvStoriesColLastInfoSync
-            // 
-            this.dgvStoriesColLastInfoSync.HeaderText = "Info synced";
-            this.dgvStoriesColLastInfoSync.Name = "dgvStoriesColLastInfoSync";
-            this.dgvStoriesColLastInfoSync.ReadOnly = true;
-            // 
-            // dgvStoriesColOutlineLastSynced
-            // 
-            this.dgvStoriesColOutlineLastSynced.HeaderText = "Outline synced";
-            this.dgvStoriesColOutlineLastSynced.Name = "dgvStoriesColOutlineLastSynced";
-            this.dgvStoriesColOutlineLastSynced.ReadOnly = true;
-            // 
-            // dgvStoriesColLastChapterUpdated
-            // 
-            this.dgvStoriesColLastChapterUpdated.HeaderText = "Recent chapter";
-            this.dgvStoriesColLastChapterUpdated.Name = "dgvStoriesColLastChapterUpdated";
-            this.dgvStoriesColLastChapterUpdated.ReadOnly = true;
             // 
             // MainForm
             // 

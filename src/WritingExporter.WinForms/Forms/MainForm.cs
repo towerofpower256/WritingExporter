@@ -4,7 +4,9 @@ using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Globalization;
+using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -13,6 +15,7 @@ using WritingExporter.Common.Data;
 using WritingExporter.Common.Data.Repositories;
 using WritingExporter.Common.Events;
 using WritingExporter.Common.Events.WritingExporter.Common.Events;
+using WritingExporter.Common.Export;
 using WritingExporter.Common.Logging;
 using WritingExporter.Common.Models;
 using WritingExporter.Common.WdcSync;
@@ -25,15 +28,25 @@ namespace WritingExporter.WinForms.Forms
 
     public partial class MainForm : Form, IEventSubscriber<RepositoryChangedEvent>, IEventSubscriber<WdcSyncStoryEvent>, IEventSubscriber<WdcSyncWorkerEvent>
     {
+        private const string QUICK_EXPORT_DIR = "Exported Stories";
+
         EventHub _eventHub;
         WinFormsService _formService;
         WdcStoryRepository _storyRepo;
         WdcChapterRepository _chapterRepo;
         ConfigService _config;
         ILogger _log;
-        bool _isReady = false; // Flag used in event handling. Don't want to handle events if the form isn't ready yet.
+        WdcStoryExporterFactory _storyExporterFactory;
 
-        public MainForm(ILoggerSource loggerSource, WinFormsService formsService, WdcStoryRepository storyRepo, WdcChapterRepository chapterRepo, ConfigService config, EventHub eventHub)
+        public MainForm(
+            ILoggerSource loggerSource,
+            WinFormsService formsService,
+            WdcStoryRepository storyRepo,
+            WdcChapterRepository chapterRepo,
+            ConfigService config,
+            EventHub eventHub,
+            WdcStoryExporterFactory storyExporterFactory
+            )
         {
             _log = loggerSource.GetLogger(typeof(MainForm));
             _config = config;
@@ -41,6 +54,7 @@ namespace WritingExporter.WinForms.Forms
             _storyRepo = storyRepo;
             _chapterRepo = chapterRepo;
             _eventHub = eventHub;
+            _storyExporterFactory = storyExporterFactory;
 
             InitializeComponent();
         }
@@ -74,6 +88,20 @@ namespace WritingExporter.WinForms.Forms
             });
 
             return Task.CompletedTask;
+        }
+
+        void CheckConfigReady()
+        {
+            var wdcConfig = _config.GetSection<WdcClientConfigSection>();
+            if (string.IsNullOrEmpty(wdcConfig.WritingUsername) || string.IsNullOrEmpty(wdcConfig.WritingPassword))
+            {
+                MessageBox.Show("The Writing.com username and password need to be set before stories can be synced. Please set them in the configuration form.",
+                    "Missing configuration",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Information);
+
+                OpenSettingsDialog();
+            }
         }
 
 
@@ -185,6 +213,51 @@ namespace WritingExporter.WinForms.Forms
             _eventHub.PublishEvent(new WdcSyncWorkerCommandEvent(WdcSyncWorkerCommandEventType.StopWorker));
         }
 
+        void ExportStory(string storySysId, string targetDir, bool autoOpenOnComplete = false)
+        {
+            if (string.IsNullOrEmpty(targetDir))
+                throw new ArgumentNullException("targetDir", "The target directory for the export cannot be empty.");
+
+            if (string.IsNullOrEmpty(storySysId))
+                throw new ArgumentNullException("storySysId", "The story ID for the export cannot be empty.");
+
+            var exporter = _storyExporterFactory.GetExporter();
+            var progressDialog = _formService.GetForm<ProgressForm>();
+            progressDialog.OnCancel += new EventHandler<EventArgs>((sender, args) => exporter.Cancel());
+            exporter.OnProgressUpdate += new EventHandler<WdcStoryExporterProgressUpdateArgs>((sender, args) =>
+            {
+                switch (args.State) {
+                    case WdcStoryExporterProgressUpdateState.Completed:
+                        progressDialog.Close();
+
+                        break;
+                    case WdcStoryExporterProgressUpdateState.Error:
+                        _eventHub.PublishEvent(new ExceptionAlertEvent(this, args.Exception, args.Message));
+                        progressDialog.Close();
+                        break;
+                    case WdcStoryExporterProgressUpdateState.Working:
+                        progressDialog.UpdateForm(args.ProgressValue, args.ProgressMax, args.Message);
+                        break;
+                };
+            });
+
+            progressDialog.Show(this);
+            var exportresult = exporter.ExportStory(storySysId, targetDir);
+
+            if (exportresult.State == WdcStoryExporterResultsState.Completed)
+            {
+                if (autoOpenOnComplete)
+                    WinUtil.RunExplorerCommand(Path.Combine(WinUtil.GetCurrentDir(), targetDir, exporter.GetHomepageFileName()));
+            }
+        }
+
+        void QuickExportStory(string storySysId)
+        {
+            var story = _storyRepo.GetByID(storySysId);
+            if (story != null)
+                ExportStory(storySysId, Path.Combine(QUICK_EXPORT_DIR, story.Id), autoOpenOnComplete: true); ;
+        }
+
         IEnumerable<WdcStoryListViewModel> GetAllStories()
         {
             // Timestamp
@@ -233,6 +306,7 @@ namespace WritingExporter.WinForms.Forms
 
             ctxMenu.MenuItems.Add("Read story");
             ctxMenu.MenuItems.Add("Export story");
+            ctxMenu.MenuItems.Add("Sync now", new EventHandler((sender, args) => SyncStoryNow(storySysId)));
             ctxMenu.MenuItems.Add("-");
             if (storyDisabled)
                 ctxMenu.MenuItems.Add("Enable story sync", new EventHandler((sender, args) => EnableStory(storySysId, true)));
@@ -251,6 +325,13 @@ namespace WritingExporter.WinForms.Forms
             {
                 RemoveStory(storySysId);
             }
+        }
+
+        void SyncStoryNow(string storySysId)
+        {
+            var command = new WdcSyncWorkerCommandEvent(WdcSyncWorkerCommandEventType.SyncStoryNow);
+            command.Data.Add("StorySysId", storySysId);
+            _eventHub.PublishEvent(command);
         }
 
         void RemoveStory(string storySysId)
@@ -314,7 +395,8 @@ namespace WritingExporter.WinForms.Forms
 
         private void MainForm_Load(object sender, EventArgs e)
         {
-            _isReady = true;
+            CheckConfigReady();
+
             _eventHub.Subscribe<RepositoryChangedEvent>(this);
             _eventHub.Subscribe<WdcSyncStoryEvent>(this);
             _eventHub.Subscribe<WdcSyncWorkerEvent>(this);
@@ -332,6 +414,14 @@ namespace WritingExporter.WinForms.Forms
             {
                 DataGridViewRow selectedRow = dgvStories.SelectedRows[0];
                 ShowStoryContextMenu(dgvStories.PointToClient(Cursor.Position), (string)selectedRow.Tag);
+            }
+        }
+
+        private void dgvStories_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
+        {
+            if (dgvStories.SelectedRows.Count == 1)
+            {
+                QuickExportStory((string)dgvStories.SelectedRows[0].Tag);
             }
         }
     }

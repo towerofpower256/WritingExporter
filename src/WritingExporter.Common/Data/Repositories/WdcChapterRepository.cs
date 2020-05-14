@@ -4,10 +4,12 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
+using System.IO;
 using System.Linq;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Serialization;
 using WritingExporter.Common.Events.WritingExporter.Common.Events;
 using WritingExporter.Common.Models;
 
@@ -17,10 +19,10 @@ namespace WritingExporter.Common.Data.Repositories
     {
         const string SQL_INSERT = @"
 INSERT INTO WdcChapter
-( SysId, StoryId, Path, Title, SourceChoiceTitle, AuthorName, AuthorUsername, Content, IsEnd, LastSynced, LastUpdated, FirstSeen) VALUES 
-( @SysId, @StoryId, @Path, @Title, @SourceChoiceTitle, @AuthorName, @AuthorUsername, @Content, @IsEnd, @LastSynced, @LastUpdated, @FirstSeen );
+( SysId, StoryId, Path, Title, SourceChoiceTitle, AuthorName, AuthorUsername, Content, IsEnd, LastSynced, LastUpdated, FirstSeen, ChoicesString) VALUES 
+( @SysId, @StoryId, @Path, @Title, @SourceChoiceTitle, @AuthorName, @AuthorUsername, @Content, @IsEnd, @LastSynced, @LastUpdated, @FirstSeen, @ChoicesString );
 ";
-
+        
         IDbConnectionFactory _dbConnFact;
         EventHub _eventHub;
 
@@ -113,8 +115,9 @@ INSERT INTO WdcChapter
 UPDATE WdcChapter SET
 SysId = @SysId, StoryId = @StoryId, Path = @Path, Title = @Title, SourceChoiceTitle = @SourceChoiceTitle,
 AuthorName = @AuthorName, AuthorUsername = @AuthorUsername, Content = @Content, IsEnd = @IsEnd, 
-LastSynced = @LastSynced, LastUpdated = @LastUpdated, FirstSeen = @FirstSeen
-WHERE SydId = @SysId;", entity);
+LastSynced = @LastSynced, LastUpdated = @LastUpdated, FirstSeen = @FirstSeen,
+ChoicesString = @ChoicesString
+WHERE SysId = @SysId;", entity);
             }
 
             _eventHub.PublishEvent(new RepositoryChangedEvent(RepositoryChangedEventType.Update, new string[] { entity.SysId }, typeof(WdcChapterRepository)));
@@ -131,6 +134,20 @@ WHERE SydId = @SysId;", entity);
             {
                 cn.Open();
                 return cn.Query<WdcChapter>(@"SELECT * FROM WdcChapter WHERE StoryId = @StoryId;",
+                    new { StoryId = storySysId });
+            }
+        }
+
+        public IEnumerable<WdcChapterOutline> GetStoryOutline(string storySysId)
+        {
+            // Handle invalid inputs
+            if (string.IsNullOrEmpty(storySysId))
+                return new WdcChapterOutline[0];
+
+            using (IDbConnection cn = _dbConnFact.GetConnection())
+            {
+                cn.Open();
+                return cn.Query<WdcChapterOutline>(@"SELECT SysId, StoryId, Path, Title, LastSynced, LastUpdated, FirstSeen FROM WdcChapter WHERE StoryId = @StoryId;",
                     new { StoryId = storySysId });
             }
         }

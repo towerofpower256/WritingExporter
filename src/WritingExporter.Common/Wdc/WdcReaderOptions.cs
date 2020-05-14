@@ -14,12 +14,12 @@ namespace WritingExporter.Common.Wdc
         public const string InteractiveDescriptionRegexDefault = "(?<=<td align=left class=\"norm\">).+?(?=<\\/td>)";
         public const string InteractiveAuthorRegexDefault = "";
         public const string ChapterTitleRegexDefault = @"(?<=<title>).*?(?=<\/title>)";
-        public const string ChapterSourceChoiceRegexDefault = @"(?<=This choice: <b>).*?(?=<\/b>)";
+        public const string ChapterSourceChoiceRegexDefault = @"(?<=choice:  ?<b>).*?(?=<\/b>)";
         public const string ChapterContentRegexDefault = "(?<=<div class=\"\">).+?(?=<\\/div>)";
-        public const string ChapterAuthorChunkRegexDefault = "<a title=\" Username: .*?<\\/a>";
+        public const string ChapterAuthorChunkRegexDefault = "<a title=\"Username: .*?<\\/a>";
         public const string ChapterAuthorUsernameRegexDefault = "(?<=Username: )[a-zA-Z]+";
         public const string ChapterAuthorNameRegexDefault = "(?<=>).+?(?=<)";
-        public const string ChapterChoicesChunkRegexDefault = "(?<=<b>You have the following choice(s)?:<\\/b>).*?(?=<\\/div><div id=\"end_of_choices\")";
+        public const string ChapterChoicesChunkRegexDefault = @"(?<=following choices:<\/b>).*?(?=<\/div><div id=""end_choices"")";
         public const string ChapterChoicesRegexDefault = "<a .*?href=\".+?\">.+?<\\/a>";
         public const string ChapterChoiceUrlRegexDefault = "(?<=href=\").+?(?=\")";
         public const string ChapterEndCheckRegexDefault = ">You have come to the end of the story. You can:<\\/";

@@ -108,6 +108,8 @@ namespace WritingExporter.Common.Wdc
             chapter.AuthorName = author.AuthorName;
             chapter.AuthorUsername = author.AuthorUsername;
 
+            chapter.Choices = GetInteractiveChapterChoices(htmlPayload);
+
             return chapter;
         }
 
@@ -242,11 +244,11 @@ namespace WritingExporter.Common.Wdc
         // Get the available choices
         // This one is going to be complicated, because none of the divs or whatnot have ID's
         // First, get a chunk of the HTML that contains the choices, we'll break them down later
-        public IEnumerable<WdcChapterChoice> GetInteractiveChapterChoices(string htmlPayload)
+        public WdcChapterChoiceCollection GetInteractiveChapterChoices(string htmlPayload)
         {
             if (IsInteractiveChapterEnd(htmlPayload)) return null;
 
-            var choices = new List<WdcChapterChoice>();
+            var choices = new WdcChapterChoiceCollection();
 
             // Default regex: (?<=<b>You have the following choice(s)?:<\\/b>).*?(?=<\\/div><div id=\"end_of_choices\")
             Regex chapterChoicesChunkRegex = new Regex(_options.ChapterChoicesChunkRegex,
@@ -285,7 +287,7 @@ namespace WritingExporter.Common.Wdc
                 choices.Add(newChoice);
             }
 
-            return choices.ToArray();
+            return choices;
         }
 
         public IEnumerable<Uri> GetInteractiveChapterList(string interactiveID, string htmlPayload)

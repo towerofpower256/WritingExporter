@@ -90,7 +90,8 @@ namespace WritingExporter.Common.Data
                     IsEnd BOOLEAN,
                     LastSynced DATETIME,
                     LastUpdated DATETIME,
-                    FirstSeen DATETIME
+                    FirstSeen DATETIME,
+                    ChoicesString TEXT
                     )");
 
                     conn.Execute(@"CREATE TABLE WdcChapterChoice (

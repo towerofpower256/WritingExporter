@@ -14,6 +14,7 @@ using WritingExporter.Common.Data;
 using WritingExporter.Common.Data.Repositories;
 using WritingExporter.Common.Events;
 using WritingExporter.Common.Events.WritingExporter.Common.Events;
+using WritingExporter.Common.Export;
 using WritingExporter.Common.Logging;
 using WritingExporter.Common.Wdc;
 using WritingExporter.Common.WdcSync;
@@ -116,6 +117,7 @@ namespace WritingExporter.WinForms
             _log.Debug("Registering WDC services");
             _container.Register<WdcReaderFactory, WdcReaderFactory>(Lifestyle.Singleton);
             _container.Register<WdcClient, WdcClient>(Lifestyle.Singleton);
+            _container.Register<IWdcStoryExporter, WdcStoryExporterHtmlCollection>();
 
 
             var syncWorkerRegistration = Lifestyle.Transient.CreateRegistration(typeof(WdcSyncWorker), _container);

@@ -7,10 +7,7 @@ using System.Threading.Tasks;
 namespace WritingExporter.Common.Models
 {
     [Serializable]
-    public class WdcChapterChoice
+    public class WdcChapterChoiceCollection : List<WdcChapterChoice>
     {
-        public string PathLink { get; set; }
-
-        public string Name { get; set; }
     }
 }

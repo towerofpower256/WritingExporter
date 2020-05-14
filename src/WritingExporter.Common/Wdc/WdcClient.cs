@@ -102,10 +102,10 @@ namespace WritingExporter.Common.Wdc
             var password = _config.WritingPassword;
 
             if (string.IsNullOrEmpty(username))
-                throw new ArgumentNullException("username", "The Writing.com username cannot be empty");
+                throw new WdcMissingCredentialsException("WDC username cannot be empty");
 
             if (string.IsNullOrEmpty(password))
-                throw new ArgumentNullException("username", "The Writing.com password cannot be empty");
+                throw new WdcMissingCredentialsException("WDC password cannot be empty");
 
             await LoginAsync(username, password, ct);
         }

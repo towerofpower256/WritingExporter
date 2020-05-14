@@ -22,7 +22,7 @@ namespace WritingExporter.Common.WdcSync
         const int THINK_INVERVAL_MS = 1000;
 
         ILogger _log;
-        ConfigService _config;
+        ConfigService _configService;
         EventHub _eventHub;
         FileDumperService _fileDumper;
         WdcClient _wdcClient;
@@ -35,10 +35,13 @@ namespace WritingExporter.Common.WdcSync
         bool _disposing;
         bool _syncEnabled = true;
 
+        WdcSyncConfigSection _config;
+        string _syncNowStorySysId;
         string _currentStorySysId;
         string _currentStoryId;
         string _currentChapterSysId;
         string _currentChapterId;
+        int _currentSyncedStoryChapters;
 
         WdcSyncWorkerStatus _currentStatus;
         object _statusLock = new object();
@@ -52,7 +55,7 @@ namespace WritingExporter.Common.WdcSync
             )
         {
             _log = loggerSource.GetLogger(typeof(WdcSyncWorker));
-            _config = config;
+            _configService = config;
             _eventHub = eventHub;
             _storyRepo = storyRepo;
             _chapterRepo = chapterRepo;
@@ -75,7 +78,6 @@ namespace WritingExporter.Common.WdcSync
                 switch (@event.CommandType)
                 {
                     case WdcSyncWorkerCommandEventType.RequestStatusUpdate:
-                        _log.Debug("Status update requested");
                         PublishSyncWorkerStatus();
                         break;
                     case WdcSyncWorkerCommandEventType.StartWorker:
@@ -85,6 +87,17 @@ namespace WritingExporter.Common.WdcSync
                     case WdcSyncWorkerCommandEventType.StopWorker:
                         _syncEnabled = false;
                         Cancel();
+                        break;
+                    case WdcSyncWorkerCommandEventType.SyncStoryNow:
+                        if (!@event.Data.ContainsKey("StorySysId"))
+                        {
+                            _log.Warn("SyncStoryNow command sent without a Story ID. Ignoring.");
+                        }
+                        else
+                        {
+                            SyncNow(@event.Data["StorySysId"]);
+                        }
+                        
                         break;
                 }
             }
@@ -130,6 +143,12 @@ namespace WritingExporter.Common.WdcSync
             _ctSource = new CancellationTokenSource();
         }
 
+        public void SyncNow(string storyId)
+        {
+            _syncNowStorySysId = storyId;
+            Cancel(); // Cancel, so the loop starts again
+        }
+
         void UpdateWorkerStatus(WdcSyncWorkerState workerState, string workerCurrentTask, string workerMessage)
         {
             lock (_statusLock)
@@ -160,9 +179,15 @@ namespace WritingExporter.Common.WdcSync
             _eventHub.PublishEvent(new WdcSyncWorkerEvent(_currentStatus.DeepClone()));
         }
 
+        void UpdateConfig()
+        {
+            _config = _configService.GetSection<WdcSyncConfigSection>();
+        }
+
         bool IsSyncEnabled()
         {
-            return IsSyncEnabled(_config.GetSection<WdcSyncConfigSection>());
+            UpdateConfig();
+            return IsSyncEnabled(_config);
         }
 
         bool IsSyncEnabled(WdcSyncConfigSection config)
@@ -177,23 +202,23 @@ namespace WritingExporter.Common.WdcSync
                 UpdateWorkerStatus(WdcSyncWorkerState.WorkerIdle, string.Empty, "Sync worker not enabled, check options");
             }
 
-            WdcSyncConfigSection config;
-
             while(IsSyncEnabled()) // Infinite loop of death
             {
                 _log.Debug("Think");
 
-                config = _config.GetSection<WdcSyncConfigSection>();
+                UpdateConfig();
+                _config = _configService.GetSection<WdcSyncConfigSection>();
 
                 // Pause if required
                 var nextThink = _lastThink.AddMilliseconds(THINK_INVERVAL_MS);
 
-                if (DateTime.Now < nextThink)
+                var now = DateTime.Now; // Store now in variable, because debugging can break it if it happens to pause during this logic.
+                if (now < nextThink)
                 {
                     // Pause until the next think
                     
                     UpdateWorkerStatus(WdcSyncWorkerState.WorkerIdle, string.Empty, $"Idle until {nextThink.ToLongTimeString()}");
-                    Thread.Sleep(nextThink - DateTime.Now);
+                    Thread.Sleep(nextThink - now);
                 }
 
                 // Think has officially started
@@ -202,14 +227,27 @@ namespace WritingExporter.Common.WdcSync
                 // Cancellation and exception handling
                 try
                 {
-                    var wdcConfig = _config.GetSection<WdcClientConfigSection>();
+                    var wdcConfig = _configService.GetSection<WdcClientConfigSection>();
                     if (string.IsNullOrEmpty(wdcConfig.WritingUsername))
-                        throw new Exception("WDC username cannot be empty");
+                        throw new WdcMissingCredentialsException("WDC username cannot be empty");
                     if (string.IsNullOrEmpty(wdcConfig.WritingPassword))
-                        throw new Exception("WDC password cannot be empty");
+                        throw new WdcMissingCredentialsException("WDC password cannot be empty");
 
                     var ct = _ctSource.Token;
                     ct.ThrowIfCancellationRequested();
+
+                    // Do the Sync Now, if set
+                    if (!string.IsNullOrEmpty(_syncNowStorySysId))
+                    {
+                        try
+                        {
+                            await SyncStory(_syncNowStorySysId, _ctSource.Token, syncNow: true);
+                        }
+                        finally
+                        {
+                            _syncNowStorySysId = string.Empty;
+                        }
+                    }
 
                     // Look for stories that need syncing (NextSync is in the past)
                     UpdateWorkerStatus(WdcSyncWorkerState.WorkerIdle, string.Empty, "Checking for things to do");
@@ -222,203 +260,8 @@ namespace WritingExporter.Common.WdcSync
                     // Sync the stories
                     foreach (var storySysId in workQueueStories)
                     {
-                        _log.Debug($"Synching story: {storySysId}");
-
-                        WdcStory story;
-                        try
-                        {
-                            story = _storyRepo.GetByID(storySysId);
-
-                            // TODO handle if can't find the story anymore
-                        }
-                        catch (Exception ex)
-                        {
-                            // DEBUG just for testing, throw the exception
-                            throw ex;
-                        }
-
-                        _currentStorySysId = storySysId;
-                        _currentStoryId = story.Id;
-                        _currentChapterSysId = "";
-                        _currentChapterId = "";
-
-                        UpdateWorkerStatus(WdcSyncWorkerState.WorkerWorking, story.Id, "Syncing story");
-                        _eventHub.PublishEvent(new WdcSyncStoryEvent(WdcSyncStoryEventType.StorySyncStarted, storySysId, story.Id, "Syncing story"));
-
-                        try
-                        {
-                            // Get the story
-                            story.State = WdcStoryState.Syncing;
-                            story.StateMessage = string.Empty;
-                            _storyRepo.Save(story);
-
-                            // Sync the story info
-                            if (story.LastUpdatedInfo <= DateTime.Now.AddSeconds(-config.SyncStoryInfoIntervalSeconds))
-                            {
-                                _log.Debug($"Synching story info: {storySysId}");
-                                UpdateWorkerStatus(WdcSyncWorkerState.WorkerWorking, story.Id, "Syncing story info");
-                                _eventHub.PublishEvent(new WdcSyncStoryEvent(WdcSyncStoryEventType.StorySyncStarted, storySysId, story.Id, "Syncing story info"));
-                                await SyncStoryInfo(story.SysId, _ctSource.Token);
-
-                                // Update timestamp
-                                story = _storyRepo.GetByID(storySysId);
-                                story.LastUpdatedInfo = DateTime.Now;
-                                _storyRepo.Save(story);
-                            } 
-                            else
-                            {
-                                _log.Debug($"Story info does not need syncing: {storySysId}");
-                            }
-
-
-                            // Sync the story chapter map
-                            if (story.LastUpdatedChapterOutline <= DateTime.Now.AddSeconds(-config.SyncChapterOutlineIntervalSeconds))
-                            {
-                                _log.Debug($"Syncing story chapter outline: {storySysId}");
-                                UpdateWorkerStatus(WdcSyncWorkerState.WorkerWorking, story.Id, "Syncing chapter outline");
-                                _eventHub.PublishEvent(new WdcSyncStoryEvent(WdcSyncStoryEventType.StorySyncStarted, storySysId, story.Id, "Syncing chapter outline"));
-                                await SyncChapterOutline(story.SysId, story.Id, _ctSource.Token);
-
-                                // Update timestamp
-                                story = _storyRepo.GetByID(storySysId);
-                                story.LastUpdatedChapterOutline = DateTime.Now;
-                                _storyRepo.Save(story);
-                            }
-                            else
-                            {
-                                _log.Debug($"Story chapter outline does not need syncing: {storySysId}");
-                            }
-
-                            // Look for chapters that need syncing
-                            var timestamp = DateTime.Now.AddSeconds(-config.SyncChapterIntervalSeconds);
-                            var workQueueChapters = _chapterRepo.GetStoryChapterNotSyncedSince(storySysId, timestamp).Select(c => c.SysId);
-                            foreach (string chapterSysId in workQueueChapters)
-                            {
-                                ct.ThrowIfCancellationRequested();
-
-                                // Sync chapters
-                                _currentChapterSysId = chapterSysId;
-
-                                try
-                                {
-                                    await SyncChapter(chapterSysId, _ctSource.Token);
-                                }
-                                catch (WdcReaderHtmlParseException ex)
-                                {
-                                    var exMsg = new StringBuilder();
-                                    exMsg.AppendLine($"Exception encountered while syncing chapter {_currentStoryId}:{_currentChapterId}");
-
-                                    // Dump it
-                                    if (ex.Data.Contains(WdcReader.PARSE_EXCEPTION_HTML_PAYLOAD_KEY))
-                                    {
-                                        var result = _fileDumper.DumpFile(
-                                            $"{_fileDumper.GetTimestampForPath(DateTime.Now)} story {_currentStoryId} chapter {_currentChapterId}.html",
-                                            ex.Data[WdcReader.PARSE_EXCEPTION_HTML_PAYLOAD_KEY].ToString()
-                                            );
-                                        exMsg.AppendLine($"The HTML of the file has been dumped to: {result.Filename}");
-                                        exMsg.AppendLine();
-                                    }
-
-                                    _log.Error(exMsg.ToString(), ex);
-
-                                    _eventHub.PublishEvent(new ExceptionAlertEvent(this, ex, exMsg.ToString()));
-
-                                    var msg = $"Exception encountered while syncing chapter {_currentChapterId}\n{ex.GetType().ToString()}\n{ex.Message}";
-
-                                    story = _storyRepo.GetByID(storySysId);
-                                    story.LastSynced = DateTime.Now;
-                                    story.State = WdcStoryState.Error;
-                                    story.StateMessage = msg;
-
-                                    _storyRepo.Save(story);
-
-                                    _eventHub.PublishEvent(new WdcSyncStoryEvent(WdcSyncStoryEventType.StorySyncException, storySysId, story.Id, msg));
-
-                                    Cancel();
-                                }
-                                finally
-                                {
-                                    _currentChapterId = string.Empty;
-                                    _currentChapterSysId = string.Empty;
-                                }
-                                
-                            }
-
-                            // Sync completed without issue
-                            // Update LastSynced timestamp on story
-                            _log.Debug($"Sync complete for story {storySysId}");
-                            story = _storyRepo.GetByID(storySysId);
-                            story.State = WdcStoryState.Idle;
-                            story.StateMessage = string.Empty;
-                            story.LastSynced = DateTime.Now;
-                            story.NextSync = DateTime.Now.AddSeconds(config.SyncStoryIntervalSeconds);
-                            _storyRepo.Save(story);
-
-                            _eventHub.PublishEvent(new WdcSyncStoryEvent(WdcSyncStoryEventType.StorySyncComplete, storySysId, story.Id, string.Empty));
-                        }
-                        catch (InteractivesTemporarilyUnavailableException ex)
-                        {
-                            string msg = $"ITU encountered, pausing for {config.ItuPauseDuration}s";
-
-                            _log.Info(msg);
-                            story = _storyRepo.GetByID(storySysId);
-                            story.LastSynced = DateTime.Now;
-                            story.NextSync = DateTime.Now.AddSeconds(config.ItuPauseDuration);
-                            story.State = WdcStoryState.IdleItuPause;
-                            story.StateMessage = msg;
-
-                            _storyRepo.Save(story);
-
-                            _eventHub.PublishEvent(new WdcSyncStoryEvent(WdcSyncStoryEventType.StorySyncIncomplete, storySysId, story.Id, "ITU encountered, pausing"));
-                        }
-                        catch (WdcReaderHtmlParseException ex)
-                        {
-                            var exMsg = new StringBuilder();
-                            exMsg.AppendLine($"Exception encountered while syncing story {storySysId}");
-
-                            if (ex.Data.Contains(WdcReader.PARSE_EXCEPTION_HTML_PAYLOAD_KEY))
-                            {
-                                var result = _fileDumper.DumpFile(
-                                    $"{_fileDumper.GetTimestampForPath(DateTime.Now)} story {_currentStoryId}.html", 
-                                    ex.Data[WdcReader.PARSE_EXCEPTION_HTML_PAYLOAD_KEY].ToString()
-                                    );
-                                exMsg.AppendLine($"The HTML of the file has been dumped to: {result.Filename}");
-                                exMsg.AppendLine();
-                            }
-
-                            _log.Error(exMsg.ToString(), ex);
-                            _eventHub.PublishEvent(new ExceptionAlertEvent(this, ex, exMsg.ToString()));
-
-                            var msg = $"Exception encountered during sync\n{ex.GetType().ToString()}\n{ex.Message}";
-
-                            story = _storyRepo.GetByID(storySysId);
-                            story.LastSynced = DateTime.Now;
-                            story.State = WdcStoryState.Error;
-                            story.StateMessage = msg;
-
-                            _storyRepo.Save(story);
-
-                            _eventHub.PublishEvent(new WdcSyncStoryEvent(WdcSyncStoryEventType.StorySyncException, storySysId, story.Id, msg));
-                        }
-                        // Don't catch any other exceptions
-                        // This will likely not be story-specific, and should be handled at the SyncWorker level
-                        finally
-                        {
-                            // Try to clear any syncing states on stories
-                            if (!string.IsNullOrEmpty(_currentStoryId))
-                            {
-                                var __story = _storyRepo.GetByID(_currentStoryId);
-                                if (__story != null)
-                                {
-                                    __story.State = WdcStoryState.Idle;
-                                    __story.StateMessage = "";
-                                    _storyRepo.Save(__story);
-                                }
-                            }
-
-                            _currentStorySysId = string.Empty;
-                            _currentStoryId = string.Empty;
-                        }
+                        ct.ThrowIfCancellationRequested();
+                        await SyncStory(storySysId, _ctSource.Token);
                     }
 
                 }
@@ -426,6 +269,12 @@ namespace WritingExporter.Common.WdcSync
                 {
                     _log.Debug("Sync cancelled");
                     UpdateWorkerStatus(WdcSyncWorkerState.WorkerIdle, string.Empty, "Sync cancelled");
+                }
+                catch (WdcMissingCredentialsException ex)
+                {
+                    _log.Warn("Missing credentials exception thrown", ex);
+                    _syncEnabled = false;
+                    UpdateWorkerStatus(WdcSyncWorkerState.WorkerError, string.Empty, "WDC credentials are missing.");
                 }
                 catch (Exception ex)
                 {
@@ -454,6 +303,7 @@ namespace WritingExporter.Common.WdcSync
 
                     _currentStorySysId = string.Empty;
                     _currentStoryId = string.Empty;
+                    _currentSyncedStoryChapters = 0;
                 }
 
                 // Should I end things?
@@ -462,6 +312,212 @@ namespace WritingExporter.Common.WdcSync
                     _log.Debug("Disposing, ending think loop");
                     return;
                 }
+            }
+        }
+
+        async Task SyncStory(string storySysId, CancellationToken ct, bool syncNow = false)
+        {
+            _log.Debug($"Synching story: {storySysId}");
+
+            WdcStory story;
+            try
+            {
+                story = _storyRepo.GetByID(storySysId);
+
+                // TODO handle if can't find the story anymore
+            }
+            catch (Exception ex)
+            {
+                // DEBUG just for testing, throw the exception
+                throw ex;
+            }
+
+            _currentStorySysId = storySysId;
+            _currentStoryId = story.Id;
+            _currentChapterSysId = "";
+            _currentChapterId = "";
+            _currentSyncedStoryChapters = 0;
+
+            UpdateWorkerStatus(WdcSyncWorkerState.WorkerWorking, story.Id, "Syncing story");
+            _eventHub.PublishEvent(new WdcSyncStoryEvent(WdcSyncStoryEventType.StorySyncStarted, storySysId, story.Id, "Syncing story"));
+
+            
+
+            try
+            {
+                // Get the story
+                story.State = WdcStoryState.Syncing;
+                story.StateMessage = string.Empty;
+                _storyRepo.Save(story);
+
+                // Sync the story info
+                if (syncNow || story.LastUpdatedInfo <= DateTime.Now.AddSeconds(-_config.SyncStoryInfoIntervalSeconds))
+                {
+                    _log.Debug($"Synching story info: {storySysId}");
+                    UpdateWorkerStatus(WdcSyncWorkerState.WorkerWorking, story.Id, "Syncing story info");
+                    _eventHub.PublishEvent(new WdcSyncStoryEvent(WdcSyncStoryEventType.StorySyncStarted, storySysId, story.Id, "Syncing story info"));
+                    await SyncStoryInfo(story.SysId, _ctSource.Token);
+
+                    // Update timestamp
+                    story = _storyRepo.GetByID(storySysId);
+                    story.LastUpdatedInfo = DateTime.Now;
+                    _storyRepo.Save(story);
+                }
+                else
+                {
+                    _log.Debug($"Story info does not need syncing: {storySysId}");
+                }
+
+
+                // Sync the story chapter map
+                if (syncNow || story.LastUpdatedChapterOutline <= DateTime.Now.AddSeconds(-_config.SyncChapterOutlineIntervalSeconds))
+                {
+                    _log.Debug($"Syncing story chapter outline: {storySysId}");
+                    UpdateWorkerStatus(WdcSyncWorkerState.WorkerWorking, story.Id, "Syncing chapter outline");
+                    _eventHub.PublishEvent(new WdcSyncStoryEvent(WdcSyncStoryEventType.StorySyncStarted, storySysId, story.Id, "Syncing chapter outline"));
+                    await SyncChapterOutline(story.SysId, story.Id, _ctSource.Token);
+
+                    // Update timestamp
+                    story = _storyRepo.GetByID(storySysId);
+                    story.LastUpdatedChapterOutline = DateTime.Now;
+                    _storyRepo.Save(story);
+                }
+                else
+                {
+                    _log.Debug($"Story chapter outline does not need syncing: {storySysId}");
+                }
+
+                // Look for chapters that need syncing
+                var timestamp = DateTime.Now.AddSeconds(-_config.SyncChapterIntervalSeconds);
+                var workQueueChapters = _chapterRepo.GetStoryChapterNotSyncedSince(storySysId, timestamp).Select(c => c.SysId);
+                foreach (string chapterSysId in workQueueChapters)
+                {
+                    ct.ThrowIfCancellationRequested();
+
+                    // Sync chapters
+                    _currentChapterSysId = chapterSysId;
+
+                    try
+                    {
+                        await SyncChapter(chapterSysId, _ctSource.Token);
+                        _currentSyncedStoryChapters++;
+                    }
+                    catch (WdcReaderHtmlParseException ex)
+                    {
+                        var exMsg = new StringBuilder();
+                        exMsg.AppendLine($"Exception encountered while syncing chapter {_currentStoryId}:{_currentChapterId}");
+
+                        // Dump it
+                        if (ex.Data.Contains(WdcReader.PARSE_EXCEPTION_HTML_PAYLOAD_KEY))
+                        {
+                            var result = _fileDumper.DumpFile(
+                                $"{_fileDumper.GetTimestampForPath(DateTime.Now)} story {_currentStoryId} chapter {_currentChapterId}.html",
+                                ex.Data[WdcReader.PARSE_EXCEPTION_HTML_PAYLOAD_KEY].ToString()
+                                );
+                            exMsg.AppendLine($"The HTML of the file has been dumped to: {result.Filename}");
+                            exMsg.AppendLine();
+                        }
+
+                        _log.Error(exMsg.ToString(), ex);
+
+                        _eventHub.PublishEvent(new ExceptionAlertEvent(this, ex, exMsg.ToString()));
+
+                        var msg = $"Exception encountered while syncing chapter {_currentChapterId}\n{ex.GetType().ToString()}\n{ex.Message}";
+
+                        story = _storyRepo.GetByID(storySysId);
+                        story.LastSynced = DateTime.Now;
+                        story.State = WdcStoryState.Error;
+                        story.StateMessage = msg;
+
+                        _storyRepo.Save(story);
+
+                        _eventHub.PublishEvent(new WdcSyncStoryEvent(WdcSyncStoryEventType.StorySyncException, storySysId, story.Id, msg));
+
+                        Cancel();
+                    }
+                    finally
+                    {
+                        _currentChapterId = string.Empty;
+                        _currentChapterSysId = string.Empty;
+                    }
+
+                }
+
+                // Sync completed without issue
+                // Update LastSynced timestamp on story
+                _log.Debug($"Sync complete for story {storySysId}");
+                story = _storyRepo.GetByID(storySysId);
+                story.State = WdcStoryState.Idle;
+                story.StateMessage = string.Empty;
+                story.LastSynced = DateTime.Now;
+                story.NextSync = DateTime.Now.AddSeconds(_config.SyncStoryIntervalSeconds);
+                _storyRepo.Save(story);
+
+                _eventHub.PublishEvent(new WdcSyncStoryEvent(WdcSyncStoryEventType.StorySyncComplete, storySysId, story.Id, string.Empty));
+            }
+            catch (InteractivesTemporarilyUnavailableException ex)
+            {
+                string msg = $"ITU encountered, pausing for {_config.ItuPauseDuration}s";
+
+                _log.Info(msg);
+                story = _storyRepo.GetByID(storySysId);
+                story.LastSynced = DateTime.Now;
+                story.NextSync = DateTime.Now.AddSeconds(_config.ItuPauseDuration);
+                story.State = WdcStoryState.IdleItuPause;
+                story.StateMessage = msg;
+
+                _storyRepo.Save(story);
+
+                _eventHub.PublishEvent(new WdcSyncStoryEvent(WdcSyncStoryEventType.StorySyncIncomplete, storySysId, story.Id, "ITU encountered, pausing"));
+            }
+            catch (WdcReaderHtmlParseException ex)
+            {
+                var exMsg = new StringBuilder();
+                exMsg.AppendLine($"Exception encountered while syncing story {storySysId}");
+
+                if (ex.Data.Contains(WdcReader.PARSE_EXCEPTION_HTML_PAYLOAD_KEY))
+                {
+                    var result = _fileDumper.DumpFile(
+                        $"{_fileDumper.GetTimestampForPath(DateTime.Now)} story {_currentStoryId}.html",
+                        ex.Data[WdcReader.PARSE_EXCEPTION_HTML_PAYLOAD_KEY].ToString()
+                        );
+                    exMsg.AppendLine($"The HTML of the file has been dumped to: {result.Filename}");
+                    exMsg.AppendLine();
+                }
+
+                _log.Error(exMsg.ToString(), ex);
+                _eventHub.PublishEvent(new ExceptionAlertEvent(this, ex, exMsg.ToString()));
+
+                var msg = $"Exception encountered during sync\n{ex.GetType().ToString()}\n{ex.Message}";
+
+                story = _storyRepo.GetByID(storySysId);
+                story.LastSynced = DateTime.Now;
+                story.State = WdcStoryState.Error;
+                story.StateMessage = msg;
+
+                _storyRepo.Save(story);
+
+                _eventHub.PublishEvent(new WdcSyncStoryEvent(WdcSyncStoryEventType.StorySyncException, storySysId, story.Id, msg));
+            }
+            // Don't catch any other exceptions
+            // This will likely not be story-specific, and should be handled at the SyncWorker level
+            finally
+            {
+                // Try to clear any syncing states on stories
+                if (!string.IsNullOrEmpty(_currentStoryId))
+                {
+                    var __story = _storyRepo.GetByID(_currentStoryId);
+                    if (__story != null)
+                    {
+                        __story.State = WdcStoryState.Idle;
+                        __story.StateMessage = "";
+                        _storyRepo.Save(__story);
+                    }
+                }
+
+                _currentStorySysId = string.Empty;
+                _currentStoryId = string.Empty;
+                _currentSyncedStoryChapters = 0;
             }
         }
 
@@ -558,7 +614,8 @@ namespace WritingExporter.Common.WdcSync
                 newChapters.Add(new WdcChapter()
                 {
                     Path = newChapterPath,
-                    StoryId = storySysId
+                    StoryId = storySysId,
+                    FirstSeen = DateTime.Now
                 });
             }
 
@@ -607,7 +664,8 @@ namespace WritingExporter.Common.WdcSync
                 currentChapter.IsEnd != newChapter.IsEnd ||
                 currentChapter.Path != newChapter.Path ||
                 currentChapter.SourceChoiceTitle != newChapter.SourceChoiceTitle ||
-                currentChapter.Title != newChapter.Title
+                currentChapter.Title != newChapter.Title || 
+                currentChapter.ChoicesString != newChapter.ChoicesString
                 )
             {
                 _log.Debug($"Updating chapter with new content: {_currentStoryId}:{currentChapter.Path}");
@@ -621,11 +679,14 @@ namespace WritingExporter.Common.WdcSync
                 currentChapter.SourceChoiceTitle = newChapter.SourceChoiceTitle;
                 currentChapter.Title = newChapter.Title;
                 currentChapter.LastUpdated = DateTime.Now;
+                currentChapter.ChoicesString = newChapter.ChoicesString;
 
                 ct.ThrowIfCancellationRequested();
-
-                _chapterRepo.Save(currentChapter);
             }
+
+            //currentChapter.LastSynced = DateTime.Now; // Either way, update with the LastSynced timestamp, to show that we checked this chapter
+            currentChapter.LastSynced = DateTime.Now;
+            _chapterRepo.Save(currentChapter);
         }
     }
 }
