@@ -195,11 +195,47 @@ namespace WritingExporter.Common.WdcSync
             return (config.SyncEnabled && _syncEnabled);
         }
 
+        void HandleCancel()
+        {
+            _log.Debug("Sync cancelled");
+            UpdateWorkerStatus(WdcSyncWorkerState.WorkerIdle, string.Empty, "Sync cancelled");
+        }
+
+        void HandleUnexpectedException(Exception ex)
+        {
+            // Disable sync worker
+            _syncEnabled = false;
+
+            _log.Error("Exception encountered in sync worker", ex);
+            UpdateWorkerStatus(WdcSyncWorkerState.WorkerError, string.Empty,
+                $"Exception encountered in sync worker:\n{ex.GetType().ToString()}\n{ex.Message}");
+
+            _eventHub.PublishEvent(new ExceptionAlertEvent(this, ex, "Exception encountered in sync worker"));
+        }
+
+        void HandleLoginFailedException(WdcLoginFailedException ex)
+        {
+            _log.Warn("Login failed", ex);
+            
+            // Disable sync worker
+            _syncEnabled = false;
+
+            // Show alert dialog
+            _eventHub.PublishEvent(new GeneralAlertEvent(GeneralAlertEventType.Warning, "WDC Login failed",
+                "Login failed while trying to log into Writing.com. Check that correct login details have been set in the configuration."
+                ));
+
+            // Update worker status
+            UpdateWorkerStatus(WdcSyncWorkerState.WorkerError, string.Empty,
+                $"Login failed, stopping worker");
+        }
+
         async void ThinkFunction()
         {
             if (!IsSyncEnabled())
             {
                 UpdateWorkerStatus(WdcSyncWorkerState.WorkerIdle, string.Empty, "Sync worker not enabled, check options");
+                return;
             }
 
             while(IsSyncEnabled()) // Infinite loop of death
@@ -267,8 +303,11 @@ namespace WritingExporter.Common.WdcSync
                 }
                 catch (OperationCanceledException ex)
                 {
-                    _log.Debug("Sync cancelled");
-                    UpdateWorkerStatus(WdcSyncWorkerState.WorkerIdle, string.Empty, "Sync cancelled");
+                    HandleCancel();
+                }
+                catch (WdcLoginFailedException ex)
+                {
+                    HandleLoginFailedException(ex);
                 }
                 catch (WdcMissingCredentialsException ex)
                 {
@@ -276,16 +315,20 @@ namespace WritingExporter.Common.WdcSync
                     _syncEnabled = false;
                     UpdateWorkerStatus(WdcSyncWorkerState.WorkerError, string.Empty, "WDC credentials are missing.");
                 }
+                catch (AggregateException ex)
+                {
+                    if (ex.InnerException is OperationCanceledException)
+                    {
+                        HandleCancel(); // An OperationCanceledException was thrown, but wrapped in a AggregateException
+                    }
+                    else
+                    {
+                        HandleUnexpectedException(ex);
+                    }
+                }
                 catch (Exception ex)
                 {
-                    // Disable sync worker
-                    _syncEnabled = false;
-
-                    _log.Error("Exception encountered in sync worker", ex);
-                    UpdateWorkerStatus(WdcSyncWorkerState.WorkerError, string.Empty, 
-                        $"Exception encountered in sync worker:\n{ex.GetType().ToString()}\n{ex.Message}");
-
-                    _eventHub.PublishEvent(new ExceptionAlertEvent(this, ex, "Exception encountered in sync worker"));
+                    HandleUnexpectedException(ex);
                 }
                 finally
                 {
@@ -310,9 +353,12 @@ namespace WritingExporter.Common.WdcSync
                 if (_disposing)
                 {
                     _log.Debug("Disposing, ending think loop");
-                    return;
+                    _syncEnabled = false;
                 }
             }
+
+            // Made it out of the loop, the worker is stopping
+            UpdateWorkerStatus(WdcSyncWorkerState.WorkerIdle, string.Empty, "Worker stopped");
         }
 
         async Task SyncStory(string storySysId, CancellationToken ct, bool syncNow = false)

@@ -61,7 +61,7 @@ namespace WritingExporter.WinForms
             _log.Debug("Starting app context");
 
             // Attach exception listener
-            var exceptionListener = new ExceptionAlertListener();
+            var exceptionListener = new AlertListener();
             _container.GetInstance<EventHub>().Subscribe<ExceptionAlertEvent>(exceptionListener);
 
             // Load settings

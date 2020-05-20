@@ -70,7 +70,7 @@
     <Compile Include="Controls\WdcTesterOptionControl.Designer.cs">
       <DependentUpon>WdcTesterOptionControl.cs</DependentUpon>
     </Compile>
-    <Compile Include="ExceptionAlertListener.cs" />
+    <Compile Include="AlertListener.cs" />
     <Compile Include="Forms\AddStoryForm.cs">
       <SubType>Form</SubType>
     </Compile>

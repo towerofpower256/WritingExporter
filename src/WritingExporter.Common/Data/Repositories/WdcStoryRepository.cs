@@ -94,6 +94,16 @@ WHERE SysId = @SysId;", entity);
             _eventHub.PublishEvent(new RepositoryChangedEvent(RepositoryChangedEventType.Update, new string[] { entity.SysId }, typeof(WdcStoryRepository)));
         }
 
+        public WdcStory GetByStoryID(string storyId)
+        {
+            using (IDbConnection cn = _dbConnFact.GetConnection())
+            {
+                cn.Open();
+                var result = cn.QueryFirstOrDefault<WdcStory>(@"SELECT * FROM WdcStory WHERE Id = @Id LIMIT 1;", new { Id = storyId });
+                return result;
+            }
+        }
+
         public IEnumerable<WdcStory> GetStoriesNeedingSync(DateTime timestamp)
         {
             using (IDbConnection cn = _dbConnFact.GetConnection())

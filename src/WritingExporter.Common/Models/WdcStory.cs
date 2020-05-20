@@ -3,12 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Serialization;
 
 namespace WritingExporter.Common.Models
 {
     [Serializable]
     public class WdcStory
     {
+        [XmlIgnore]
         public string SysId { get; set; } = SysUtil.GenerateGuidString();
 
         public string Name { get; set; } // E.g. Short stories by the people

@@ -207,7 +207,12 @@ namespace WritingExporter.Common.Wdc
 
                 // Check if it's a login again. If it is, login failed
                 if (IsLoginPage(html))
-                    throw new WdcLoginFailedException($"Failed to login to get page: {uri.ToString()}");
+                {
+                    var ex = new WdcLoginFailedException($"Failed to login after trying to get to page: {uri.ToString()}");
+                    ex.Data.Add("url", uri.ToString());
+                    throw ex;
+                }
+
             }
 
             return html;
@@ -293,18 +298,20 @@ namespace WritingExporter.Common.Wdc
             return FailedLoginRegex.IsMatch(html);
         }
 
+        // TODO make configurable
         public bool IsInteractivesUnavailablePage(string content)
         {
             // Regex to detect the "Interactives temporarily unavailable due to resource limitations" message
+            // Last updated 15/05/2020
             Regex InteractivesUnavailableRegex1 = new Regex(
-                @"<title>.*(Interactives Temporarily Unavailable|Interactive Stories Are Temporarily Unavailable).*<\/title>",
+                @"<title>.*(Interactive(s)?).*(Temporarily Unavailable).*<\/title>",
                 RegexOptions.IgnoreCase
                 );
 
             // Regex to detect the "Interactive Stories are temporarily unavailable" message
             // Can sometimes appear different to the first message
             Regex InteractivesUnavailableRegex2 = new Regex(
-                @"<b>Interactive Stories</b> are <br><i>temporarily</i> unavailable",
+                @"<b>Interactive Stories<\/b>.*?<i>temporarily<\/i> unavailable",
                 RegexOptions.IgnoreCase
                 );
 

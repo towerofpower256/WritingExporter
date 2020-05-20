@@ -18,6 +18,7 @@ using WritingExporter.Common.Events.WritingExporter.Common.Events;
 using WritingExporter.Common.Export;
 using WritingExporter.Common.Logging;
 using WritingExporter.Common.Models;
+using WritingExporter.Common.StorySaveLoad;
 using WritingExporter.Common.WdcSync;
 using WritingExporter.WinForms.Models;
 
@@ -37,6 +38,7 @@ namespace WritingExporter.WinForms.Forms
         ConfigService _config;
         ILogger _log;
         WdcStoryExporterFactory _storyExporterFactory;
+        StorySaveLoadService _storySaveLoad;
 
         public MainForm(
             ILoggerSource loggerSource,
@@ -45,7 +47,8 @@ namespace WritingExporter.WinForms.Forms
             WdcChapterRepository chapterRepo,
             ConfigService config,
             EventHub eventHub,
-            WdcStoryExporterFactory storyExporterFactory
+            WdcStoryExporterFactory storyExporterFactory,
+            StorySaveLoadService storySaveLoad
             )
         {
             _log = loggerSource.GetLogger(typeof(MainForm));
@@ -55,6 +58,7 @@ namespace WritingExporter.WinForms.Forms
             _chapterRepo = chapterRepo;
             _eventHub = eventHub;
             _storyExporterFactory = storyExporterFactory;
+            _storySaveLoad = storySaveLoad;
 
             InitializeComponent();
         }
@@ -256,6 +260,17 @@ namespace WritingExporter.WinForms.Forms
             var story = _storyRepo.GetByID(storySysId);
             if (story != null)
                 ExportStory(storySysId, Path.Combine(QUICK_EXPORT_DIR, story.Id), autoOpenOnComplete: true); ;
+        }
+
+        void SaveStoryDialog(string storyId, string storyName)
+        {
+            var ofd = new OpenFileDialog();
+            ofd.Filter = $"Story|.{_storySaveLoad.GetDefaultFileExtension()}";
+
+            if (ofd.ShowDialog(this) == DialogResult.OK)
+            {
+                _storySaveLoad.SaveStoryToFile(storyId, ofd.FileName);
+            }
         }
 
         IEnumerable<WdcStoryListViewModel> GetAllStories()

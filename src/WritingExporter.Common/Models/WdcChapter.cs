@@ -38,6 +38,7 @@ namespace WritingExporter.Common.Models
             _chapterChoiceSerializerNs.Add(string.Empty, string.Empty);
         }
 
+        [XmlIgnore]
         public string SysId { get; set; } = SysUtil.GenerateGuidString();
 
         public string StoryId { get; set; }
@@ -64,6 +65,7 @@ namespace WritingExporter.Common.Models
 
         public WdcChapterChoiceCollection Choices = new WdcChapterChoiceCollection();
 
+        [XmlIgnore]
         public string ChoicesString
         {
             get { return ChoiceListToChoiceValue(this.Choices); }
