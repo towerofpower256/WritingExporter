@@ -8,7 +8,7 @@ using WritingExporter.Common.Models;
 namespace WritingExporter.Common.StorySaveLoad
 {
     [Serializable]
-    public class SaveLoadStoryWrapper
+    public class StorySaveLoadWrapper
     {
         public WdcStory Story { get; set; }
 

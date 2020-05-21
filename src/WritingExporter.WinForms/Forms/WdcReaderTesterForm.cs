@@ -139,9 +139,8 @@ namespace WritingExporter.WinForms.Forms
 
         private void ReadChapterMap()
         {
-            throw new NotImplementedException();
+            //throw new NotImplementedException();
 
-            /*
             var sb = new StringBuilder();
             var options = ExportWdcReaderOptions();
             var reader = new WdcReader(options);
@@ -149,10 +148,19 @@ namespace WritingExporter.WinForms.Forms
 
             RunTest(sb, "read chapter map",
                 () => {
-                    sb.AppendLine($"Chapter map:");
-                    var map = reader.GetInteractiveChapterList()
+                    var map = reader.GetInteractiveChapterList(string.Empty, txtContentInput.Text);
+
+                    sb.AppendLine($"Chapter map, {map.Count()} results:");
+                    
+
+                    foreach (var c in map)
+                    {
+                        sb.AppendLine(c.ToString());
+                        sb.AppendLine();
+                    }
                 });
-            */
+
+            txtOutput.Text = sb.ToString();
         }
 
         private void RunTest(StringBuilder sb, string actionDesc, Action action)

@@ -48,6 +48,9 @@ namespace WritingExporter.Common.Models
         IdleItuPause,
         Syncing,
         Disabled,
-        Error
+        Error,
+        Saving,
+        Loading,
+        Exporting,
     }
 }

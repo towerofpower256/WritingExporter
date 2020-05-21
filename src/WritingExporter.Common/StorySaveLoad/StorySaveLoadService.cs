@@ -37,20 +37,41 @@ namespace WritingExporter.Common.StorySaveLoad
         {
             _log.Debug($"Saving story {storySysId} to {storyFilePath}");
 
-            var data = new StorySaveLoadWrapper();
+            WdcStory story = null;
 
-            var story = _storyRepo.GetByID(storySysId);
-            // TODO handle invalid story
-            data.Story = story;
-
-            data.Chapters = _chapterRepo.GetStoryChapters(storySysId).ToList();
-
-            var ns = new XmlSerializerNamespaces();
-            ns.Add(string.Empty, string.Empty);
-            using (var f = File.Open(storyFilePath, FileMode.OpenOrCreate, FileAccess.Write))
+            try
             {
-                _serializer.Serialize(f, data, ns);
+                var data = new StorySaveLoadWrapper();
+
+                story = _storyRepo.GetByID(storySysId);
+                // TODO handle invalid story
+
+                // Change the story's state to saving
+                story.State = WdcStoryState.Saving;
+                _storyRepo.Save(story);
+
+                data.Story = story;
+
+                // TODO might be better to fetch sthe story chapters in batches, instead of loading all of them at once.
+                data.Chapters = _chapterRepo.GetStoryChapters(storySysId).ToList();
+
+                var ns = new XmlSerializerNamespaces();
+                ns.Add(string.Empty, string.Empty);
+                using (var f = File.Open(storyFilePath, FileMode.OpenOrCreate, FileAccess.Write))
+                {
+                    _serializer.Serialize(f, data, ns);
+                }
             }
+            finally
+            {
+                // reset the story's state
+                if (story != null)
+                {
+                    story.State = WdcStoryState.Idle;
+                    _storyRepo.Save(story);
+                }
+            }
+            
         }
 
         /// <summary>
@@ -62,8 +83,6 @@ namespace WritingExporter.Common.StorySaveLoad
         {
             _log.Debug($"Loading story from {storyFilePath}");
 
-            // TODO mark the story's state as being imported somehow, to prevent collisions with the sync worker and whatnot
-
             var result = new SaveLoadStoryLoadResult();
 
             StorySaveLoadWrapper data;
@@ -73,6 +92,7 @@ namespace WritingExporter.Common.StorySaveLoad
             }
 
             var newStory = data.Story;
+            newStory.State = WdcStoryState.Loading; // Mark as being loaded
             var existingStory = _storyRepo.GetByStoryID(newStory.Id);
             if (existingStory != null) {
                 // Replace the existing story record with the file's details
@@ -90,13 +110,15 @@ namespace WritingExporter.Common.StorySaveLoad
             result.StoryId = newStory.Id;
             result.StoryName = newStory.Name;
 
-
             // For each chapter, see if it already exists.
             // If it does, merge the changes
             var storyOutline = _chapterRepo.GetStoryOutline(storySysId);
             foreach (var newChapter in data.Chapters)
             {
-                // TODO would be better to grab the chapters in a batch, instead of hitting the DB one by one
+                // TODO would be better to update / insert the chapters in a batch, instead of hitting the DB one by one
+
+                // Update the story sys_id
+                newChapter.StoryId = storySysId;
 
                 var existingChapter = storyOutline.FirstOrDefault(c => c.Path == newChapter.Path);
                 if (existingChapter != null)
@@ -104,15 +126,20 @@ namespace WritingExporter.Common.StorySaveLoad
                     // Replace the existing chapter
                     newChapter.SysId = existingChapter.SysId;
                     _chapterRepo.Save(newChapter);
-                    result.ChaptersInserted++;
+                    result.ChaptersUpdated++;
                 }
                 else
                 {
                     // Insert the new chapter
                     _chapterRepo.Add(newChapter);
-                    result.ChaptersUpdated++;
+                    result.ChaptersInserted++;
                 }
             }
+
+            // Change the story's state to idle
+            var story = _storyRepo.GetByID(storySysId);
+            story.State = WdcStoryState.Idle;
+            _storyRepo.Save(story);
 
             return result;
         }
@@ -132,7 +159,7 @@ namespace WritingExporter.Common.StorySaveLoad
 
         public string GetDefaultFileExtension()
         {
-            return ".xml";
+            return "xml";
         }
     }
 

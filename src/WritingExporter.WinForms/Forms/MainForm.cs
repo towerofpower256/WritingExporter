@@ -8,6 +8,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using WritingExporter.Common.Configuration;
@@ -40,6 +41,8 @@ namespace WritingExporter.WinForms.Forms
         WdcStoryExporterFactory _storyExporterFactory;
         StorySaveLoadService _storySaveLoad;
 
+        string storyFileFilter = string.Empty;
+
         public MainForm(
             ILoggerSource loggerSource,
             WinFormsService formsService,
@@ -59,6 +62,8 @@ namespace WritingExporter.WinForms.Forms
             _eventHub = eventHub;
             _storyExporterFactory = storyExporterFactory;
             _storySaveLoad = storySaveLoad;
+
+            SetStoryFileDialogFilter();
 
             InitializeComponent();
         }
@@ -106,6 +111,12 @@ namespace WritingExporter.WinForms.Forms
 
                 OpenSettingsDialog();
             }
+        }
+
+        void SetStoryFileDialogFilter()
+        {
+            var ext = _storySaveLoad.GetDefaultFileExtension();
+            storyFileFilter = $"Story file (*.{ext})|*.{ext}|All files (*.*)|*.*";
         }
 
 
@@ -259,17 +270,55 @@ namespace WritingExporter.WinForms.Forms
         {
             var story = _storyRepo.GetByID(storySysId);
             if (story != null)
-                ExportStory(storySysId, Path.Combine(QUICK_EXPORT_DIR, story.Id), autoOpenOnComplete: true); ;
+                ExportStory(storySysId, Path.Combine(QUICK_EXPORT_DIR, story.Id), autoOpenOnComplete: true);
         }
 
-        void SaveStoryDialog(string storyId, string storyName)
+        void SaveStoryDialog(string storySysId)
         {
+            var story = _storyRepo.GetByID(storySysId);
+            if (story != null)
+            {
+                SaveStoryDialog(storySysId, story.Id);
+            }
+        }
+
+        void SaveStoryDialog(string storySysId, string storyName)
+        {
+            var ext = _storySaveLoad.GetDefaultFileExtension();
+
+            var sfd = new SaveFileDialog();
+            sfd.Filter = storyFileFilter;
+            sfd.Title = "Save story";
+            sfd.FileName = storyName;
+            sfd.DefaultExt = ext;
+            sfd.OverwritePrompt = true;
+            sfd.ValidateNames = true;
+
+            if (sfd.ShowDialog(this) == DialogResult.OK)
+            {
+                _storySaveLoad.SaveStoryToFile(storySysId, sfd.FileName);
+            }
+        }
+
+        void LoadStoryDialog()
+        {
+            var ext = _storySaveLoad.GetDefaultFileExtension();
+
             var ofd = new OpenFileDialog();
-            ofd.Filter = $"Story|.{_storySaveLoad.GetDefaultFileExtension()}";
+            ofd.Filter = storyFileFilter;
+            ofd.Title = "Save story";
+            ofd.DefaultExt = ext;
+            ofd.CheckFileExists = true;
+            ofd.Multiselect = false;
+            ofd.ValidateNames = true;
 
             if (ofd.ShowDialog(this) == DialogResult.OK)
             {
-                _storySaveLoad.SaveStoryToFile(storyId, ofd.FileName);
+                var result = _storySaveLoad.LoadStoryFromFile(ofd.FileName);
+                MessageBox.Show(this, 
+                    $"Story '{result.StoryId}' loaded.\nChapters inserted: {result.ChaptersInserted}\nChapters updated: {result.ChaptersUpdated}",
+                    "Story loaded", MessageBoxButtons.OK, MessageBoxIcon.Information
+                    );
             }
         }
 
@@ -319,9 +368,11 @@ namespace WritingExporter.WinForms.Forms
 
             var ctxMenu = new ContextMenu();
 
-            ctxMenu.MenuItems.Add("Read story");
-            ctxMenu.MenuItems.Add("Export story");
+            ctxMenu.MenuItems.Add("Read story", new EventHandler((sender, args) => QuickExportStory(storySysId)));
+            ctxMenu.MenuItems.Add("Save story to file...", new EventHandler((sender, args) => SaveStoryDialog(storySysId)));
+            ctxMenu.MenuItems.Add("Export story...", new EventHandler((sender, args) => QuickExportStory(storySysId))); // TODO allow the user to select the export directory
             ctxMenu.MenuItems.Add("Sync now", new EventHandler((sender, args) => SyncStoryNow(storySysId)));
+            ctxMenu.MenuItems.Add("Full sync now", new EventHandler((sender, args) => SyncStoryNow(storySysId, clearSyncTimestamps: true)));
             ctxMenu.MenuItems.Add("-");
             if (storyDisabled)
                 ctxMenu.MenuItems.Add("Enable story sync", new EventHandler((sender, args) => EnableStory(storySysId, true)));
@@ -342,8 +393,20 @@ namespace WritingExporter.WinForms.Forms
             }
         }
 
-        void SyncStoryNow(string storySysId)
+        void SyncStoryNow(string storySysId, bool clearSyncTimestamps = false)
         {
+            if (clearSyncTimestamps)
+            {
+                var story = _storyRepo.GetByID(storySysId);
+                if (story != null)
+                {
+                    story.LastSynced = DateTime.MinValue;
+                    story.LastUpdatedInfo = DateTime.MinValue;
+                    story.LastUpdatedChapterOutline = DateTime.MinValue;
+                    _storyRepo.Save(story);
+                }
+            }
+
             var command = new WdcSyncWorkerCommandEvent(WdcSyncWorkerCommandEventType.SyncStoryNow);
             command.Data.Add("StorySysId", storySysId);
             _eventHub.PublishEvent(command);
@@ -438,6 +501,11 @@ namespace WritingExporter.WinForms.Forms
             {
                 QuickExportStory((string)dgvStories.SelectedRows[0].Tag);
             }
+        }
+
+        private void loadStoryFromFileToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            LoadStoryDialog();
         }
     }
 }

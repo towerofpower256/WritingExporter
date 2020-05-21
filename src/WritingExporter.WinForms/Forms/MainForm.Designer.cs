@@ -52,6 +52,7 @@
             this.lblSyncWorkerCurrentTaskLabel = new System.Windows.Forms.Label();
             this.btnSyncWorkerStart = new System.Windows.Forms.Button();
             this.btnSyncWorkerStop = new System.Windows.Forms.Button();
+            this.loadStoryFromFileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvStories)).BeginInit();
             this.SuspendLayout();
@@ -70,6 +71,7 @@
             // 
             this.fileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.addStoryToolStripMenuItem,
+            this.loadStoryFromFileToolStripMenuItem,
             this.toolStripSeparator1,
             this.settingsToolStripMenuItem,
             this.openWDCReaderTesterToolStripMenuItem,
@@ -263,6 +265,13 @@
             this.btnSyncWorkerStop.UseVisualStyleBackColor = true;
             this.btnSyncWorkerStop.Click += new System.EventHandler(this.btnSyncWorkerStop_Click);
             // 
+            // loadStoryFromFileToolStripMenuItem
+            // 
+            this.loadStoryFromFileToolStripMenuItem.Name = "loadStoryFromFileToolStripMenuItem";
+            this.loadStoryFromFileToolStripMenuItem.Size = new System.Drawing.Size(201, 22);
+            this.loadStoryFromFileToolStripMenuItem.Text = "&Load story from file...";
+            this.loadStoryFromFileToolStripMenuItem.Click += new System.EventHandler(this.loadStoryFromFileToolStripMenuItem_Click);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -317,5 +326,6 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn dgvStoriesColLastInfoSync;
         private System.Windows.Forms.DataGridViewTextBoxColumn dgvStoriesColOutlineLastSynced;
         private System.Windows.Forms.DataGridViewTextBoxColumn dgvStoriesColLastChapterUpdated;
+        private System.Windows.Forms.ToolStripMenuItem loadStoryFromFileToolStripMenuItem;
     }
 }

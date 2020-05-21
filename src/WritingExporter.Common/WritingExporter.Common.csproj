@@ -89,8 +89,8 @@
     <Compile Include="Models\WdcStory.cs" />
     <Compile Include="ObjectExtension.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="StorySaveLoad\SaveLoadStoryService.cs" />
-    <Compile Include="StorySaveLoad\SaveLoadStoryWrapper.cs" />
+    <Compile Include="StorySaveLoad\StorySaveLoadService.cs" />
+    <Compile Include="StorySaveLoad\StorySaveLoadWrapper.cs" />
     <Compile Include="SysUtil.cs" />
     <Compile Include="WdcSync\WdcSyncStoryEvent.cs" />
     <Compile Include="WdcSync\WdcSyncWorkerCommandEvent.cs" />

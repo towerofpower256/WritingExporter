@@ -52,7 +52,7 @@ INSERT INTO WdcStory
             using (IDbConnection cn = _dbConnFact.GetConnection())
             {
                 cn.Open();
-                cn.Execute(@"DELETE WdcStory WHERE SysId = @SysId;", new { SysId = sysId });
+                cn.Execute(@"DELETE FROM WdcStory WHERE SysId = @SysId;", new { SysId = sysId });
             }
 
             _eventHub.PublishEvent(new RepositoryChangedEvent(RepositoryChangedEventType.Delete, new string[] { sysId }, typeof(WdcChapterRepository)));

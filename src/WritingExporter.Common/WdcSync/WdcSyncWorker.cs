@@ -618,56 +618,67 @@ namespace WritingExporter.Common.WdcSync
 
         async Task SyncChapterOutline(string storySysId, string storyId, CancellationToken ct)
         {
-            ct.ThrowIfCancellationRequested();
-
-            var chaptersToAdd = new List<string>();
-
-            var wdcReader = _wdcReaderFactory.GetReader();
-
-            // Get the current chapter map, just need a list of paths
-            var currentChapterPaths = _chapterRepo.GetStoryChapters(storySysId).Select(c => c.Path);
-
-            // Get the chapter map from WDC
-            // And exception handle
-            WdcResponse response;
             try
             {
-                response = await _wdcClient.GetInteractiveOutline(storyId, ct);
+                ct.ThrowIfCancellationRequested();
+
+                var chaptersToAdd = new List<string>();
+
+                var wdcReader = _wdcReaderFactory.GetReader();
+
+                // Get the current chapter map, just need a list of paths
+                var currentChapterPaths = _chapterRepo.GetStoryChapters(storySysId).Select(c => c.Path);
+
+                // Get the chapter map from WDC
+                // And exception handle
+                WdcResponse response;
+                try
+                {
+                    response = await _wdcClient.GetInteractiveOutline(storyId, ct);
+                }
+                catch (Exception ex)
+                {
+                    throw ex;
+                }
+
+                ct.ThrowIfCancellationRequested();
+
+                // Compare to current chapters
+                var newChapterPaths = wdcReader.GetInteractiveChapterList(storyId, response.WebResponse);
+                // TODO maybe break or warn if there are 0 results. It would usually mean that the reader hasn't worked.
+
+                foreach (Uri newChapterPath in newChapterPaths)
+                {
+                    var path = WdcUtil.GetFinalParmFromUrl(newChapterPath);
+                    if (!currentChapterPaths.Contains(path))
+                    {
+                        chaptersToAdd.Add(path);
+                    }
+                }
+
+                // Add the chapters
+                var newChapters = new List<WdcChapter>(capacity: newChapterPaths.Count());
+                foreach (var newChapterPath in chaptersToAdd)
+                {
+                    _log.Debug($"Adding missing chapter {newChapterPath} for story {storySysId}");
+                    newChapters.Add(new WdcChapter()
+                    {
+                        Path = newChapterPath,
+                        StoryId = storySysId,
+                        FirstSeen = DateTime.Now
+                    });
+                }
+
+                ct.ThrowIfCancellationRequested();
+
+                _chapterRepo.AddRange(newChapters);
             }
             catch (Exception ex)
             {
+                // Handle exceptions across tasks.
                 throw ex;
             }
-
-            ct.ThrowIfCancellationRequested();
-
-            // Compare to current chapters
-            var newChapterPaths = wdcReader.GetInteractiveChapterList(storyId, response.WebResponse);
-            foreach (Uri newChapterPath in newChapterPaths)
-            {
-                var path = WdcUtil.GetFinalParmFromUrl(newChapterPath);
-                if (!currentChapterPaths.Contains(path))
-                {
-                    chaptersToAdd.Add(path);
-                }
-            }
-
-            // Add the chapters
-            var newChapters = new List<WdcChapter>(capacity: newChapterPaths.Count());
-            foreach (var newChapterPath in chaptersToAdd)
-            {
-                _log.Debug($"Adding missing chapter {newChapterPath} for story {storySysId}");
-                newChapters.Add(new WdcChapter()
-                {
-                    Path = newChapterPath,
-                    StoryId = storySysId,
-                    FirstSeen = DateTime.Now
-                });
-            }
-
-            ct.ThrowIfCancellationRequested();
-
-            _chapterRepo.AddRange(newChapters);
+            
         }
 
         async Task SyncChapter(string chapterSysId, CancellationToken ct)

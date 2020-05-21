@@ -297,7 +297,9 @@ namespace WritingExporter.Common.Wdc
             // Find the links to the interactive's pages
             // Create the regex that will find chapter links
             // E.g. https:\/\/www\.writing\.com\/main\/interact\/item_id\/1824771-short-stories-by-the-people\/map\/(\d)+
-            string chapterLinkRegexPattern = _options.WdcUrlRoot.ToString() + string.Format("main/interact/item_id/{0}/map/{1}", interactiveID, @"(\d)+");
+            //string chapterLinkRegexPattern = _options.WdcUrlRoot.ToString() + string.Format("main/interact/item_id/{0}/map/{1}", interactiveID, @"(\d)+");
+            string chapterLinkRegexPattern = string.Format("{0}main/interactive-story/item_id/{1}/map/{2}",
+                _options.WdcUrlRoot.ToString(), @"(\w|-)+?", @"(\d)+");
             chapterLinkRegexPattern = WdcUtil.RegexSafeUrl(chapterLinkRegexPattern);
             Regex chapterLinkRegex = new Regex(chapterLinkRegexPattern, RegexOptions.IgnoreCase);
             MatchCollection matches = chapterLinkRegex.Matches(htmlPayload);
