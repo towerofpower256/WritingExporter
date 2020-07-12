@@ -15,6 +15,7 @@ namespace WritingExporter.WinForms.Forms
     public partial class WdcReaderTesterForm : Form
     {
         ConfigService _config;
+        bool _hasChanged = false;
 
         public WdcReaderTesterForm(ConfigService config)
         {
@@ -29,6 +30,11 @@ namespace WritingExporter.WinForms.Forms
         {
             // TODO fetch from options. For now, just load default.
             LoadSettings(_config.GetSection<WdcReaderConfigSection>().ReaderOptions);
+        }
+
+        private void LoadDefaultSettings()
+        {
+            LoadSettings(new WdcReaderOptions());
         }
 
         private delegate void LoadSettingsDelegate(WdcReaderOptions readerOptions);
@@ -74,6 +80,12 @@ namespace WritingExporter.WinForms.Forms
             readerOptions.ChapterTitleRegex = fieldChapterTitleRegex.Text;
 
             return readerOptions;
+        }
+
+        private void SaveSettings()
+        {
+            _config.SetSection(new WdcReaderConfigSection() { ReaderOptions = ExportWdcReaderOptions() });
+            _config.SaveSettings();
         }
 
         private void ReadStory()
@@ -196,6 +208,28 @@ namespace WritingExporter.WinForms.Forms
         private void btnReadChapterMap_Click(object sender, EventArgs e)
         {
             ReadChapterMap();
+        }
+
+        private void btnClose_Click(object sender, EventArgs e)
+        {
+            // TODO check for changes and warn user about losing unsaved changes
+
+            this.Close();
+        }
+
+        private void btnLoadConfig_Click(object sender, EventArgs e)
+        {
+            LoadSettings();
+        }
+
+        private void btnSaveConfig_Click(object sender, EventArgs e)
+        {
+            SaveSettings();
+        }
+
+        private void btnLoadDefaults_Click(object sender, EventArgs e)
+        {
+            LoadDefaultSettings();
         }
     }
 }

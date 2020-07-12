@@ -31,27 +31,21 @@
             this.txtContentInput = new System.Windows.Forms.TextBox();
             this.txtOutput = new System.Windows.Forms.TextBox();
             this.tableLayoutStoryFields = new System.Windows.Forms.TableLayoutPanel();
+            this.fieldInteractiveDescriptionRegex = new WritingExporter.WinForms.Controls.WdcTesterOptionControl();
+            this.fieldInteractiveTitleRegex = new WritingExporter.WinForms.Controls.WdcTesterOptionControl();
+            this.fieldInteractiveShortDescriptionRegex = new WritingExporter.WinForms.Controls.WdcTesterOptionControl();
             this.tabControlModeSelect = new System.Windows.Forms.TabControl();
             this.tabPageStory = new System.Windows.Forms.TabPage();
-            this.tabPageChapterMap = new System.Windows.Forms.TabPage();
-            this.tabPageChapter = new System.Windows.Forms.TabPage();
-            this.menuStrip1 = new System.Windows.Forms.MenuStrip();
-            this.actionsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.btnReadStory = new System.Windows.Forms.Button();
             this.tableLayoutStory = new System.Windows.Forms.TableLayoutPanel();
+            this.btnReadStory = new System.Windows.Forms.Button();
             this.panelStoryFields = new System.Windows.Forms.Panel();
-            this.tableLayoutFormWrapper = new System.Windows.Forms.TableLayoutPanel();
-            this.gbInputContent = new System.Windows.Forms.GroupBox();
-            this.gbOptions = new System.Windows.Forms.GroupBox();
-            this.gbOutput = new System.Windows.Forms.GroupBox();
+            this.tabPageChapterMap = new System.Windows.Forms.TabPage();
+            this.btnReadChapterMap = new System.Windows.Forms.Button();
+            this.tabPageChapter = new System.Windows.Forms.TabPage();
             this.tableLayoutChapter = new System.Windows.Forms.TableLayoutPanel();
             this.btnReadChapter = new System.Windows.Forms.Button();
             this.panelChapterFields = new System.Windows.Forms.Panel();
             this.tableLayoutChapterFields = new System.Windows.Forms.TableLayoutPanel();
-            this.btnReadChapterMap = new System.Windows.Forms.Button();
-            this.fieldInteractiveDescriptionRegex = new WritingExporter.WinForms.Controls.WdcTesterOptionControl();
-            this.fieldInteractiveTitleRegex = new WritingExporter.WinForms.Controls.WdcTesterOptionControl();
-            this.fieldInteractiveShortDescriptionRegex = new WritingExporter.WinForms.Controls.WdcTesterOptionControl();
             this.fieldChapterAuthorNameRegex = new WritingExporter.WinForms.Controls.WdcTesterOptionControl();
             this.fieldChapterAuthorUsernameRegex = new WritingExporter.WinForms.Controls.WdcTesterOptionControl();
             this.fieldChapterAuthorChunkRegex = new WritingExporter.WinForms.Controls.WdcTesterOptionControl();
@@ -62,21 +56,30 @@
             this.fieldChapterChoicesRegex = new WritingExporter.WinForms.Controls.WdcTesterOptionControl();
             this.fieldChapterChoiceUrlRegex = new WritingExporter.WinForms.Controls.WdcTesterOptionControl();
             this.fieldChapterEndCheckRegex = new WritingExporter.WinForms.Controls.WdcTesterOptionControl();
+            this.tableLayoutFormWrapper = new System.Windows.Forms.TableLayoutPanel();
+            this.gbOutput = new System.Windows.Forms.GroupBox();
+            this.gbInputContent = new System.Windows.Forms.GroupBox();
+            this.gbOptions = new System.Windows.Forms.GroupBox();
+            this.flowButtons = new System.Windows.Forms.FlowLayoutPanel();
+            this.btnClose = new System.Windows.Forms.Button();
+            this.btnLoadConfig = new System.Windows.Forms.Button();
+            this.btnSaveConfig = new System.Windows.Forms.Button();
+            this.btnLoadDefaults = new System.Windows.Forms.Button();
             this.tableLayoutStoryFields.SuspendLayout();
             this.tabControlModeSelect.SuspendLayout();
             this.tabPageStory.SuspendLayout();
-            this.tabPageChapterMap.SuspendLayout();
-            this.tabPageChapter.SuspendLayout();
-            this.menuStrip1.SuspendLayout();
             this.tableLayoutStory.SuspendLayout();
             this.panelStoryFields.SuspendLayout();
-            this.tableLayoutFormWrapper.SuspendLayout();
-            this.gbInputContent.SuspendLayout();
-            this.gbOptions.SuspendLayout();
-            this.gbOutput.SuspendLayout();
+            this.tabPageChapterMap.SuspendLayout();
+            this.tabPageChapter.SuspendLayout();
             this.tableLayoutChapter.SuspendLayout();
             this.panelChapterFields.SuspendLayout();
             this.tableLayoutChapterFields.SuspendLayout();
+            this.tableLayoutFormWrapper.SuspendLayout();
+            this.gbOutput.SuspendLayout();
+            this.gbInputContent.SuspendLayout();
+            this.gbOptions.SuspendLayout();
+            this.flowButtons.SuspendLayout();
             this.SuspendLayout();
             // 
             // txtContentInput
@@ -87,7 +90,7 @@
             this.txtContentInput.Multiline = true;
             this.txtContentInput.Name = "txtContentInput";
             this.txtContentInput.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.txtContentInput.Size = new System.Drawing.Size(337, 541);
+            this.txtContentInput.Size = new System.Drawing.Size(337, 525);
             this.txtContentInput.TabIndex = 0;
             // 
             // txtOutput
@@ -99,7 +102,7 @@
             this.txtOutput.Name = "txtOutput";
             this.txtOutput.ReadOnly = true;
             this.txtOutput.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.txtOutput.Size = new System.Drawing.Size(338, 541);
+            this.txtOutput.Size = new System.Drawing.Size(338, 525);
             this.txtOutput.TabIndex = 1;
             // 
             // tableLayoutStoryFields
@@ -128,6 +131,36 @@
             this.tableLayoutStoryFields.Size = new System.Drawing.Size(317, 180);
             this.tableLayoutStoryFields.TabIndex = 2;
             // 
+            // fieldInteractiveDescriptionRegex
+            // 
+            this.fieldInteractiveDescriptionRegex.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.fieldInteractiveDescriptionRegex.Label = "InteractiveDescriptionRegex";
+            this.fieldInteractiveDescriptionRegex.Location = new System.Drawing.Point(3, 123);
+            this.fieldInteractiveDescriptionRegex.MinimumSize = new System.Drawing.Size(100, 54);
+            this.fieldInteractiveDescriptionRegex.Name = "fieldInteractiveDescriptionRegex";
+            this.fieldInteractiveDescriptionRegex.Size = new System.Drawing.Size(311, 54);
+            this.fieldInteractiveDescriptionRegex.TabIndex = 6;
+            // 
+            // fieldInteractiveTitleRegex
+            // 
+            this.fieldInteractiveTitleRegex.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.fieldInteractiveTitleRegex.Label = "InteractiveTitleRegex";
+            this.fieldInteractiveTitleRegex.Location = new System.Drawing.Point(3, 3);
+            this.fieldInteractiveTitleRegex.MinimumSize = new System.Drawing.Size(100, 54);
+            this.fieldInteractiveTitleRegex.Name = "fieldInteractiveTitleRegex";
+            this.fieldInteractiveTitleRegex.Size = new System.Drawing.Size(311, 54);
+            this.fieldInteractiveTitleRegex.TabIndex = 1;
+            // 
+            // fieldInteractiveShortDescriptionRegex
+            // 
+            this.fieldInteractiveShortDescriptionRegex.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.fieldInteractiveShortDescriptionRegex.Label = "InteractiveShortDescriptionRegex";
+            this.fieldInteractiveShortDescriptionRegex.Location = new System.Drawing.Point(3, 63);
+            this.fieldInteractiveShortDescriptionRegex.MinimumSize = new System.Drawing.Size(100, 54);
+            this.fieldInteractiveShortDescriptionRegex.Name = "fieldInteractiveShortDescriptionRegex";
+            this.fieldInteractiveShortDescriptionRegex.Size = new System.Drawing.Size(311, 54);
+            this.fieldInteractiveShortDescriptionRegex.TabIndex = 5;
+            // 
             // tabControlModeSelect
             // 
             this.tabControlModeSelect.Controls.Add(this.tabPageStory);
@@ -137,7 +170,7 @@
             this.tabControlModeSelect.Location = new System.Drawing.Point(3, 16);
             this.tabControlModeSelect.Name = "tabControlModeSelect";
             this.tabControlModeSelect.SelectedIndex = 0;
-            this.tabControlModeSelect.Size = new System.Drawing.Size(337, 541);
+            this.tabControlModeSelect.Size = new System.Drawing.Size(337, 525);
             this.tabControlModeSelect.TabIndex = 3;
             // 
             // tabPageStory
@@ -147,59 +180,10 @@
             this.tabPageStory.Location = new System.Drawing.Point(4, 22);
             this.tabPageStory.Name = "tabPageStory";
             this.tabPageStory.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPageStory.Size = new System.Drawing.Size(329, 515);
+            this.tabPageStory.Size = new System.Drawing.Size(329, 499);
             this.tabPageStory.TabIndex = 0;
             this.tabPageStory.Text = "Story";
             this.tabPageStory.UseVisualStyleBackColor = true;
-            // 
-            // tabPageChapterMap
-            // 
-            this.tabPageChapterMap.Controls.Add(this.btnReadChapterMap);
-            this.tabPageChapterMap.Location = new System.Drawing.Point(4, 22);
-            this.tabPageChapterMap.Name = "tabPageChapterMap";
-            this.tabPageChapterMap.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPageChapterMap.Size = new System.Drawing.Size(329, 515);
-            this.tabPageChapterMap.TabIndex = 1;
-            this.tabPageChapterMap.Text = "Map";
-            this.tabPageChapterMap.UseVisualStyleBackColor = true;
-            // 
-            // tabPageChapter
-            // 
-            this.tabPageChapter.Controls.Add(this.tableLayoutChapter);
-            this.tabPageChapter.Location = new System.Drawing.Point(4, 22);
-            this.tabPageChapter.Name = "tabPageChapter";
-            this.tabPageChapter.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPageChapter.Size = new System.Drawing.Size(329, 515);
-            this.tabPageChapter.TabIndex = 2;
-            this.tabPageChapter.Text = "Chapter";
-            this.tabPageChapter.UseVisualStyleBackColor = true;
-            // 
-            // menuStrip1
-            // 
-            this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.actionsToolStripMenuItem});
-            this.menuStrip1.Location = new System.Drawing.Point(0, 0);
-            this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(1048, 24);
-            this.menuStrip1.TabIndex = 4;
-            this.menuStrip1.Text = "menuStrip1";
-            // 
-            // actionsToolStripMenuItem
-            // 
-            this.actionsToolStripMenuItem.Name = "actionsToolStripMenuItem";
-            this.actionsToolStripMenuItem.Size = new System.Drawing.Size(59, 20);
-            this.actionsToolStripMenuItem.Text = "Actions";
-            // 
-            // btnReadStory
-            // 
-            this.btnReadStory.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.btnReadStory.Location = new System.Drawing.Point(3, 3);
-            this.btnReadStory.Name = "btnReadStory";
-            this.btnReadStory.Size = new System.Drawing.Size(317, 24);
-            this.btnReadStory.TabIndex = 0;
-            this.btnReadStory.Text = "Read story info";
-            this.btnReadStory.UseVisualStyleBackColor = true;
-            this.btnReadStory.Click += new System.EventHandler(this.btnReadStory_Click);
             // 
             // tableLayoutStory
             // 
@@ -213,8 +197,19 @@
             this.tableLayoutStory.RowCount = 2;
             this.tableLayoutStory.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 30F));
             this.tableLayoutStory.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.tableLayoutStory.Size = new System.Drawing.Size(323, 509);
+            this.tableLayoutStory.Size = new System.Drawing.Size(323, 493);
             this.tableLayoutStory.TabIndex = 5;
+            // 
+            // btnReadStory
+            // 
+            this.btnReadStory.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.btnReadStory.Location = new System.Drawing.Point(3, 3);
+            this.btnReadStory.Name = "btnReadStory";
+            this.btnReadStory.Size = new System.Drawing.Size(317, 24);
+            this.btnReadStory.TabIndex = 0;
+            this.btnReadStory.Text = "Read story info";
+            this.btnReadStory.UseVisualStyleBackColor = true;
+            this.btnReadStory.Click += new System.EventHandler(this.btnReadStory_Click);
             // 
             // panelStoryFields
             // 
@@ -226,55 +221,38 @@
             this.panelStoryFields.Size = new System.Drawing.Size(317, 473);
             this.panelStoryFields.TabIndex = 1;
             // 
-            // tableLayoutFormWrapper
+            // tabPageChapterMap
             // 
-            this.tableLayoutFormWrapper.ColumnCount = 3;
-            this.tableLayoutFormWrapper.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33.33333F));
-            this.tableLayoutFormWrapper.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33.33333F));
-            this.tableLayoutFormWrapper.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33.33333F));
-            this.tableLayoutFormWrapper.Controls.Add(this.gbOutput, 2, 0);
-            this.tableLayoutFormWrapper.Controls.Add(this.gbInputContent, 0, 0);
-            this.tableLayoutFormWrapper.Controls.Add(this.gbOptions, 1, 0);
-            this.tableLayoutFormWrapper.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tableLayoutFormWrapper.Location = new System.Drawing.Point(0, 24);
-            this.tableLayoutFormWrapper.Name = "tableLayoutFormWrapper";
-            this.tableLayoutFormWrapper.RowCount = 1;
-            this.tableLayoutFormWrapper.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutFormWrapper.Size = new System.Drawing.Size(1048, 566);
-            this.tableLayoutFormWrapper.TabIndex = 5;
+            this.tabPageChapterMap.Controls.Add(this.btnReadChapterMap);
+            this.tabPageChapterMap.Location = new System.Drawing.Point(4, 22);
+            this.tabPageChapterMap.Name = "tabPageChapterMap";
+            this.tabPageChapterMap.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPageChapterMap.Size = new System.Drawing.Size(329, 499);
+            this.tabPageChapterMap.TabIndex = 1;
+            this.tabPageChapterMap.Text = "Map";
+            this.tabPageChapterMap.UseVisualStyleBackColor = true;
             // 
-            // gbInputContent
+            // btnReadChapterMap
             // 
-            this.gbInputContent.Controls.Add(this.txtContentInput);
-            this.gbInputContent.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.gbInputContent.Location = new System.Drawing.Point(3, 3);
-            this.gbInputContent.Name = "gbInputContent";
-            this.gbInputContent.Size = new System.Drawing.Size(343, 560);
-            this.gbInputContent.TabIndex = 0;
-            this.gbInputContent.TabStop = false;
-            this.gbInputContent.Text = "HTML Content";
+            this.btnReadChapterMap.Dock = System.Windows.Forms.DockStyle.Top;
+            this.btnReadChapterMap.Location = new System.Drawing.Point(3, 3);
+            this.btnReadChapterMap.Name = "btnReadChapterMap";
+            this.btnReadChapterMap.Size = new System.Drawing.Size(323, 25);
+            this.btnReadChapterMap.TabIndex = 0;
+            this.btnReadChapterMap.Text = "Read chapter map";
+            this.btnReadChapterMap.UseVisualStyleBackColor = true;
+            this.btnReadChapterMap.Click += new System.EventHandler(this.btnReadChapterMap_Click);
             // 
-            // gbOptions
+            // tabPageChapter
             // 
-            this.gbOptions.Controls.Add(this.tabControlModeSelect);
-            this.gbOptions.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.gbOptions.Location = new System.Drawing.Point(352, 3);
-            this.gbOptions.Name = "gbOptions";
-            this.gbOptions.Size = new System.Drawing.Size(343, 560);
-            this.gbOptions.TabIndex = 1;
-            this.gbOptions.TabStop = false;
-            this.gbOptions.Text = "Options";
-            // 
-            // gbOutput
-            // 
-            this.gbOutput.Controls.Add(this.txtOutput);
-            this.gbOutput.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.gbOutput.Location = new System.Drawing.Point(701, 3);
-            this.gbOutput.Name = "gbOutput";
-            this.gbOutput.Size = new System.Drawing.Size(344, 560);
-            this.gbOutput.TabIndex = 6;
-            this.gbOutput.TabStop = false;
-            this.gbOutput.Text = "Results";
+            this.tabPageChapter.Controls.Add(this.tableLayoutChapter);
+            this.tabPageChapter.Location = new System.Drawing.Point(4, 22);
+            this.tabPageChapter.Name = "tabPageChapter";
+            this.tabPageChapter.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPageChapter.Size = new System.Drawing.Size(329, 499);
+            this.tabPageChapter.TabIndex = 2;
+            this.tabPageChapter.Text = "Chapter";
+            this.tabPageChapter.UseVisualStyleBackColor = true;
             // 
             // tableLayoutChapter
             // 
@@ -288,7 +266,7 @@
             this.tableLayoutChapter.RowCount = 2;
             this.tableLayoutChapter.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 30F));
             this.tableLayoutChapter.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.tableLayoutChapter.Size = new System.Drawing.Size(323, 509);
+            this.tableLayoutChapter.Size = new System.Drawing.Size(323, 493);
             this.tableLayoutChapter.TabIndex = 0;
             // 
             // btnReadChapter
@@ -347,47 +325,6 @@
             this.tableLayoutChapterFields.Size = new System.Drawing.Size(317, 473);
             this.tableLayoutChapterFields.TabIndex = 6;
             // 
-            // btnReadChapterMap
-            // 
-            this.btnReadChapterMap.Dock = System.Windows.Forms.DockStyle.Top;
-            this.btnReadChapterMap.Location = new System.Drawing.Point(3, 3);
-            this.btnReadChapterMap.Name = "btnReadChapterMap";
-            this.btnReadChapterMap.Size = new System.Drawing.Size(323, 25);
-            this.btnReadChapterMap.TabIndex = 0;
-            this.btnReadChapterMap.Text = "Read chapter map";
-            this.btnReadChapterMap.UseVisualStyleBackColor = true;
-            this.btnReadChapterMap.Click += new System.EventHandler(this.btnReadChapterMap_Click);
-            // 
-            // fieldInteractiveDescriptionRegex
-            // 
-            this.fieldInteractiveDescriptionRegex.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.fieldInteractiveDescriptionRegex.Label = "InteractiveDescriptionRegex";
-            this.fieldInteractiveDescriptionRegex.Location = new System.Drawing.Point(3, 123);
-            this.fieldInteractiveDescriptionRegex.MinimumSize = new System.Drawing.Size(100, 54);
-            this.fieldInteractiveDescriptionRegex.Name = "fieldInteractiveDescriptionRegex";
-            this.fieldInteractiveDescriptionRegex.Size = new System.Drawing.Size(311, 54);
-            this.fieldInteractiveDescriptionRegex.TabIndex = 6;
-            // 
-            // fieldInteractiveTitleRegex
-            // 
-            this.fieldInteractiveTitleRegex.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.fieldInteractiveTitleRegex.Label = "InteractiveTitleRegex";
-            this.fieldInteractiveTitleRegex.Location = new System.Drawing.Point(3, 3);
-            this.fieldInteractiveTitleRegex.MinimumSize = new System.Drawing.Size(100, 54);
-            this.fieldInteractiveTitleRegex.Name = "fieldInteractiveTitleRegex";
-            this.fieldInteractiveTitleRegex.Size = new System.Drawing.Size(311, 54);
-            this.fieldInteractiveTitleRegex.TabIndex = 1;
-            // 
-            // fieldInteractiveShortDescriptionRegex
-            // 
-            this.fieldInteractiveShortDescriptionRegex.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.fieldInteractiveShortDescriptionRegex.Label = "InteractiveShortDescriptionRegex";
-            this.fieldInteractiveShortDescriptionRegex.Location = new System.Drawing.Point(3, 63);
-            this.fieldInteractiveShortDescriptionRegex.MinimumSize = new System.Drawing.Size(100, 54);
-            this.fieldInteractiveShortDescriptionRegex.Name = "fieldInteractiveShortDescriptionRegex";
-            this.fieldInteractiveShortDescriptionRegex.Size = new System.Drawing.Size(311, 54);
-            this.fieldInteractiveShortDescriptionRegex.TabIndex = 5;
-            // 
             // fieldChapterAuthorNameRegex
             // 
             this.fieldChapterAuthorNameRegex.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -395,7 +332,7 @@
             this.fieldChapterAuthorNameRegex.Location = new System.Drawing.Point(3, 303);
             this.fieldChapterAuthorNameRegex.MinimumSize = new System.Drawing.Size(100, 54);
             this.fieldChapterAuthorNameRegex.Name = "fieldChapterAuthorNameRegex";
-            this.fieldChapterAuthorNameRegex.Size = new System.Drawing.Size(294, 54);
+            this.fieldChapterAuthorNameRegex.Size = new System.Drawing.Size(311, 54);
             this.fieldChapterAuthorNameRegex.TabIndex = 5;
             // 
             // fieldChapterAuthorUsernameRegex
@@ -405,7 +342,7 @@
             this.fieldChapterAuthorUsernameRegex.Location = new System.Drawing.Point(3, 243);
             this.fieldChapterAuthorUsernameRegex.MinimumSize = new System.Drawing.Size(100, 54);
             this.fieldChapterAuthorUsernameRegex.Name = "fieldChapterAuthorUsernameRegex";
-            this.fieldChapterAuthorUsernameRegex.Size = new System.Drawing.Size(294, 54);
+            this.fieldChapterAuthorUsernameRegex.Size = new System.Drawing.Size(311, 54);
             this.fieldChapterAuthorUsernameRegex.TabIndex = 4;
             // 
             // fieldChapterAuthorChunkRegex
@@ -415,7 +352,7 @@
             this.fieldChapterAuthorChunkRegex.Location = new System.Drawing.Point(3, 183);
             this.fieldChapterAuthorChunkRegex.MinimumSize = new System.Drawing.Size(100, 54);
             this.fieldChapterAuthorChunkRegex.Name = "fieldChapterAuthorChunkRegex";
-            this.fieldChapterAuthorChunkRegex.Size = new System.Drawing.Size(294, 54);
+            this.fieldChapterAuthorChunkRegex.Size = new System.Drawing.Size(311, 54);
             this.fieldChapterAuthorChunkRegex.TabIndex = 3;
             // 
             // fieldChapterContentRegex
@@ -425,7 +362,7 @@
             this.fieldChapterContentRegex.Location = new System.Drawing.Point(3, 123);
             this.fieldChapterContentRegex.MinimumSize = new System.Drawing.Size(100, 54);
             this.fieldChapterContentRegex.Name = "fieldChapterContentRegex";
-            this.fieldChapterContentRegex.Size = new System.Drawing.Size(294, 54);
+            this.fieldChapterContentRegex.Size = new System.Drawing.Size(311, 54);
             this.fieldChapterContentRegex.TabIndex = 2;
             // 
             // fieldChapterSourceChoiceRegex
@@ -435,7 +372,7 @@
             this.fieldChapterSourceChoiceRegex.Location = new System.Drawing.Point(3, 63);
             this.fieldChapterSourceChoiceRegex.MinimumSize = new System.Drawing.Size(100, 54);
             this.fieldChapterSourceChoiceRegex.Name = "fieldChapterSourceChoiceRegex";
-            this.fieldChapterSourceChoiceRegex.Size = new System.Drawing.Size(294, 54);
+            this.fieldChapterSourceChoiceRegex.Size = new System.Drawing.Size(311, 54);
             this.fieldChapterSourceChoiceRegex.TabIndex = 1;
             // 
             // fieldChapterTitleRegex
@@ -445,7 +382,7 @@
             this.fieldChapterTitleRegex.Location = new System.Drawing.Point(3, 3);
             this.fieldChapterTitleRegex.MinimumSize = new System.Drawing.Size(100, 54);
             this.fieldChapterTitleRegex.Name = "fieldChapterTitleRegex";
-            this.fieldChapterTitleRegex.Size = new System.Drawing.Size(294, 54);
+            this.fieldChapterTitleRegex.Size = new System.Drawing.Size(311, 54);
             this.fieldChapterTitleRegex.TabIndex = 0;
             // 
             // fieldChapterChoicesChunkRegex
@@ -455,7 +392,7 @@
             this.fieldChapterChoicesChunkRegex.Location = new System.Drawing.Point(3, 363);
             this.fieldChapterChoicesChunkRegex.MinimumSize = new System.Drawing.Size(100, 54);
             this.fieldChapterChoicesChunkRegex.Name = "fieldChapterChoicesChunkRegex";
-            this.fieldChapterChoicesChunkRegex.Size = new System.Drawing.Size(294, 54);
+            this.fieldChapterChoicesChunkRegex.Size = new System.Drawing.Size(311, 54);
             this.fieldChapterChoicesChunkRegex.TabIndex = 6;
             // 
             // fieldChapterChoicesRegex
@@ -465,7 +402,7 @@
             this.fieldChapterChoicesRegex.Location = new System.Drawing.Point(3, 423);
             this.fieldChapterChoicesRegex.MinimumSize = new System.Drawing.Size(100, 54);
             this.fieldChapterChoicesRegex.Name = "fieldChapterChoicesRegex";
-            this.fieldChapterChoicesRegex.Size = new System.Drawing.Size(294, 54);
+            this.fieldChapterChoicesRegex.Size = new System.Drawing.Size(311, 54);
             this.fieldChapterChoicesRegex.TabIndex = 7;
             // 
             // fieldChapterChoiceUrlRegex
@@ -475,7 +412,7 @@
             this.fieldChapterChoiceUrlRegex.Location = new System.Drawing.Point(3, 483);
             this.fieldChapterChoiceUrlRegex.MinimumSize = new System.Drawing.Size(100, 54);
             this.fieldChapterChoiceUrlRegex.Name = "fieldChapterChoiceUrlRegex";
-            this.fieldChapterChoiceUrlRegex.Size = new System.Drawing.Size(294, 54);
+            this.fieldChapterChoiceUrlRegex.Size = new System.Drawing.Size(311, 54);
             this.fieldChapterChoiceUrlRegex.TabIndex = 8;
             // 
             // fieldChapterEndCheckRegex
@@ -485,8 +422,115 @@
             this.fieldChapterEndCheckRegex.Location = new System.Drawing.Point(3, 543);
             this.fieldChapterEndCheckRegex.MinimumSize = new System.Drawing.Size(100, 54);
             this.fieldChapterEndCheckRegex.Name = "fieldChapterEndCheckRegex";
-            this.fieldChapterEndCheckRegex.Size = new System.Drawing.Size(294, 54);
+            this.fieldChapterEndCheckRegex.Size = new System.Drawing.Size(311, 54);
             this.fieldChapterEndCheckRegex.TabIndex = 9;
+            // 
+            // tableLayoutFormWrapper
+            // 
+            this.tableLayoutFormWrapper.ColumnCount = 3;
+            this.tableLayoutFormWrapper.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33.33333F));
+            this.tableLayoutFormWrapper.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33.33333F));
+            this.tableLayoutFormWrapper.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33.33333F));
+            this.tableLayoutFormWrapper.Controls.Add(this.gbOutput, 2, 0);
+            this.tableLayoutFormWrapper.Controls.Add(this.gbInputContent, 0, 0);
+            this.tableLayoutFormWrapper.Controls.Add(this.gbOptions, 1, 0);
+            this.tableLayoutFormWrapper.Controls.Add(this.flowButtons, 0, 1);
+            this.tableLayoutFormWrapper.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tableLayoutFormWrapper.Location = new System.Drawing.Point(0, 0);
+            this.tableLayoutFormWrapper.Name = "tableLayoutFormWrapper";
+            this.tableLayoutFormWrapper.RowCount = 2;
+            this.tableLayoutFormWrapper.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tableLayoutFormWrapper.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 40F));
+            this.tableLayoutFormWrapper.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
+            this.tableLayoutFormWrapper.Size = new System.Drawing.Size(1048, 590);
+            this.tableLayoutFormWrapper.TabIndex = 5;
+            // 
+            // gbOutput
+            // 
+            this.gbOutput.Controls.Add(this.txtOutput);
+            this.gbOutput.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.gbOutput.Location = new System.Drawing.Point(701, 3);
+            this.gbOutput.Name = "gbOutput";
+            this.gbOutput.Size = new System.Drawing.Size(344, 544);
+            this.gbOutput.TabIndex = 6;
+            this.gbOutput.TabStop = false;
+            this.gbOutput.Text = "Results";
+            // 
+            // gbInputContent
+            // 
+            this.gbInputContent.Controls.Add(this.txtContentInput);
+            this.gbInputContent.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.gbInputContent.Location = new System.Drawing.Point(3, 3);
+            this.gbInputContent.Name = "gbInputContent";
+            this.gbInputContent.Size = new System.Drawing.Size(343, 544);
+            this.gbInputContent.TabIndex = 0;
+            this.gbInputContent.TabStop = false;
+            this.gbInputContent.Text = "HTML Content";
+            // 
+            // gbOptions
+            // 
+            this.gbOptions.Controls.Add(this.tabControlModeSelect);
+            this.gbOptions.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.gbOptions.Location = new System.Drawing.Point(352, 3);
+            this.gbOptions.Name = "gbOptions";
+            this.gbOptions.Size = new System.Drawing.Size(343, 544);
+            this.gbOptions.TabIndex = 1;
+            this.gbOptions.TabStop = false;
+            this.gbOptions.Text = "Options";
+            // 
+            // flowButtons
+            // 
+            this.tableLayoutFormWrapper.SetColumnSpan(this.flowButtons, 3);
+            this.flowButtons.Controls.Add(this.btnClose);
+            this.flowButtons.Controls.Add(this.btnLoadConfig);
+            this.flowButtons.Controls.Add(this.btnSaveConfig);
+            this.flowButtons.Controls.Add(this.btnLoadDefaults);
+            this.flowButtons.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.flowButtons.FlowDirection = System.Windows.Forms.FlowDirection.RightToLeft;
+            this.flowButtons.Location = new System.Drawing.Point(3, 553);
+            this.flowButtons.Name = "flowButtons";
+            this.flowButtons.Size = new System.Drawing.Size(1042, 34);
+            this.flowButtons.TabIndex = 7;
+            // 
+            // btnClose
+            // 
+            this.btnClose.Location = new System.Drawing.Point(949, 3);
+            this.btnClose.Name = "btnClose";
+            this.btnClose.Size = new System.Drawing.Size(90, 28);
+            this.btnClose.TabIndex = 0;
+            this.btnClose.Text = "Close";
+            this.btnClose.UseVisualStyleBackColor = true;
+            this.btnClose.Click += new System.EventHandler(this.btnClose_Click);
+            // 
+            // btnLoadConfig
+            // 
+            this.btnLoadConfig.Location = new System.Drawing.Point(853, 3);
+            this.btnLoadConfig.Name = "btnLoadConfig";
+            this.btnLoadConfig.Size = new System.Drawing.Size(90, 28);
+            this.btnLoadConfig.TabIndex = 1;
+            this.btnLoadConfig.Text = "Reload config";
+            this.btnLoadConfig.UseVisualStyleBackColor = true;
+            this.btnLoadConfig.Click += new System.EventHandler(this.btnLoadConfig_Click);
+            // 
+            // btnSaveConfig
+            // 
+            this.btnSaveConfig.Location = new System.Drawing.Point(757, 3);
+            this.btnSaveConfig.Name = "btnSaveConfig";
+            this.btnSaveConfig.Size = new System.Drawing.Size(90, 28);
+            this.btnSaveConfig.TabIndex = 2;
+            this.btnSaveConfig.Text = "Save config";
+            this.btnSaveConfig.UseVisualStyleBackColor = true;
+            this.btnSaveConfig.Click += new System.EventHandler(this.btnSaveConfig_Click);
+            // 
+            // btnLoadDefaults
+            // 
+            this.btnLoadDefaults.Location = new System.Drawing.Point(661, 3);
+            this.btnLoadDefaults.Name = "btnLoadDefaults";
+            this.btnLoadDefaults.Size = new System.Drawing.Size(90, 28);
+            this.btnLoadDefaults.TabIndex = 3;
+            this.btnLoadDefaults.Text = "Load defaults";
+            this.btnLoadDefaults.UseVisualStyleBackColor = true;
+            this.btnLoadDefaults.Click += new System.EventHandler(this.btnLoadDefaults_Click);
             // 
             // WdcReaderTesterForm
             // 
@@ -494,31 +538,27 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1048, 590);
             this.Controls.Add(this.tableLayoutFormWrapper);
-            this.Controls.Add(this.menuStrip1);
-            this.MainMenuStrip = this.menuStrip1;
             this.Name = "WdcReaderTesterForm";
             this.Text = "WDC Reader Tester";
             this.tableLayoutStoryFields.ResumeLayout(false);
             this.tabControlModeSelect.ResumeLayout(false);
             this.tabPageStory.ResumeLayout(false);
-            this.tabPageChapterMap.ResumeLayout(false);
-            this.tabPageChapter.ResumeLayout(false);
-            this.menuStrip1.ResumeLayout(false);
-            this.menuStrip1.PerformLayout();
             this.tableLayoutStory.ResumeLayout(false);
             this.panelStoryFields.ResumeLayout(false);
             this.panelStoryFields.PerformLayout();
-            this.tableLayoutFormWrapper.ResumeLayout(false);
-            this.gbInputContent.ResumeLayout(false);
-            this.gbInputContent.PerformLayout();
-            this.gbOptions.ResumeLayout(false);
-            this.gbOutput.ResumeLayout(false);
-            this.gbOutput.PerformLayout();
+            this.tabPageChapterMap.ResumeLayout(false);
+            this.tabPageChapter.ResumeLayout(false);
             this.tableLayoutChapter.ResumeLayout(false);
             this.panelChapterFields.ResumeLayout(false);
             this.tableLayoutChapterFields.ResumeLayout(false);
+            this.tableLayoutFormWrapper.ResumeLayout(false);
+            this.gbOutput.ResumeLayout(false);
+            this.gbOutput.PerformLayout();
+            this.gbInputContent.ResumeLayout(false);
+            this.gbInputContent.PerformLayout();
+            this.gbOptions.ResumeLayout(false);
+            this.flowButtons.ResumeLayout(false);
             this.ResumeLayout(false);
-            this.PerformLayout();
 
         }
 
@@ -531,8 +571,6 @@
         private System.Windows.Forms.TabPage tabPageStory;
         private System.Windows.Forms.TabPage tabPageChapterMap;
         private System.Windows.Forms.TabPage tabPageChapter;
-        private System.Windows.Forms.MenuStrip menuStrip1;
-        private System.Windows.Forms.ToolStripMenuItem actionsToolStripMenuItem;
         private Controls.WdcTesterOptionControl fieldInteractiveShortDescriptionRegex;
         private System.Windows.Forms.Button btnReadStory;
         private Controls.WdcTesterOptionControl fieldInteractiveTitleRegex;
@@ -558,5 +596,10 @@
         private Controls.WdcTesterOptionControl fieldChapterChoiceUrlRegex;
         private Controls.WdcTesterOptionControl fieldChapterEndCheckRegex;
         private System.Windows.Forms.Button btnReadChapterMap;
+        private System.Windows.Forms.FlowLayoutPanel flowButtons;
+        private System.Windows.Forms.Button btnClose;
+        private System.Windows.Forms.Button btnLoadConfig;
+        private System.Windows.Forms.Button btnSaveConfig;
+        private System.Windows.Forms.Button btnLoadDefaults;
     }
 }
