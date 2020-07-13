@@ -77,6 +77,12 @@
     <Compile Include="Forms\AddStoryForm.Designer.cs">
       <DependentUpon>AddStoryForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="Forms\BrowseStoryForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\BrowseStoryForm.Designer.cs">
+      <DependentUpon>BrowseStoryForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="Forms\ConfigForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -115,6 +121,9 @@
     <Compile Include="WinUtil.cs" />
     <EmbeddedResource Include="Forms\AddStoryForm.resx">
       <DependentUpon>AddStoryForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\BrowseStoryForm.resx">
+      <DependentUpon>BrowseStoryForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\ConfigForm.resx">
       <DependentUpon>ConfigForm.cs</DependentUpon>
