@@ -38,8 +38,6 @@ namespace WritingExporter.WinForms.Forms
 
             // Setup some stuff on the DGV
             dgvChapters.DataSource = _chapterBindingSource;
-            dgvColumnIndex.DataPropertyName = "Index";
-            dgvColumnTitle.DataPropertyName = "Title";
         }
 
         delegate void SetStoryDelegate(string storySysId);
@@ -64,7 +62,7 @@ namespace WritingExporter.WinForms.Forms
 
         private void ReloadChapters()
         {
-            dgvChapters.Rows.Clear();
+            //dgvChapters.Rows.Clear();
 
             if (string.IsNullOrEmpty(_storySysId))
                 return;
@@ -84,11 +82,15 @@ namespace WritingExporter.WinForms.Forms
             dataTable.Columns.Add("Index", typeof(string));
             dataTable.Columns.Add("Title", typeof(string));
             dataTable.Columns.Add("Id", typeof(string));
+            dataTable.Columns.Add("FirstSeen", typeof(string));
+            dataTable.Columns.Add("LastUpdated", typeof(string));
 
             var storyInfoRow = dataTable.NewRow();
             storyInfoRow["Id"] = $"{ID_PREFIX_STORY}{ID_PREFIX_DELIM}{_storySysId}";
             storyInfoRow["Index"] = TEXT_STORY_INDEX;
             storyInfoRow["Title"] = StringOrEmpty(story.Name);
+            storyInfoRow["FirstSeen"] = story.FirstSeen.ToString();
+            storyInfoRow["LastUpdated"] = story.LastUpdatedInfo.ToString();
             dataTable.Rows.Add(storyInfoRow);
 
             // Add the chapters
@@ -100,14 +102,17 @@ namespace WritingExporter.WinForms.Forms
                 chapterRow["Id"] = $"{ID_PREFIX_CHAPTER}{ID_PREFIX_DELIM}{c.SysId}";
                 chapterRow["Index"] = c.Path;
                 chapterRow["Title"] = StringOrEmpty(c.Title);
+                chapterRow["FirstSeen"] = c.FirstSeen.ToString();
+                chapterRow["LastUpdated"] = c.LastUpdated.ToString();
 
                 dataTable.Rows.Add(chapterRow);
             }
 
             _chapterBindingSource.DataSource = dataTable;
 
-            // Select the 1st row after loading
+            // Adjust the DGV once it's been populated
             dgvChapters.Rows[0].Selected = true;
+            dgvChapters.Sort(dgvChapters.Columns[0], ListSortDirection.Ascending);
         }
 
         private void LoadInfo(string target)
