@@ -273,6 +273,13 @@ namespace WritingExporter.WinForms.Forms
                 ExportStory(storySysId, Path.Combine(QUICK_EXPORT_DIR, story.Id), autoOpenOnComplete: true);
         }
 
+        void BrowseStory(string storySysId)
+        {
+            var form = _formService.GetForm<BrowseStoryForm>();
+            form.SetStory(storySysId);
+            form.ShowDialog(this);
+        }
+
         void SaveStoryDialog(string storySysId)
         {
             var story = _storyRepo.GetByID(storySysId);
@@ -368,6 +375,8 @@ namespace WritingExporter.WinForms.Forms
 
             var ctxMenu = new ContextMenu();
 
+            ctxMenu.MenuItems.Add("Browse story...", new EventHandler((sender, args) => BrowseStory(storySysId)));
+            ctxMenu.MenuItems.Add("-");
             ctxMenu.MenuItems.Add("Read story", new EventHandler((sender, args) => QuickExportStory(storySysId)));
             ctxMenu.MenuItems.Add("Save story to file...", new EventHandler((sender, args) => SaveStoryDialog(storySysId)));
             ctxMenu.MenuItems.Add("Export story...", new EventHandler((sender, args) => QuickExportStory(storySysId))); // TODO allow the user to select the export directory

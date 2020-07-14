@@ -23,10 +23,11 @@ namespace WritingExporter.WinForms.Forms
         const char ID_PREFIX_STORY = 's';
         const char ID_PREFIX_CHAPTER = 'c';
 
-
+        BindingSource _chapterBindingSource = new BindingSource();
         WdcStoryRepository _storyRepo;
         WdcChapterRepository _chapterRepo;
         string _storySysId = String.Empty;
+        string _loadedId = String.Empty; // The ID of the info that's currently loaded in the text box
 
         public BrowseStoryForm(WdcStoryRepository storyRepo, WdcChapterRepository chapterRepo)
         {
@@ -34,10 +35,22 @@ namespace WritingExporter.WinForms.Forms
             _chapterRepo = chapterRepo;
 
             InitializeComponent();
+
+            // Setup some stuff on the DGV
+            dgvChapters.DataSource = _chapterBindingSource;
+            dgvColumnIndex.DataPropertyName = "Index";
+            dgvColumnTitle.DataPropertyName = "Title";
         }
 
-        private void SetStory(string storySysId)
+        delegate void SetStoryDelegate(string storySysId);
+        public void SetStory(string storySysId)
         {
+            if (this.InvokeRequired)
+            {
+                this.Invoke(new SetStoryDelegate(SetStory), new { storySysId });
+                return;
+            }
+
             _storySysId = storySysId;
         }
 
@@ -67,29 +80,41 @@ namespace WritingExporter.WinForms.Forms
             // Add the story info
             SetTitle(story.Name);
 
-            var storyInfoRow = new DataGridViewRow();
-            storyInfoRow.Tag = $"{ID_PREFIX_STORY}{ID_PREFIX_DELIM}{_storySysId}";
-            storyInfoRow.Cells.Add(new DataGridViewTextBoxCell() { Value = TEXT_STORY_INDEX });
-            storyInfoRow.Cells.Add(new DataGridViewTextBoxCell() { Value = StringOrEmpty(story.Name) });
+            var dataTable = new DataTable();
+            dataTable.Columns.Add("Index", typeof(string));
+            dataTable.Columns.Add("Title", typeof(string));
+            dataTable.Columns.Add("Id", typeof(string));
 
-            dgvChapters.Rows.Add(storyInfoRow);
+            var storyInfoRow = dataTable.NewRow();
+            storyInfoRow["Id"] = $"{ID_PREFIX_STORY}{ID_PREFIX_DELIM}{_storySysId}";
+            storyInfoRow["Index"] = TEXT_STORY_INDEX;
+            storyInfoRow["Title"] = StringOrEmpty(story.Name);
+            dataTable.Rows.Add(storyInfoRow);
 
             // Add the chapters
             var chapters = _chapterRepo.GetStoryOutline(_storySysId);
             foreach (var c in chapters)
             {
-                var chapterRow = new DataGridViewRow();
+                var chapterRow = dataTable.NewRow();
 
-                chapterRow.Tag = $"{ID_PREFIX_CHAPTER}{ID_PREFIX_DELIM}{c.SysId}";
-                chapterRow.Cells.Add(new DataGridViewTextBoxCell() { Value = c.Path });
-                chapterRow.Cells.Add(new DataGridViewTextBoxCell() { Value = StringOrEmpty(c.Title) });
+                chapterRow["Id"] = $"{ID_PREFIX_CHAPTER}{ID_PREFIX_DELIM}{c.SysId}";
+                chapterRow["Index"] = c.Path;
+                chapterRow["Title"] = StringOrEmpty(c.Title);
 
-                dgvChapters.Rows.Add(chapterRow);
+                dataTable.Rows.Add(chapterRow);
             }
+
+            _chapterBindingSource.DataSource = dataTable;
+
+            // Select the 1st row after loading
+            dgvChapters.Rows[0].Selected = true;
         }
 
         private void LoadInfo(string target)
         {
+            if (target == _loadedId)
+                return; // What's wanting to be loaded is already showing. Do nothing.
+
             var targetSplit = target.Split(ID_PREFIX_DELIM);
             
             if (targetSplit.Length != 2)
@@ -99,11 +124,11 @@ namespace WritingExporter.WinForms.Forms
 
             if (targetSplit[0] == ID_PREFIX_STORY.ToString())
             {
-                LoadStoryInfo(targetSplit[1]);
+                txtInfo.Text = LoadStoryInfo(targetSplit[1]);
             }
             else if (targetSplit[0] == ID_PREFIX_CHAPTER.ToString())
             {
-                LoadChapterInfo(targetSplit[1]);
+                txtInfo.Text = LoadChapterInfo(targetSplit[1]);
             }
             else
             {
@@ -123,25 +148,25 @@ namespace WritingExporter.WinForms.Forms
             var sb = new StringBuilder();
 
             sb.AppendLine("Id:");
-            sb.AppendLine(story.Id);
+            sb.AppendLine(StringOrEmpty(story.Id));
             sb.AppendLine();
             sb.AppendLine("Name:");
-            sb.AppendLine(story.Name);
+            sb.AppendLine(StringOrEmpty(story.Name));
             sb.AppendLine();
             sb.AppendLine("Author:");
-            sb.AppendLine($"{story.AuthorName} ({story.AuthorUsername})");
+            sb.AppendLine($"{StringOrEmpty(story.AuthorName)} ({StringOrEmpty(story.AuthorUsername)})");
             sb.AppendLine();
             sb.AppendLine("First seen:");
-            sb.AppendLine(story.FirstSeen.ToString());
+            sb.AppendLine(StringOrEmpty(story.FirstSeen.ToString()));
             sb.AppendLine();
             sb.AppendLine("URL:");
-            sb.AppendLine(story.Url);
+            sb.AppendLine(StringOrEmpty(story.Url));
             sb.AppendLine();
             sb.AppendLine("Short description:");
-            sb.AppendLine(story.ShortDescription);
+            sb.AppendLine(StringOrEmpty(story.ShortDescription));
             sb.AppendLine();
             sb.AppendLine("Description:");
-            sb.AppendLine(story.Description);
+            sb.AppendLine(StringOrEmpty(story.Description));
 
             return sb.ToString();
         }
@@ -158,27 +183,27 @@ namespace WritingExporter.WinForms.Forms
             var sb = new StringBuilder();
 
             sb.AppendLine("Path:");
-            sb.AppendLine(chapter.Path);
+            sb.AppendLine(StringOrEmpty(chapter.Path));
             sb.AppendLine();
             sb.AppendLine("Title:");
-            sb.AppendLine(chapter.Title);
+            sb.AppendLine(StringOrEmpty(chapter.Title));
             sb.AppendLine();
             sb.AppendLine("Source choice:");
-            sb.AppendLine(chapter.SourceChoiceTitle);
+            sb.AppendLine(StringOrEmpty(chapter.SourceChoiceTitle));
             sb.AppendLine();
             sb.AppendLine("Author:");
-            sb.AppendLine($"{chapter.AuthorName} ({chapter.AuthorUsername})");
+            sb.AppendLine($"{StringOrEmpty(chapter.AuthorName)} ({StringOrEmpty(chapter.AuthorUsername)})");
             sb.AppendLine();
             sb.AppendLine("First seen:");
-            sb.AppendLine(chapter.FirstSeen.ToString());
+            sb.AppendLine(StringOrEmpty(chapter.FirstSeen.ToString()));
             sb.AppendLine();
             sb.AppendLine("Content:");
-            sb.AppendLine(chapter.Content);
+            sb.AppendLine(StringOrEmpty(chapter.Content));
             sb.AppendLine();
             sb.AppendLine("Choices:");
             foreach (var choice in chapter.Choices)
             {
-                sb.AppendLine($"{choice.Name} ({choice.PathLink})");
+                sb.AppendLine($"{StringOrEmpty(choice.Name)} ({choice.PathLink})");
             }
 
             return sb.ToString();
@@ -187,6 +212,29 @@ namespace WritingExporter.WinForms.Forms
         private string StringOrEmpty(string input)
         {
             return string.IsNullOrEmpty(input) ? TEXT_EMPTY : input;
+        }
+
+        private void BrowseStoryForm_Load(object sender, EventArgs e)
+        {
+            // If the story sys_id has been provided, load it
+            if (!string.IsNullOrEmpty(_storySysId))
+                ReloadChapters();
+        }
+
+        private void btnRefresh_Click(object sender, EventArgs e)
+        {
+            ReloadChapters();
+        }
+
+        private void dgvChapters_SelectionChanged(object sender, EventArgs e)
+        {
+            // Get the currently selected row
+            var dgv = (DataGridView)sender;
+            if (dgv.SelectedRows.Count == 0) return; // Don't do anthing if no row is selected
+            var currentRow = ((DataGridView)sender).SelectedRows[0];
+
+            string id = ((DataRowView)currentRow.DataBoundItem)["Id"] as string;
+            LoadInfo(id);
         }
     }
 }

@@ -53,8 +53,10 @@
             this.dgvChapters.Name = "dgvChapters";
             this.dgvChapters.ReadOnly = true;
             this.dgvChapters.RowHeadersVisible = false;
+            this.dgvChapters.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             this.dgvChapters.Size = new System.Drawing.Size(267, 318);
             this.dgvChapters.TabIndex = 0;
+            this.dgvChapters.SelectionChanged += new System.EventHandler(this.dgvChapters_SelectionChanged);
             // 
             // dgvColumnIndex
             // 
@@ -102,6 +104,7 @@
             this.btnRefresh.TabIndex = 3;
             this.btnRefresh.Text = "Refresh";
             this.btnRefresh.UseVisualStyleBackColor = true;
+            this.btnRefresh.Click += new System.EventHandler(this.btnRefresh_Click);
             // 
             // BrowseStoryForm
             // 
@@ -112,6 +115,7 @@
             this.Controls.Add(this.tblWrapper);
             this.Name = "BrowseStoryForm";
             this.Text = "Browse story - ";
+            this.Load += new System.EventHandler(this.BrowseStoryForm_Load);
             ((System.ComponentModel.ISupportInitialize)(this.dgvChapters)).EndInit();
             this.tblWrapper.ResumeLayout(false);
             this.tblWrapper.PerformLayout();
