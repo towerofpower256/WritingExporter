@@ -51,7 +51,7 @@ namespace WritingExporter.Common.Wdc
 
         public string ChapterEndCheckRegex { get; set; } = ChapterEndCheckRegexDefault;
 
-        public Uri WdcUrlRoot { get; set; } = new Uri(WdcUrlRootDefault);
+        public string WdcUrlRoot { get; set; } = WdcUrlRootDefault;
 
         public bool DumpPayloadOnHtmlParseErrors { get; set; } = true;
     }
