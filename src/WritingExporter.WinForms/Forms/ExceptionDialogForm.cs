@@ -28,7 +28,7 @@ namespace WritingExporter.WinForms.Forms
         public void SetInfo(string message, Exception ex)
         {
             this.Text = $"Exception occurred: {message}";
-            txtInfo.Text = $"{message}\n\n{StringifyException(ex)}";
+            txtInfo.Text = $"{message}\r\n\r\n{StringifyException(ex)}";
             txtInfo.Select(0, 0);
 
             this.TopMost = true;
@@ -43,13 +43,24 @@ namespace WritingExporter.WinForms.Forms
         {
             var sb = new StringBuilder();
             if (!string.IsNullOrEmpty(message)) sb.AppendLine(message);
-            sb.AppendLine(ex.GetType().ToString());
-            sb.AppendLine(ex.Message);
-            sb.AppendLine();
-            sb.AppendLine($"Source: " + ex.Source);
-            sb.AppendLine();
-            sb.AppendLine("Stack trace:");
-            sb.AppendLine(ex.StackTrace);
+            while (ex != null)
+            {
+                sb.AppendLine(ex.GetType().ToString());
+                sb.AppendLine(ex.Message);
+                sb.AppendLine();
+                sb.AppendLine($"Source: " + ex.Source);
+                sb.AppendLine();
+                sb.AppendLine("Stack trace:");
+                sb.AppendLine(ex.StackTrace);
+                if (ex.InnerException != null)
+                {
+                    sb.AppendLine();
+                    sb.AppendLine("==========");
+                    sb.AppendLine();
+                }
+                
+                ex = ex.InnerException;
+            }
 
             return sb.ToString();
         }

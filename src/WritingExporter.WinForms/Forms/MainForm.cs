@@ -31,6 +31,7 @@ namespace WritingExporter.WinForms.Forms
     public partial class MainForm : Form, IEventSubscriber<RepositoryChangedEvent>, IEventSubscriber<WdcSyncStoryEvent>, IEventSubscriber<WdcSyncWorkerEvent>
     {
         private const string QUICK_EXPORT_DIR = "Exported Stories";
+        private const string MSG_DEFAULT_STATE_LABEL = "???";
 
         EventHub _eventHub;
         WinFormsService _formService;
@@ -42,6 +43,7 @@ namespace WritingExporter.WinForms.Forms
         StorySaveLoadService _storySaveLoad;
 
         string storyFileFilter = string.Empty;
+        BindingSource _storyBindingSource = new BindingSource();
 
         public MainForm(
             ILoggerSource loggerSource,
@@ -66,6 +68,9 @@ namespace WritingExporter.WinForms.Forms
             SetStoryFileDialogFilter();
 
             InitializeComponent();
+
+            dgvStories.DataSource = _storyBindingSource;
+            dgvStories.AutoGenerateColumns = false;
         }
 
         public Task HandleEventAsync(RepositoryChangedEvent @event)
@@ -147,6 +152,7 @@ namespace WritingExporter.WinForms.Forms
             }
 
             // Update the DGV
+            /*
             dgvStories.Rows.Clear();
             foreach (WdcStoryListViewModel storyVM in GetAllStories())
             {
@@ -156,20 +162,165 @@ namespace WritingExporter.WinForms.Forms
 
                 dgvStories.Rows.Add(newRow);
             }
+            */
+
+            var storyData = GetStoryDataTable();
+            _storyBindingSource.DataSource = storyData;
         }
 
-        void UpdateDgvRowWithStoryInfo(DataGridViewRow row, WdcStoryListViewModel storyVM)
+        //void UpdateDgvRowWithStoryInfo(DataGridViewRow row, WdcStoryListViewModel storyVM)
+        //{
+        //    row.Tag = storyVM.Story.SysId;
+        //    row.Cells[0].Value = storyVM.Story.Name;
+        //    row.Cells[1].Value = storyVM.StoryStateLabel;
+        //    row.Cells[1].ToolTipText = storyVM.Story.StateMessage;
+        //    row.Cells[2].Value = $"{storyVM.ChapterCountReady} / {storyVM.ChapterCountTotal}";
+        //    row.Cells[3].Value = DgvDateTimeString(storyVM.Story.LastSynced);
+        //    row.Cells[4].Value = DgvDateTimeString(storyVM.Story.LastUpdatedInfo);
+        //    row.Cells[5].Value = DgvDateTimeString(storyVM.Story.LastUpdatedChapterOutline);
+        //    row.Cells[6].Value = DgvDateTimeString(storyVM.RecentChapter);
+        //}
+
+        // Get a table of information to show in the story list
+        List<WdcStoryListViewModel> GetStoryDataTable()
         {
-            row.Tag = storyVM.Story.SysId;
-            row.Cells[0].Value = storyVM.Story.Name;
-            row.Cells[1].Value = storyVM.StoryStateLabel;
-            row.Cells[1].ToolTipText = storyVM.Story.StateMessage;
-            row.Cells[2].Value = $"{storyVM.ChapterCountReady} / {storyVM.ChapterCountTotal}";
-            row.Cells[3].Value = DgvDateTimeString(storyVM.Story.LastSynced);
-            row.Cells[4].Value = DgvDateTimeString(storyVM.Story.LastUpdatedInfo);
-            row.Cells[5].Value = DgvDateTimeString(storyVM.Story.LastUpdatedChapterOutline);
-            row.Cells[6].Value = DgvDateTimeString(storyVM.RecentChapter);
+            var stories = new List<WdcStoryListViewModel>();
+            //var dt = new DataTable();
+
+            //// Columns
+            //dt.Columns.Add("StoryObject", typeof(WdcStory));
+            //dt.Columns.Add("Name", typeof(string));
+            //dt.Columns.Add("SysId", typeof(string));
+            //dt.Columns.Add("State", typeof(WdcStoryState));
+            //dt.Columns.Add("StateLabel", typeof(string));
+            //dt.Columns.Add("StateMesage", typeof(string));
+            //dt.Columns.Add("ChaptersTotal", typeof(int));
+            //dt.Columns.Add("ChaptersReady", typeof(int));
+            //dt.Columns.Add("ChaptersString", typeof(string));
+            //dt.Columns.Add("LastSynced", typeof(DateTime));
+            //dt.Columns.Add("LastUpdatedInfo", typeof(DateTime));
+            //dt.Columns.Add("LastUpdatedChapterOutline", typeof(DateTime));
+            //dt.Columns.Add("LastChapterUpdated", typeof(DateTime));
+
+            // Start getting the information
+            var syncConfig = _config.GetSection<WdcSyncConfigSection>();
+            DateTime timestamp = DateTime.Now - new TimeSpan(0, 0, 0, syncConfig.SyncChapterIntervalSeconds);
+
+            // TODO Spruce up, I would rather not hit the database multiple times in short succession
+            // Maybe a comprehensive query that'd grab as much informaiton as possible.
+            foreach (var story in _storyRepo.GetAll())
+            {
+                var vm = new WdcStoryListViewModel();
+                vm.Story = story;
+                vm.Name = story.Name;
+                vm.SysId = story.SysId;
+                vm.ChapterCountTotal = _chapterRepo.GetStoryChaptersCount(story.SysId);
+                vm.ChapterCountReady = vm.ChapterCountTotal - _chapterRepo.GetStoryChapterNotSyncedSinceCount(story.SysId, timestamp);
+                vm.ChaptersDisplay = $"{vm.ChapterCountTotal - vm.ChapterCountReady} / {vm.ChapterCountTotal}";
+                vm.LastSynced = DgvDateTimeString(story.LastSynced);
+                vm.LastUpdatedInfo = DgvDateTimeString(story.LastUpdatedInfo);
+                vm.LastUpdatedChapterOutline = DgvDateTimeString(story.LastUpdatedChapterOutline);
+                vm.LastChapterUpdated = DgvDateTimeString(_chapterRepo.GetStoryLastUpdatedChaper(story.SysId));
+
+                // State label
+                var stateLabel = story.State.ToString();
+                switch (story.State)
+                {
+                    case WdcStoryState.IdleItuPause:
+                        stateLabel = "Paused-ITU";
+                        vm.StateColor = Color.LightGray;
+                        break;
+                    case WdcStoryState.Error:
+                        stateLabel = "Disabled-Error";
+                        vm.StateColor = Color.FromArgb(255, 100, 100);
+                        break;
+                    case WdcStoryState.Syncing:
+                        vm.StateColor = Color.LightGreen;
+                        break;
+                    default:
+                        
+                        break;
+                }
+                vm.StateDisplay = stateLabel;
+
+                stories.Add(vm);
+
+
+                //var newRow = dt.NewRow();
+                //newRow["StoryObject"] = story;
+                //newRow["Name"] = story.Name;
+                //newRow["SysId"] = story.Name;
+                //newRow["State"] = story.Name;
+                //newRow["StateMessage"] = story.StateMessage;
+                //newRow["LastSynced"] = story.LastSynced;
+                //newRow["LastUpdatedInfo"] = story.LastUpdatedInfo;
+                //newRow["LastUpdatedChapterOutline"] = story.LastUpdatedChapterOutline;
+                //newRow["LastChapterUpdated"] = _chapterRepo.GetStoryLastUpdatedChaper(story.SysId);
+
+                //// Get the amount of chapters
+                //var chaptersTotal = _chapterRepo.GetStoryChaptersCount(story.SysId);
+                //var chaptersReady = chaptersTotal - _chapterRepo.GetStoryChapterNotSyncedSinceCount(story.SysId, timestamp);
+                //newRow["ChaptersTotal"] = chaptersTotal;
+                //newRow["ChaptersReady"] = chaptersReady;
+                //newRow["ChaptersString"] = $"{chaptersTotal - chaptersReady} / {chaptersTotal}";
+
+                //// State label
+                //var stateLabel = MSG_DEFAULT_STATE_LABEL;
+                //switch (story.State)
+                //{
+                //    case WdcStoryState.IdleItuPause:
+                //        stateLabel = "Paused-ITU";
+                //        break;
+                //    case WdcStoryState.Error:
+                //        stateLabel = "Disabled-Error";
+                //        break;
+                //    default:
+                //        stateLabel = story.State.ToString();
+                //        break;
+                //}
+                //newRow["StateLabel"] = stateLabel;
+
+                //dt.Rows.Add(newRow);
+            }
+
+            // Return the table after it's been compiled
+            return stories;
         }
+
+        //IEnumerable<WdcStoryListViewModel> GetAllStories()
+        //{
+        //    // Timestamp
+        //    var syncConfig = _config.GetSection<WdcSyncConfigSection>();
+        //    DateTime timestamp = DateTime.Now - new TimeSpan(0, 0, 0, syncConfig.SyncChapterIntervalSeconds);
+
+        //    // TODO Spruce up, I would rather not hit the database multiple times in short succession
+        //    // Maybe a comprehensive query that'd grab as much informaiton as possible.
+        //    var storyVMs = new List<WdcStoryListViewModel>();
+        //    foreach (var story in _storyRepo.GetAll())
+        //    {
+        //        var vm = new WdcStoryListViewModel();
+        //        vm.Story = story;
+        //        vm.ChapterCountTotal = _chapterRepo.GetStoryChaptersCount(story.SysId);
+        //        vm.ChapterCountReady = vm.ChapterCountTotal - _chapterRepo.GetStoryChapterNotSyncedSinceCount(story.SysId, timestamp);
+        //        vm.RecentChapter = _chapterRepo.GetStoryLastUpdatedChaper(story.SysId);
+
+        //        switch (story.State)
+        //        {
+        //            case WdcStoryState.IdleItuPause:
+        //                vm.StoryStateLabel = "Paused-ITU";
+        //                break;
+        //            case WdcStoryState.Error:
+        //                vm.StoryStateLabel = "Disabled-Error";
+        //                break;
+        //            default:
+        //                vm.StoryStateLabel = story.State.ToString();
+        //                break;
+        //        }
+        //        storyVMs.Add(vm);
+        //    }
+
+        //    return storyVMs;
+        //}
 
         void UpdateStoryInfo()
         {
@@ -329,41 +480,6 @@ namespace WritingExporter.WinForms.Forms
             }
         }
 
-        IEnumerable<WdcStoryListViewModel> GetAllStories()
-        {
-            // Timestamp
-            var syncConfig = _config.GetSection<WdcSyncConfigSection>();
-            DateTime timestamp = DateTime.Now - new TimeSpan(0, 0, 0, syncConfig.SyncChapterIntervalSeconds);
-
-            // TODO Spruce up, I would rather not hit the database multiple times in short succession
-            // Maybe a comprehensive query that'd grab as much informaiton as possible.
-            var storyVMs = new List<WdcStoryListViewModel>();
-            foreach (var story in _storyRepo.GetAll())
-            {
-                var vm = new WdcStoryListViewModel();
-                vm.Story = story;
-                vm.ChapterCountTotal = _chapterRepo.GetStoryChaptersCount(story.SysId);
-                vm.ChapterCountReady = vm.ChapterCountTotal - _chapterRepo.GetStoryChapterNotSyncedSinceCount(story.SysId, timestamp);
-                vm.RecentChapter = _chapterRepo.GetStoryLastUpdatedChaper(story.SysId);
-                
-                switch (story.State)
-                {
-                    case WdcStoryState.IdleItuPause:
-                        vm.StoryStateLabel = "Paused-ITU";
-                        break;
-                    case WdcStoryState.Error:
-                        vm.StoryStateLabel = "Disabled-Error";
-                        break;
-                    default:
-                        vm.StoryStateLabel = story.State.ToString();
-                        break;
-                }
-                storyVMs.Add(vm);
-            }
-
-            return storyVMs;
-        }
-
         void ShowStoryContextMenu(Point pos, string storySysId)
         {
             _log.Debug($"Mouse pos: X {pos.X} Y {pos.Y}");
@@ -500,7 +616,7 @@ namespace WritingExporter.WinForms.Forms
             if (e.Button == MouseButtons.Right && dgvStories.SelectedRows.Count == 1)
             {
                 DataGridViewRow selectedRow = dgvStories.SelectedRows[0];
-                ShowStoryContextMenu(dgvStories.PointToClient(Cursor.Position), (string)selectedRow.Tag);
+                ShowStoryContextMenu(dgvStories.PointToClient(Cursor.Position), ((WdcStoryListViewModel)selectedRow.DataBoundItem).SysId);
             }
         }
 
@@ -515,6 +631,25 @@ namespace WritingExporter.WinForms.Forms
         private void loadStoryFromFileToolStripMenuItem_Click(object sender, EventArgs e)
         {
             LoadStoryDialog();
+        }
+
+        private void dgvStories_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
+        {
+            var dgv = (DataGridView)sender;
+            DataGridViewRow row = dgv.Rows[e.RowIndex];
+            if (row.DataBoundItem != null && row.DataBoundItem is WdcStoryListViewModel)
+            {
+                DataGridViewColumn column = dgv.Columns[e.ColumnIndex];
+                var obj = (WdcStoryListViewModel)row.DataBoundItem;
+
+                // Colour the state cell
+                if (obj.StateColor != Color.Empty && column.IsDataBound && column.DataPropertyName == "StateDisplay")
+                {
+                    // Colour the cell appropriately
+                    row.Cells[e.ColumnIndex].Style.BackColor = obj.StateColor;
+                }
+
+            }
         }
     }
 }

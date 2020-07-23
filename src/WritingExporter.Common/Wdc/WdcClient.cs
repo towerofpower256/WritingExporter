@@ -170,7 +170,15 @@ namespace WritingExporter.Common.Wdc
             _log.DebugFormat("Getting interactive story outline: {0}", outlineUri);
             var r = new WdcResponse();
             r.Address = outlineUri.ToString();
-            r.WebResponse = await GetWdcPage(outlineUri, ct);
+            try
+            {
+                r.WebResponse = await GetWdcPage(outlineUri, ct);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            
             return r;
         }
 
@@ -190,7 +198,16 @@ namespace WritingExporter.Common.Wdc
         {
             CheckConfigUpdated();
 
-            string html = await HttpGetAsyncAsString(uri, ct);
+            string html;
+            try
+            {
+                html = await HttpGetAsyncAsString(uri, ct);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            
 
             if (IsInteractivesUnavailablePage(html))
                 throw new InteractivesTemporarilyUnavailableException();
@@ -203,7 +220,14 @@ namespace WritingExporter.Common.Wdc
                 await LoginAsync(ct);
 
                 // Get it again
-                html = await HttpGetAsyncAsString(uri, ct);
+                try
+                {
+                    html = await HttpGetAsyncAsString(uri, ct);
+                }
+                catch (Exception ex)
+                {
+                    throw ex;
+                }
 
                 // Check if it's a login again. If it is, login failed
                 if (IsLoginPage(html))
@@ -258,7 +282,9 @@ namespace WritingExporter.Common.Wdc
         private async Task<HttpResponseMessage> HttpGetAsync(Uri urlToGet, CancellationToken ct)
         {
             //HttpResponseMessage response = await httpClient.GetAsync(urlToGet, ct);
-            HttpResponseMessage response = httpClient.GetAsync(urlToGet, ct).Result;
+
+            //HttpResponseMessage response = httpClient.GetAsync(urlToGet, ct).Result;
+            HttpResponseMessage response = await httpClient.GetAsync(urlToGet, ct);
             response.EnsureSuccessStatusCode(); // Fail if result is not 200 OK
 
             return response;

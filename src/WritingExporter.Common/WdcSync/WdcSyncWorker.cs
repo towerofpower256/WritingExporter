@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Net.Http;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -207,6 +208,7 @@ namespace WritingExporter.Common.WdcSync
             _syncEnabled = false;
 
             _log.Error("Exception encountered in sync worker", ex);
+
             UpdateWorkerStatus(WdcSyncWorkerState.WorkerError, string.Empty,
                 $"Exception encountered in sync worker:\n{ex.GetType().ToString()}\n{ex.Message}");
 
