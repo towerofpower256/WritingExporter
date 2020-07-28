@@ -101,8 +101,9 @@ namespace WritingExporter.WinForms.Forms
             RunTest(sb, "read story username", () =>
             {
                 var author = reader.GetInteractiveStoryAuthor(payload);
-                sb.AppendLine($"Story author name: {author.AuthorName}");
-                sb.AppendLine($"Story author username: {author.AuthorUsername}");
+                sb.AppendLine("Story author:");
+                sb.AppendLine($"Name: {author.AuthorName}");
+                sb.AppendLine($"Username: {author.AuthorUsername}");
             });
 
             RunTest(sb, "read story short description",
@@ -127,8 +128,9 @@ namespace WritingExporter.WinForms.Forms
             RunTest(sb, "read chapter author", () =>
             {
                 var author = reader.GetInteractiveChapterAuthor(payload);
-                sb.AppendLine($"Chapter author name: {author.AuthorName}");
-                sb.AppendLine($"Chapter author username: {author.AuthorUsername}");
+                sb.AppendLine($"Chapter author");
+                sb.AppendLine($"Name: {author.AuthorName}");
+                sb.AppendLine($"Username: {author.AuthorUsername}");
             });
 
             RunTest(sb, "read chapter source choice",
@@ -136,10 +138,17 @@ namespace WritingExporter.WinForms.Forms
 
             RunTest(sb, "read chapter choices", () => {
                 sb.AppendLine($"Chapter choices:");
-                var choices = reader.GetInteractiveChapterChoices(payload);
-                foreach (var choice in choices)
+                if (reader.IsInteractiveChapterEnd(payload))
                 {
-                    sb.AppendLine($"Path: {choice.PathLink} Name: {choice.Name}");
+                    sb.AppendLine("This chapter is an end chapter");
+                }
+                else
+                {
+                    var choices = reader.GetInteractiveChapterChoices(payload);
+                    foreach (var choice in choices)
+                    {
+                        sb.AppendLine($"Path: {choice.PathLink} Name: {choice.Name}");
+                    }
                 }
             });
 

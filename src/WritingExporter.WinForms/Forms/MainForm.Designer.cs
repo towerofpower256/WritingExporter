@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.addStoryToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -37,13 +38,6 @@
             this.openWDCReaderTesterToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.dgvStories = new System.Windows.Forms.DataGridView();
-            this.dgvStoriesColName = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.dgvStoriesColState = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.dgvStoriesColChapters = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.dgvStoriesColLastSynced = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.dgvStoriesColLastInfoSync = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.dgvStoriesColOutlineLastSynced = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.dgvStoriesColLastChapterUpdated = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.txtStoryInfo = new System.Windows.Forms.TextBox();
             this.lblSyncWorkerState = new System.Windows.Forms.Label();
             this.lblSyncWorkerMessage = new System.Windows.Forms.Label();
@@ -53,6 +47,15 @@
             this.lblSyncWorkerCurrentTaskLabel = new System.Windows.Forms.Label();
             this.btnSyncWorkerStart = new System.Windows.Forms.Button();
             this.btnSyncWorkerStop = new System.Windows.Forms.Button();
+            this.timerDgvUpdate = new System.Windows.Forms.Timer(this.components);
+            this.dgvStoriesColName = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.dgvStoriesColState = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.dgvStoriesColChapters = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.dgvColumnNextSync = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.dgvStoriesColLastSynced = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.dgvStoriesColLastInfoSync = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.dgvStoriesColOutlineLastSynced = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.dgvStoriesColLastChapterUpdated = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.menuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvStories)).BeginInit();
             this.SuspendLayout();
@@ -129,6 +132,7 @@
             this.dgvStoriesColName,
             this.dgvStoriesColState,
             this.dgvStoriesColChapters,
+            this.dgvColumnNextSync,
             this.dgvStoriesColLastSynced,
             this.dgvStoriesColLastInfoSync,
             this.dgvStoriesColOutlineLastSynced,
@@ -145,55 +149,6 @@
             this.dgvStories.CellFormatting += new System.Windows.Forms.DataGridViewCellFormattingEventHandler(this.dgvStories_CellFormatting);
             this.dgvStories.CellMouseClick += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.dgvStories_CellMouseClick);
             this.dgvStories.SelectionChanged += new System.EventHandler(this.dgvStories_SelectionChanged);
-            // 
-            // dgvStoriesColName
-            // 
-            this.dgvStoriesColName.DataPropertyName = "Name";
-            this.dgvStoriesColName.HeaderText = "Name";
-            this.dgvStoriesColName.Name = "dgvStoriesColName";
-            this.dgvStoriesColName.ReadOnly = true;
-            // 
-            // dgvStoriesColState
-            // 
-            this.dgvStoriesColState.DataPropertyName = "StateDisplay";
-            this.dgvStoriesColState.HeaderText = "State";
-            this.dgvStoriesColState.Name = "dgvStoriesColState";
-            this.dgvStoriesColState.ReadOnly = true;
-            // 
-            // dgvStoriesColChapters
-            // 
-            this.dgvStoriesColChapters.DataPropertyName = "ChaptersDisplay";
-            this.dgvStoriesColChapters.HeaderText = "Chapters";
-            this.dgvStoriesColChapters.Name = "dgvStoriesColChapters";
-            this.dgvStoriesColChapters.ReadOnly = true;
-            // 
-            // dgvStoriesColLastSynced
-            // 
-            this.dgvStoriesColLastSynced.DataPropertyName = "LastSynced";
-            this.dgvStoriesColLastSynced.HeaderText = "Last synced";
-            this.dgvStoriesColLastSynced.Name = "dgvStoriesColLastSynced";
-            this.dgvStoriesColLastSynced.ReadOnly = true;
-            // 
-            // dgvStoriesColLastInfoSync
-            // 
-            this.dgvStoriesColLastInfoSync.DataPropertyName = "LastUpdatedInfo";
-            this.dgvStoriesColLastInfoSync.HeaderText = "Info synced";
-            this.dgvStoriesColLastInfoSync.Name = "dgvStoriesColLastInfoSync";
-            this.dgvStoriesColLastInfoSync.ReadOnly = true;
-            // 
-            // dgvStoriesColOutlineLastSynced
-            // 
-            this.dgvStoriesColOutlineLastSynced.DataPropertyName = "LastUpdatedChapterOutline";
-            this.dgvStoriesColOutlineLastSynced.HeaderText = "Outline synced";
-            this.dgvStoriesColOutlineLastSynced.Name = "dgvStoriesColOutlineLastSynced";
-            this.dgvStoriesColOutlineLastSynced.ReadOnly = true;
-            // 
-            // dgvStoriesColLastChapterUpdated
-            // 
-            this.dgvStoriesColLastChapterUpdated.DataPropertyName = "LastChapterUpdated";
-            this.dgvStoriesColLastChapterUpdated.HeaderText = "Recent chapter";
-            this.dgvStoriesColLastChapterUpdated.Name = "dgvStoriesColLastChapterUpdated";
-            this.dgvStoriesColLastChapterUpdated.ReadOnly = true;
             // 
             // txtStoryInfo
             // 
@@ -280,6 +235,69 @@
             this.btnSyncWorkerStop.UseVisualStyleBackColor = true;
             this.btnSyncWorkerStop.Click += new System.EventHandler(this.btnSyncWorkerStop_Click);
             // 
+            // timerDgvUpdate
+            // 
+            this.timerDgvUpdate.Enabled = true;
+            this.timerDgvUpdate.Interval = 500;
+            this.timerDgvUpdate.Tick += new System.EventHandler(this.timerDgvUpdate_Tick);
+            // 
+            // dgvStoriesColName
+            // 
+            this.dgvStoriesColName.DataPropertyName = "Name";
+            this.dgvStoriesColName.HeaderText = "Name";
+            this.dgvStoriesColName.Name = "dgvStoriesColName";
+            this.dgvStoriesColName.ReadOnly = true;
+            // 
+            // dgvStoriesColState
+            // 
+            this.dgvStoriesColState.DataPropertyName = "StateDisplay";
+            this.dgvStoriesColState.HeaderText = "State";
+            this.dgvStoriesColState.Name = "dgvStoriesColState";
+            this.dgvStoriesColState.ReadOnly = true;
+            // 
+            // dgvStoriesColChapters
+            // 
+            this.dgvStoriesColChapters.DataPropertyName = "ChaptersDisplay";
+            this.dgvStoriesColChapters.HeaderText = "Chapters";
+            this.dgvStoriesColChapters.Name = "dgvStoriesColChapters";
+            this.dgvStoriesColChapters.ReadOnly = true;
+            // 
+            // dgvColumnNextSync
+            // 
+            this.dgvColumnNextSync.DataPropertyName = "NextSync";
+            this.dgvColumnNextSync.HeaderText = "Next sync";
+            this.dgvColumnNextSync.Name = "dgvColumnNextSync";
+            this.dgvColumnNextSync.ReadOnly = true;
+            // 
+            // dgvStoriesColLastSynced
+            // 
+            this.dgvStoriesColLastSynced.DataPropertyName = "LastSynced";
+            this.dgvStoriesColLastSynced.HeaderText = "Last synced";
+            this.dgvStoriesColLastSynced.Name = "dgvStoriesColLastSynced";
+            this.dgvStoriesColLastSynced.ReadOnly = true;
+            this.dgvStoriesColLastSynced.Visible = false;
+            // 
+            // dgvStoriesColLastInfoSync
+            // 
+            this.dgvStoriesColLastInfoSync.DataPropertyName = "LastUpdatedInfo";
+            this.dgvStoriesColLastInfoSync.HeaderText = "Info synced";
+            this.dgvStoriesColLastInfoSync.Name = "dgvStoriesColLastInfoSync";
+            this.dgvStoriesColLastInfoSync.ReadOnly = true;
+            // 
+            // dgvStoriesColOutlineLastSynced
+            // 
+            this.dgvStoriesColOutlineLastSynced.DataPropertyName = "LastUpdatedChapterOutline";
+            this.dgvStoriesColOutlineLastSynced.HeaderText = "Outline synced";
+            this.dgvStoriesColOutlineLastSynced.Name = "dgvStoriesColOutlineLastSynced";
+            this.dgvStoriesColOutlineLastSynced.ReadOnly = true;
+            // 
+            // dgvStoriesColLastChapterUpdated
+            // 
+            this.dgvStoriesColLastChapterUpdated.DataPropertyName = "LastChapterUpdated";
+            this.dgvStoriesColLastChapterUpdated.HeaderText = "Recent chapter";
+            this.dgvStoriesColLastChapterUpdated.Name = "dgvStoriesColLastChapterUpdated";
+            this.dgvStoriesColLastChapterUpdated.ReadOnly = true;
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -328,9 +346,11 @@
         private System.Windows.Forms.Button btnSyncWorkerStart;
         private System.Windows.Forms.Button btnSyncWorkerStop;
         private System.Windows.Forms.ToolStripMenuItem loadStoryFromFileToolStripMenuItem;
+        private System.Windows.Forms.Timer timerDgvUpdate;
         private System.Windows.Forms.DataGridViewTextBoxColumn dgvStoriesColName;
         private System.Windows.Forms.DataGridViewTextBoxColumn dgvStoriesColState;
         private System.Windows.Forms.DataGridViewTextBoxColumn dgvStoriesColChapters;
+        private System.Windows.Forms.DataGridViewTextBoxColumn dgvColumnNextSync;
         private System.Windows.Forms.DataGridViewTextBoxColumn dgvStoriesColLastSynced;
         private System.Windows.Forms.DataGridViewTextBoxColumn dgvStoriesColLastInfoSync;
         private System.Windows.Forms.DataGridViewTextBoxColumn dgvStoriesColOutlineLastSynced;

@@ -7,6 +7,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -168,6 +169,16 @@ namespace WritingExporter.WinForms.Forms
             _storyBindingSource.DataSource = storyData;
         }
 
+        void UpdateStories(IEnumerable<WdcStoryListViewModel> storyList)
+        {
+            var now = DateTime.Now;
+            var syncConfig = _config.GetSection<WdcSyncConfigSection>();
+            foreach (WdcStoryListViewModel vm in storyList)
+            {
+                vm.NextSync = DgvStoryNextSync(vm);
+            }
+        }
+
         //void UpdateDgvRowWithStoryInfo(DataGridViewRow row, WdcStoryListViewModel storyVM)
         //{
         //    row.Tag = storyVM.Story.SysId;
@@ -205,6 +216,7 @@ namespace WritingExporter.WinForms.Forms
             // Start getting the information
             var syncConfig = _config.GetSection<WdcSyncConfigSection>();
             DateTime timestamp = DateTime.Now - new TimeSpan(0, 0, 0, syncConfig.SyncChapterIntervalSeconds);
+            DateTime now = DateTime.Now;
 
             // TODO Spruce up, I would rather not hit the database multiple times in short succession
             // Maybe a comprehensive query that'd grab as much informaiton as possible.
@@ -216,8 +228,9 @@ namespace WritingExporter.WinForms.Forms
                 vm.SysId = story.SysId;
                 vm.ChapterCountTotal = _chapterRepo.GetStoryChaptersCount(story.SysId);
                 vm.ChapterCountReady = vm.ChapterCountTotal - _chapterRepo.GetStoryChapterNotSyncedSinceCount(story.SysId, timestamp);
-                vm.ChaptersDisplay = $"{vm.ChapterCountTotal - vm.ChapterCountReady} / {vm.ChapterCountTotal}";
+                vm.ChaptersDisplay = $"{vm.ChapterCountReady} / {vm.ChapterCountTotal}";
                 vm.LastSynced = DgvDateTimeString(story.LastSynced);
+                vm.NextSync = DgvStoryNextSync(vm);
                 vm.LastUpdatedInfo = DgvDateTimeString(story.LastUpdatedInfo);
                 vm.LastUpdatedChapterOutline = DgvDateTimeString(story.LastUpdatedChapterOutline);
                 vm.LastChapterUpdated = DgvDateTimeString(_chapterRepo.GetStoryLastUpdatedChaper(story.SysId));
@@ -565,6 +578,39 @@ namespace WritingExporter.WinForms.Forms
             
         }
 
+        public static string DgvTimespanString(TimeSpan ts)
+        {
+            if (ts <= TimeSpan.Zero)
+            {
+                return "Now";
+            }
+            else
+            {
+                return string.Format("{0}{1}{2}",
+                    ts < TimeSpan.Zero ? "-" : string.Empty,
+                    ts.Days > 0 ? $"{ts.Days}." : string.Empty,
+                    ts.ToString("hh':'mm':'ss")
+                    );
+            }
+        }
+
+        public static string DgvStoryNextSync(WdcStoryListViewModel vm)
+        {
+            switch (vm.Story.State)
+            {
+                case WdcStoryState.Syncing:
+                    return "Syncing";
+                    break;
+                case WdcStoryState.Disabled:
+                case WdcStoryState.Error:
+                    return "Disabled";
+                    break;
+                default:
+                    return DgvTimespanString(vm.Story.NextSync - DateTime.Now);
+                    break;
+            }
+        }
+
         private void openWDCReaderTesterToolStripMenuItem_Click(object sender, EventArgs e)
         {
             var testerForm = _formService.GetForm<WdcReaderTesterForm>();
@@ -650,6 +696,14 @@ namespace WritingExporter.WinForms.Forms
                 }
 
             }
+        }
+
+        private void timerDgvUpdate_Tick(object sender, EventArgs e)
+        {
+            if (_storyBindingSource.DataSource == null) return;
+
+            UpdateStories((IEnumerable<WdcStoryListViewModel>)_storyBindingSource.DataSource);
+            _storyBindingSource.ResetBindings(false);
         }
     }
 }

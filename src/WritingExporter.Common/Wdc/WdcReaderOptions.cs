@@ -22,7 +22,7 @@ namespace WritingExporter.Common.Wdc
         public const string ChapterChoicesChunkRegexDefault = @"(?<=following choices:<\/b>).*?(?=<\/div><div id=""end_choices"")";
         public const string ChapterChoicesRegexDefault = "<a .*?href=\".+?\">.+?<\\/a>";
         public const string ChapterChoiceUrlRegexDefault = "(?<=href=\").+?(?=\")";
-        public const string ChapterEndCheckRegexDefault = ">You have come to the end of the story. You can:<\\/";
+        public const string ChapterEndCheckRegexDefault = ">You've come to the end of the story. You can:<\\/";
         public const string WdcUrlRootDefault = "https://www.writing.com/";
 
         public string InteractiveTitleRegex { get; set; } = InteractiveTitleRegexDefault;

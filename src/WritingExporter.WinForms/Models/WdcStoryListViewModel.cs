@@ -33,6 +33,8 @@ namespace WritingExporter.WinForms.Models
 
         public string LastSynced { get; set; }
 
+        public string NextSync { get; set; }
+
         public string LastUpdatedInfo { get; set; }
 
         public string LastUpdatedChapterOutline { get; set; }
